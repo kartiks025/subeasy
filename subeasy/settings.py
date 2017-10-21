@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['192.168.0.109']
 # Application definition
 
 INSTALLED_APPS = [
+    'sedb.apps.SedbConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -75,7 +76,7 @@ WSGI_APPLICATION = 'subeasy.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
         'USER': 'kartik',
         'PASSWORD': '',
