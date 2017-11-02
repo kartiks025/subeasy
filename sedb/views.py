@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import *
+from django.http import JsonResponse
 
 
 def admin_login(request):
@@ -34,4 +35,11 @@ def add_course(request):
 	return redirect('admin_home');
 
 def delete_course(request):
-	return
+	if request.method == 'POST':
+		course_id = request.POST['course_id']
+		if Course.objects.filter(course_id=course_id).exists():
+			Course.objects.filter(course_id=course_id).delete()
+			return JsonResponse({'success': True})
+		else:
+			print("course doesn't exists")
+	return JsonResponse({'success': False})
