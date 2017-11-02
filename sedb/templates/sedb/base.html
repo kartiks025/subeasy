@@ -7,11 +7,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <link rel="stylesheet" href="{% static 'sedb/admin_login.css' %}">
+  <link rel="stylesheet" href="{% static 'sedb/table.css' %}">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" rel='stylesheet' type='text/css'>
+
     {% block stylesheet %}{% endblock %}
 </head>
-  <body style="background-color:#110011">
+  <body>
     <nav class="navbar navbar-inverse">
       <div class="container-fluid">
         <div class="navbar-header">
@@ -31,7 +34,6 @@
       {% block content %}
       {% endblock %}
     <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
-    <script src="{% static 'js/app.js' %}"></script>
     <script type="text/javascript">
       function getCookie(name) {
           var cookieValue = null;

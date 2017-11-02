@@ -2,8 +2,20 @@
 
 {% block content %}
 <div class="container">
-    <div class="table-responsive">          
-      <table class="table">
+    <input type="text" id="search"  placeholder="Search for names..">
+  <div class="panel panel-default panel-table">
+    <div class="panel-heading">
+      <div class="row">
+        <div class="col col-xs-6">
+          <h3 class="panel-title">Courses</h3>
+        </div>
+        <div class="col col-xs-6 text-right">
+          <button type="button" class="btn btn-sm btn-primary btn-create">Create New</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel-body">
+      <table class="table table-striped table-bordered table-list" id="course-table">
         <thead>
           <tr>
             <th>#</th>
@@ -13,11 +25,11 @@
           </tr>
         </thead>
           {% for c in courses %}
-          <tr data-toggle="collapse" href="#1{{ c.course_id }}">
+          <tr  class="course-row " data-toggle="collapse" href="#1{{ c.course_id }}">
             <td>{{ forloop.counter }}</td>
             <td>{{c.course_id}}</td>
             <td>{{c.name}}</td>
-            <td><span class="delete-course glyphicon glyphicon-minus" id={{c.course_id}}></span></td>
+            <td><a class="delete-course btn btn-danger" id={{c.course_id}}><em class="fa fa-trash"></em></a></span></td>
           </tr>
           <tr id="1{{ c.course_id }}" class="collapse">
              <td colspan="4">
@@ -107,6 +119,27 @@
           options += "<option>"+ year +"</option>";
         }
         $('.year').html(options);
+    });
+    $("#search").on("keyup", function() {
+        var value = $(this).val();
+        $(".course-row").each(function(index) {
+            $row = $(this);
+
+            var id = $row.find("td:nth-child(2)").text();
+            var id1 = $row.find("td:nth-child(3)").text();
+            console.log(id);
+            console.log(id1);
+
+            if (id.indexOf(value) !== 0 && id1.indexOf(value) !== 0) {
+                $row.hide();
+            }
+            else if ($row.is('.collapse:not(.show)')) {
+              $row.collapse();
+            }
+            else {
+                $row.show();
+            }
+        });
     });
   </script>
 {% endblock %}
