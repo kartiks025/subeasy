@@ -12,11 +12,28 @@
             <th>Delete</th>
           </tr>
           {% for c in courses %}
-          <tr>
+          <tr data-toggle="collapse" href={{ c.course_id }}>
             <td>#</td>
             <td>{{c.course_id}}</td>
             <td>{{c.name}}</td>
-            <td><button class="btn delete-course" type="submit" value={{c.course_id}}>Delete</button></td>
+            <td><span class="delete-course glyphicon glyphicon-minus" id={{c.course_id}}></span></td>
+          </tr>
+          <tr>
+             <td colspan="4">
+                 <div class="table-responsive" id={{ c.course_id }} class="collapse">
+                     <table class="table">
+                         {% for s in c.section %}
+                         <tr>
+                             <td>#</td>
+                             <td>{{c.section.sec_name}}</td>
+                             <td>{{c.section.semester}}</td>
+                             <td>{{c.section.year}}</td>
+                             <td><span class="delete-section glyphicon glyphicon-trash" id={{ c.section.sec_id }}></span>
+                         </tr>
+                         {% endfor %}
+                     </table>
+                 </div>
+             </td>
           </tr>
           {% endfor %}
         </thead>
@@ -44,7 +61,7 @@
 {% block javascript %}
   <script>
     $(".delete-course").click(function () {
-      var course_id = $(this).val();
+      var course_id = $(this).attr('id');
       $.ajax({
         method: "POST",
         url: '/sedb/delete_course',
