@@ -25,7 +25,6 @@ def admin_home(request):
     courses = Course.objects.all()
     for c in courses:
     	section = Section.objects.filter(course_id=c.course_id)
-    	# c['section'] = section
     	setattr(c,'section',section);
     return render(request, 'sedb/admin_home.html', {'courses': courses})
 

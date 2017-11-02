@@ -11,32 +11,49 @@
             <th>Course Name</th>
             <th>Delete</th>
           </tr>
+        </thead>
           {% for c in courses %}
-          <tr data-toggle="collapse" href={{ c.course_id }}>
+          <tr data-toggle="collapse" href="#1{{ c.course_id }}">
             <td>#</td>
             <td>{{c.course_id}}</td>
             <td>{{c.name}}</td>
             <td><span class="delete-course glyphicon glyphicon-minus" id={{c.course_id}}></span></td>
           </tr>
-          <tr>
+          <tr id="1{{ c.course_id }}" class="collapse">
              <td colspan="4">
-                 <div class="table-responsive" id={{ c.course_id }} class="collapse">
+                 <div class="table-responsive" >
                      <table class="table">
                          {% for s in c.section %}
                          <tr>
                              <td>#</td>
-                             <td>{{c.section.sec_name}}</td>
-                             <td>{{c.section.semester}}</td>
-                             <td>{{c.section.year}}</td>
+                             <td>{{s.sec_name}}</td>
+                             <td>{{s.semester}}</td>
+                             <td>{{s.year}}</td>
                              <td><span class="delete-section glyphicon glyphicon-trash" id={{ c.section.sec_id }}></span>
                          </tr>
                          {% endfor %}
+                         <tr>
+                         <td colspan="4">
+                           <form class="form-inline" action="add_section" method="post">{% csrf_token %}
+                                   <input name="sec_name" type="text" class="form-control" placeholder="Section Name" required autofocus>
+                                   <select id="year" name="year" placeholder="Year" required></select>
+                                   <select id="year" name="semester" placeholder="Semester" required>
+                                     <option value="Fall">Fall</option>
+                                     <option value="Spring">Spring</option>
+                                     <option value="Summer">Summer</option>
+                                     <option value="Winter">Winter</option>
+                                   </select>
+                                   <input type="hidden" name="course_id" value="{{c.course_id}}">
+                                   <button class="btn btn-lg btn-primary" type="submit">Add Section</button>
+                           </form>
+                           </td>
+                          </tr>
                      </table>
+
                  </div>
              </td>
           </tr>
           {% endfor %}
-        </thead>
       </table>
     </div>
     <form class="form-inline" action="add_course" method="post">{% csrf_token %}
@@ -44,17 +61,7 @@
             <input name="name" type="text" class="form-control" placeholder="Coure Name" required>
             <button class="btn btn-lg btn-primary" type="submit">Add Course</button>
     </form>
-    <form class="form-inline" action="add_section" method="post">{% csrf_token %}
-            <input name="sec_name" type="text" class="form-control" placeholder="Section Name" required autofocus>
-            <select id="year" name="year" placeholder="Year" required></select>
-            <select id="year" name="section" placeholder="Semester" required>
-              <option value="Fall">Fall</option>
-              <option value="Spring">Spring</option>
-              <option value="Summer">Summer</option>
-              <option value="Winter">Winter</option>
-            </select>
-            <button class="btn btn-lg btn-primary" type="submit">Add Section</button>
-    </form>
+    
 </div>
 {% endblock %}
 
