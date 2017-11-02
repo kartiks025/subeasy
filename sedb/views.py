@@ -23,6 +23,10 @@ def admin_login(request):
 @admin_required
 def admin_home(request):
     courses = Course.objects.all()
+    for c in courses:
+    	section = Section.objects.filter(course_id=c.course_id)
+    	# c['section'] = section
+    	setattr(c,'section',section);
     return render(request, 'sedb/admin_home.html', {'courses': courses})
 
 
@@ -44,6 +48,24 @@ def delete_course(request):
     if request.method == 'POST':
         course_id = request.POST['course_id']
         if Course.objects.filter(course_id=course_id).exists():
+            Course.objects.filter(course_id=course_id).delete()
+            return JsonResponse({'success': True})
+        else:
+            print("course doesn't exists")
+    return JsonResponse({'success': False})
+
+@admin_required
+def add_section(request):
+    if request.method == 'POST':
+    	s = Section(sec_name=request.POST['sec_name'],semester=request.POST['semester'],year=request.POST['year'],course_id=request.POST['course_id'],num_assignments=0)
+    	s.save()
+    return redirect('admin_home')
+
+@admin_required
+def delete_section(request):
+    if request.method == 'POST':
+        section_id = request.POST['sec_id']
+        if Course.objects.filter(sec_=course_id).exists():
             Course.objects.filter(course_id=course_id).delete()
             return JsonResponse({'success': True})
         else:

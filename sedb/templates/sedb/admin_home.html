@@ -27,6 +27,17 @@
             <input name="name" type="text" class="form-control" placeholder="Coure Name" required>
             <button class="btn btn-lg btn-primary" type="submit">Add Course</button>
     </form>
+    <form class="form-inline" action="add_section" method="post">{% csrf_token %}
+            <input name="sec_name" type="text" class="form-control" placeholder="Section Name" required autofocus>
+            <select id="year" name="year" placeholder="Year" required></select>
+            <select id="year" name="section" placeholder="Semester" required>
+              <option value="Fall">Fall</option>
+              <option value="Spring">Spring</option>
+              <option value="Summer">Summer</option>
+              <option value="Winter">Winter</option>
+            </select>
+            <button class="btn btn-lg btn-primary" type="submit">Add Section</button>
+    </form>
 </div>
 {% endblock %}
 
@@ -47,6 +58,15 @@
           }
         }
       });
+    });
+    $(function() {
+        var start = 2000;
+        var end = new Date().getFullYear()+1;
+        var options = "";
+        for(var year = start ; year <=end; year++){
+          options += "<option>"+ year +"</option>";
+        }
+        document.getElementById("year").innerHTML = options;
     });
   </script>
 {% endblock %}
