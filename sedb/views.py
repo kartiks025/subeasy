@@ -62,7 +62,6 @@ def add_section(request):
 
 @admin_required
 def delete_section(request):
-    print (year)
     if request.method == 'POST':
         sec_id = request.POST['sec_id']
         if Section.objects.filter(sec_id=sec_id).exists():
