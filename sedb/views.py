@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from .models import Admin
+from django.contrib.auth import login
 
 
 def admin_login(request):
@@ -8,8 +9,10 @@ def admin_login(request):
         pwd = request.POST['pwd']
         print("called with id = " + id_or_email + " pwd = " + pwd)
 
-        if Admin.objects.filter(id=id, password=pwd).exists():
+        if Admin.objects.filter(id=id_or_email, password=pwd).exists():
             print("exists")
+            login(request, id_or_email)
+            return render(request, "sedb/admin_home.html")
         else:
             print("doesn't exist")
     return render(request, 'sedb/admin_login.html')
