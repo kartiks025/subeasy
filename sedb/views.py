@@ -24,5 +24,13 @@ def admin_home(request):
 def add_course(request):
 	if request.method == 'POST':
 		course_id = request.POST['course_id']
-		name = request.POST['course_id']
+		name = request.POST['name']
+		if Course.objects.filter(course_id=course_id).exists():
+			print("course already exists")
+		else:
+			c = Course(course_id=course_id, name = name)
+			c.save()
 	return redirect('admin_home');
+
+def delete_course(request):
+	return

@@ -1,64 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'sedb/base.html' %}
 
-{% load static %}
-
-<head>
-  <title>Admin</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <link rel="stylesheet" href="{% static 'sedb/admin_login.css' %}">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-</head>
-  <body style="background-color:#110011">
-  {% block main_content %}
-    <nav class="navbar navbar-inverse">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="#">SubEasy</a>
-        </div>
-        <ul class="nav navbar-nav">
-          <li class="active"><a href="#">Home</a></li>
-          <li><a href="#">Page 1</a></li>
-          <li><a href="#">Page 2</a></li>
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-          <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-          <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-        </ul>
-      </div>
-    </nav>
-      
-    <div class="container">
-        <div class="table-responsive">          
-          <table class="table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Course ID</th>
-                <th>Course Name</th>
-              </tr>
-              {% for c in courses %}
-              <tr>
-                <th>#</th>
-                <th>{{c.course_id}}</th>
-                <th>{{c.name}}</th>
-              </tr>
-              {% endfor %}
-            </thead>
-          </table>
-        </div>
-        <form class="form-signin" action="add_course" method="post">{% csrf_token %}
-                <input name="course_id" type="text" class="form-control" placeholder="Course ID" required autofocus>
-                <input name="name" type="password" class="form-control" placeholder="Coure Name" required>
-                <button class="btn btn-lg btn-primary btn-block" type="submit">
-                    Add Course</button>
-
-                       </form>
+{% block content %}
+<div class="container">
+    <div class="table-responsive">          
+      <table class="table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Course ID</th>
+            <th>Course Name</th>
+            <th>Delete</th>
+          </tr>
+          {% for c in courses %}
+          <tr>
+            <td>#</td>
+            <td>{{c.course_id}}</td>
+            <td>{{c.name}}</td>
+            <td><button class="btn delete-course" type="submit" value={{c.course_id}}> Delete</button></td>
+          </tr>
+          {% endfor %}
+        </thead>
+      </table>
     </div>
+    <form class="form-inline" action="add_course" method="post">{% csrf_token %}
+            <input name="course_id" type="text" class="form-control" placeholder="Course ID" required autofocus>
+            <input name="name" type="text" class="form-control" placeholder="Coure Name" required>
+            <button class="btn btn-lg btn-primary" type="submit">Add Course</button>
+    </form>
+</div>
+{% endblock %}
 
-  </body>
-{% endblock main_content %}
-</html>
+{% block javascript %}
+  <script>
+    $('.delete-course').change(function () {
+      var username = $(this).val();
+
+      $.ajax({
+        url: '/ajax/validate_username/',
+        data: {
+          'username': username
+        },
+        dataType: 'json',
+        success: function (data) {
+          if (data.is_taken) {
+            alert("A user with this username already exists.");
+          }
+        }
+      });
+
+    });
+  </script>
+{% endblock %}
