@@ -1,8 +1,13 @@
 from django.shortcuts import render
-from django.http import HttpResponse
 
 
 # Create your views here.
 
 def admin_login(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+    if request.method == 'POST':
+        id_or_email = request.POST['id_email']
+        pwd = request.POST['pwd']
+        print("called with id = " + id_or_email + " pwd = " + pwd)
+
+        
+    return render(request, 'sedb/admin_login.html')
