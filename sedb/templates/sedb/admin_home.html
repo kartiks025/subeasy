@@ -16,7 +16,7 @@
             <td>#</td>
             <td>{{c.course_id}}</td>
             <td>{{c.name}}</td>
-            <td><button class="btn delete-course" type="submit" value={{c.course_id}}> Delete</button></td>
+            <td><button class="btn delete-course" type="submit" value={{c.course_id}}>Delete</button></td>
           </tr>
           {% endfor %}
         </thead>
@@ -32,22 +32,21 @@
 
 {% block javascript %}
   <script>
-    $('.delete-course').change(function () {
-      var username = $(this).val();
-
+    $(".delete-course").click(function () {
+      var course_id = $(this).val();
       $.ajax({
-        url: '/ajax/validate_username/',
+        method: "POST",
+        url: '/sedb/delete_course',
         data: {
-          'username': username
+          'course_id': course_id,
         },
         dataType: 'json',
         success: function (data) {
-          if (data.is_taken) {
-            alert("A user with this username already exists.");
+          if(data.success){
+              location.reload();
           }
         }
       });
-
     });
   </script>
 {% endblock %}
