@@ -13,4 +13,3 @@ def admin_login(request):
         else:
             print("doesn't exist")
     return render(request, 'sedb/admin_login.html')
-
