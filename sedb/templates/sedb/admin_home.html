@@ -14,7 +14,7 @@
         </thead>
           {% for c in courses %}
           <tr data-toggle="collapse" href="#1{{ c.course_id }}">
-            <td>#</td>
+            <td>{{ forloop.counter }}</td>
             <td>{{c.course_id}}</td>
             <td>{{c.name}}</td>
             <td><span class="delete-course glyphicon glyphicon-minus" id={{c.course_id}}></span></td>
@@ -25,19 +25,19 @@
                      <table class="table">
                          {% for s in c.section %}
                          <tr>
-                             <td>#</td>
+                             <td>{{ forloop.counter }}</td>
                              <td>{{s.sec_name}}</td>
                              <td>{{s.semester}}</td>
                              <td>{{s.year}}</td>
-                             <td><span class="delete-section glyphicon glyphicon-trash" id={{ c.section.sec_id }}></span>
+                             <td><span class="delete-section glyphicon glyphicon-trash" id={{ s.sec_id }}></span>
                          </tr>
                          {% endfor %}
                          <tr>
                          <td colspan="4">
                            <form class="form-inline" action="add_section" method="post">{% csrf_token %}
                                    <input name="sec_name" type="text" class="form-control" placeholder="Section Name" required autofocus>
-                                   <select id="year" name="year" placeholder="Year" required></select>
-                                   <select id="year" name="semester" placeholder="Semester" required>
+                                   <select id="year" name="year" placeholder="Year"></select>
+                                   <select name="semester" placeholder="Semester" required>
                                      <option value="Fall">Fall</option>
                                      <option value="Spring">Spring</option>
                                      <option value="Summer">Summer</option>
@@ -74,6 +74,22 @@
         url: '/sedb/delete_course',
         data: {
           'course_id': course_id,
+        },
+        dataType: 'json',
+        success: function (data) {
+          if(data.success){
+              location.reload();
+          }
+        }
+      });
+    });
+    $(".delete-section").click(function () {
+      var section_id = $(this).attr('id');
+      $.ajax({
+        method: "POST",
+        url: '/sedb/delete_section',
+        data: {
+          'section_id': section_id,
         },
         dataType: 'json',
         success: function (data) {

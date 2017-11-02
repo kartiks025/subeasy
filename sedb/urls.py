@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^add_course$', views.add_course, name='add_course'),
     url(r'^delete_course$', views.delete_course, name='delete_course'),
     url(r'^add_section$', views.add_section, name='add_section'),
+    url(r'^delete_section$', views.delete_section, name='delete_section'),
 ]

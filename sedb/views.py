@@ -62,11 +62,12 @@ def add_section(request):
 
 @admin_required
 def delete_section(request):
+    print (year)
     if request.method == 'POST':
-        section_id = request.POST['sec_id']
-        if Course.objects.filter(sec_=course_id).exists():
-            Course.objects.filter(course_id=course_id).delete()
+        sec_id = request.POST['sec_id']
+        if Section.objects.filter(sec_id=sec_id).exists():
+            Section.objects.filter(sec_id=sec_id).delete()
             return JsonResponse({'success': True})
         else:
-            print("course doesn't exists")
+            print("section doesn't exists")
     return JsonResponse({'success': False})
