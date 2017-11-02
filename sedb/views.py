@@ -26,6 +26,7 @@ def admin_home(request):
     return render(request, 'sedb/admin_home.html', {'courses': courses})
 
 
+@admin_required
 def add_course(request):
     if request.method == 'POST':
         course_id = request.POST['course_id']
@@ -38,6 +39,7 @@ def add_course(request):
     return redirect('admin_home')
 
 
+@admin_required
 def delete_course(request):
     if request.method == 'POST':
         course_id = request.POST['course_id']
