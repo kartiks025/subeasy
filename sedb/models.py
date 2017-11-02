@@ -23,7 +23,7 @@ class Admin(models.Model):
 class AssignIp(models.Model):
     start_ip = models.CharField(primary_key=True, max_length=60)
     end_ip = models.CharField(max_length=60)
-    assignment = models.ForeignKey('Assignment', models.DO_NOTHING)
+    assignment = models.ForeignKey('Assignment', models.CASCADE)
 
     class Meta:
         managed = False
@@ -41,8 +41,8 @@ class Assignment(models.Model):
     helper_file_name = models.CharField(max_length=50, blank=True, null=True)
     helper_file = models.BinaryField(blank=True, null=True)
     crib_deadline = models.DateTimeField()
-    sec = models.ForeignKey('Section', models.DO_NOTHING)
-    deadline = models.ForeignKey('Deadline', models.DO_NOTHING)
+    sec = models.ForeignKey('Section', models.CASCADE)
+    deadline = models.ForeignKey('Deadline', models.CASCADE)
     num_problems = models.IntegerField()
 
     class Meta:
@@ -59,8 +59,8 @@ class Assignment(models.Model):
 
 
 # class AuthGroupPermissions(models.Model):
-#     group = models.ForeignKey(AuthGroup, models.DO_NOTHING)
-#     permission = models.ForeignKey('AuthPermission', models.DO_NOTHING)
+#     group = models.ForeignKey(AuthGroup, models.CASCADE)
+#     permission = models.ForeignKey('AuthPermission', models.CASCADE)
 
 #     class Meta:
 #         managed = False
@@ -70,7 +70,7 @@ class Assignment(models.Model):
 
 # class AuthPermission(models.Model):
 #     name = models.CharField(max_length=255)
-#     content_type = models.ForeignKey('DjangoContentType', models.DO_NOTHING)
+#     content_type = models.ForeignKey('DjangoContentType', models.CASCADE)
 #     codename = models.CharField(max_length=100)
 
 #     class Meta:
@@ -97,8 +97,8 @@ class Assignment(models.Model):
 
 
 # class AuthUserGroups(models.Model):
-#     user = models.ForeignKey(AuthUser, models.DO_NOTHING)
-#     group = models.ForeignKey(AuthGroup, models.DO_NOTHING)
+#     user = models.ForeignKey(AuthUser, models.CASCADE)
+#     group = models.ForeignKey(AuthGroup, models.CASCADE)
 
 #     class Meta:
 #         managed = False
@@ -107,8 +107,8 @@ class Assignment(models.Model):
 
 
 # class AuthUserUserPermissions(models.Model):
-#     user = models.ForeignKey(AuthUser, models.DO_NOTHING)
-#     permission = models.ForeignKey(AuthPermission, models.DO_NOTHING)
+#     user = models.ForeignKey(AuthUser, models.CASCADE)
+#     permission = models.ForeignKey(AuthPermission, models.CASCADE)
 
 #     class Meta:
 #         managed = False
@@ -118,10 +118,10 @@ class Assignment(models.Model):
 
 class Comment(models.Model):
     comment_id = models.BigAutoField(primary_key=True)
-    crib = models.ForeignKey('Crib', models.DO_NOTHING)
+    crib = models.ForeignKey('Crib', models.CASCADE)
     text = models.TextField()
     timestamp = models.DateTimeField()
-    user = models.ForeignKey('User', models.DO_NOTHING)
+    user = models.ForeignKey('User', models.CASCADE)
 
     class Meta:
         managed = False
@@ -142,8 +142,8 @@ class Crib(models.Model):
     text = models.TextField()
     resolved = models.BooleanField()
     timestamp = models.DateTimeField()
-    user = models.ForeignKey('User', models.DO_NOTHING)
-    problem = models.ForeignKey('Problem', models.DO_NOTHING)
+    user = models.ForeignKey('User', models.CASCADE)
+    problem = models.ForeignKey('Problem', models.CASCADE)
 
     class Meta:
         managed = False
@@ -168,8 +168,8 @@ class Deadline(models.Model):
 #     object_repr = models.CharField(max_length=200)
 #     action_flag = models.SmallIntegerField()
 #     change_message = models.TextField()
-#     content_type = models.ForeignKey('DjangoContentType', models.DO_NOTHING, blank=True, null=True)
-#     user = models.ForeignKey(AuthUser, models.DO_NOTHING)
+#     content_type = models.ForeignKey('DjangoContentType', models.CASCADE, blank=True, null=True)
+#     user = models.ForeignKey(AuthUser, models.CASCADE)
 
 #     class Meta:
 #         managed = False
@@ -217,8 +217,8 @@ class Problem(models.Model):
     solution_file = models.BinaryField(blank=True, null=True)
     compile_cmd = models.TextField(blank=True, null=True)
     sol_visibility = models.BooleanField()
-    assignment = models.ForeignKey(Assignment, models.DO_NOTHING)
-    resource_limit = models.ForeignKey('ResourceLimit', models.DO_NOTHING)
+    assignment = models.ForeignKey(Assignment, models.CASCADE)
+    resource_limit = models.ForeignKey('ResourceLimit', models.CASCADE)
     num_testcases = models.IntegerField()
 
     class Meta:
@@ -242,8 +242,8 @@ class ResourceLimit(models.Model):
 
 class SecUser(models.Model):
     role = models.CharField(max_length=10)
-    user = models.ForeignKey('User', models.DO_NOTHING, primary_key=True)
-    sec = models.ForeignKey('Section', models.DO_NOTHING)
+    user = models.ForeignKey('User', models.CASCADE, primary_key=True)
+    sec = models.ForeignKey('Section', models.CASCADE)
 
     class Meta:
         managed = False
@@ -256,7 +256,7 @@ class Section(models.Model):
     sec_name = models.CharField(max_length=20)
     semester = models.CharField(max_length=10)
     year = models.IntegerField()
-    course = models.ForeignKey(Course, models.DO_NOTHING)
+    course = models.ForeignKey(Course, models.CASCADE)
     num_assignments = models.IntegerField(blank=True, null=True)
 
     class Meta:
@@ -265,8 +265,8 @@ class Section(models.Model):
 
 
 class Submission(models.Model):
-    user = models.ForeignKey('User', models.DO_NOTHING)
-    problem = models.ForeignKey(Problem, models.DO_NOTHING)
+    user = models.ForeignKey('User', models.CASCADE)
+    problem = models.ForeignKey(Problem, models.CASCADE)
     sub_no = models.IntegerField(primary_key=True)
     marks_auto = models.IntegerField()
     marks_inst = models.IntegerField()
@@ -280,7 +280,7 @@ class Submission(models.Model):
 
 
 class Testcase(models.Model):
-    problem = models.ForeignKey(Problem, models.DO_NOTHING)
+    problem = models.ForeignKey(Problem, models.CASCADE)
     testcase_no = models.IntegerField(primary_key=True)
     infile_name = models.CharField(max_length=50)
     infile = models.BinaryField()
@@ -306,8 +306,8 @@ class User(models.Model):
 
 
 class UserSubmissions(models.Model):
-    user = models.ForeignKey(User, models.DO_NOTHING, primary_key=True)
-    problem = models.ForeignKey(Problem, models.DO_NOTHING)
+    user = models.ForeignKey(User, models.CASCADE, primary_key=True)
+    problem = models.ForeignKey(Problem, models.CASCADE)
     num_submissions = models.IntegerField()
     final_submission_no = models.IntegerField()
 
