@@ -2,78 +2,57 @@
 
 {% block content %}
 <div class="container">
-    <input type="text" id="search"  placeholder="Search for names..">
-  <div class="panel panel-default panel-table">
-    <div class="panel-heading">
-      <div class="row">
-        <div class="col col-xs-6">
-          <h3 class="panel-title">Courses</h3>
-        </div>
-        <div class="col col-xs-6 text-right">
-          <button type="button" class="btn btn-sm btn-primary btn-create">Create New</button>
-        </div>
-      </div>
-    </div>
-    <div class="panel-body">
-      <table class="table table-striped table-bordered table-list" id="course-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Course ID</th>
-            <th>Course Name</th>
-            <th>Delete</th>
-          </tr>
-        </thead>
+    <i class="material-icons prefix">search</i><input type="text" id="search"  placeholder="Search for names..">
+    <ul class="collapsible popout" data-collapsible="accordion">
           {% for c in courses %}
-          <tr  class="course-row " data-toggle="collapse" href="#1{{ c.course_id }}">
-            <td>{{ forloop.counter }}</td>
-            <td>{{c.course_id}}</td>
-            <td>{{c.name}}</td>
-            <td><a class="delete-course btn btn-danger" id={{c.course_id}}><em class="fa fa-trash"></em></a></span></td>
-          </tr>
-          <tr id="1{{ c.course_id }}" class="collapse">
-             <td colspan="4">
-                 <div class="table-responsive" >
-                     <table class="table">
-                         {% for s in c.section %}
-                         <tr>
-                             <td>{{ forloop.counter }}</td>
-                             <td>{{s.sec_name}}</td>
-                             <td>{{s.semester}}</td>
-                             <td>{{s.year}}</td>
-                             <td><span class="delete-section glyphicon glyphicon-trash" id={{ s.sec_id }}></span>
-                         </tr>
-                         {% endfor %}
-                         <tr>
-                         <td colspan="4">
-                           <form class="form-inline" action="add_section" method="post">{% csrf_token %}
-                                   <input name="sec_name" type="text" class="form-control" placeholder="Section Name" required autofocus>
-                                   <select class="year" name="year" placeholder="Year"></select>
-                                   <select name="semester" placeholder="Semester" required>
-                                     <option value="Fall">Fall</option>
-                                     <option value="Spring">Spring</option>
-                                     <option value="Summer">Summer</option>
-                                     <option value="Winter">Winter</option>
-                                   </select>
-                                   <input type="hidden" name="course_id" value="{{c.course_id}}">
-                                   <button class="btn btn-lg btn-primary" type="submit">Add Section</button>
-                           </form>
-                           </td>
-                          </tr>
-                     </table>
-
-                 </div>
-             </td>
-          </tr>
+          <li class="course-row">
+          <div class="collapsible-header row"><i class="material-icons">label</i>
+            {{c.course_id}}-{{c.name}}
+            <a class="delete-course" id={{c.course_id}}><i class="material-icons teal-text">delete</i></em></a>
+          </div>
+          <div class="collapsible-body container">
+            <div class="row col s12">
+              <div class="table-responsive" >
+                  <table class="centered highlight bordered">
+                      {% for s in c.section %}
+                      <tr>
+                          <td>{{ forloop.counter }}</td>
+                          <td>{{s.sec_name}}</td>
+                          <td>{{s.semester}}</td>
+                          <td>{{s.year}}</td>
+                          <td><a class="delete-section" id={{s.sec_id}}><i class="material-icons teal-text" style="font-size: 20px">delete</i></a></td>
+                      </tr>
+                      {% endfor %}
+                  </table>
+              </div>
+              <form class="col l12" action="add_section" method="post">{% csrf_token %}
+                      <div class='input-field col l6'><input name="sec_name" type="text" class="form-control" placeholder="Section Name" required autofocus></div>
+                      <div class='input-field col l6'><select class="year browser-default" name="year" placeholder="Year"></select></div>
+                      <div class='input-field col l3 offser-l2' align="left"><select class="browser-default" name="semester" placeholder="Semester" required>
+                        <option value="Fall">Fall</option>
+                        <option value="Spring">Spring</option>
+                        <option value="Summer">Summer</option>
+                        <option value="Winter">Winter</option>
+                      </select></div>
+                      <div class='input-field col l6'><input name="course_id" type="text" value="{{c.course_id}}" class="form-control"></div>
+                      <div class='input-field col l6'><button class="btn btn-lg btn-primary" type="submit">Add Section</button></div>
+              </form>
+            </div>
+          </div>
           {% endfor %}
-      </table>
-    </div>
-    <form class="form-inline" action="add_course" method="post">{% csrf_token %}
-            <input name="course_id" type="text" class="form-control" placeholder="Course ID" required autofocus>
-            <input name="name" type="text" class="form-control" placeholder="Coure Name" required>
-            <button class="btn btn-lg btn-primary" type="submit">Add Course</button>
-    </form>
-    
+         <li>
+          <div class="collapsible-header"><i class="material-icons">add</i>Add New Course</div>
+          <div class="collapsible-body">
+          <div class="container">
+              <form class="form-inline" action="add_course" method="post">{% csrf_token %}
+                      <input name="course_id" type="text" class="form-control" placeholder="Course ID" required autofocus>
+                      <input name="name" type="text" class="form-control" placeholder="Coure Name" required>
+                      <button class="btn btn-lg btn-primary" type="submit">Add Course</button>
+              </form>
+          </div>
+          </div>
+          </li>
+    </ul> 
 </div>
 {% endblock %}
 
@@ -140,6 +119,9 @@
                 $row.show();
             }
         });
+    });
+    $(document).ready(function() {
+        $('select').material_select();
     });
   </script>
 {% endblock %}
