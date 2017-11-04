@@ -9,9 +9,11 @@
     <ul class="collapsible popout" data-collapsible="accordion">
           {% for c in courses %}
           <li class="course-row" cid="{{c.course_id}}" cname="{{c.name}}">
-          <div class="collapsible-header row"><i class="material-icons">label</i>
-            {{c.course_id}}-{{c.name}}
-            <a class="delete-course" id={{c.course_id}}><i class="material-icons teal-text">delete</i></em></a>
+            <div class="collapsible-header l9">
+             <i class="material-icons teal-text">label</i>
+              <a class="delete-course" id={{c.course_id}}><i class="material-icons teal-text">delete</i></em></a>
+              {{c.course_id}}-{{c.name}}
+              
           </div>
           <div class="collapsible-body container">
             <div class="row col s12">
@@ -86,7 +88,10 @@
         // $('.js-example-basic-single').select2();
         $('.js-example-basic-multiple').select2();
     });
+    var $panel_headers = $('.collapsible').find('> li > .collapsible-header');
     $(".delete-course").click(function () {
+      $('.collapsible').off('click.collapse', '.collapsible-header');
+      $panel_headers.off('click.collapse').css('pointer-events', 'none');
       var course_id = $(this).attr('id');
       $.ajax({
         method: "POST",
@@ -144,5 +149,6 @@
             }
         });
     });
+
   </script>
 {% endblock %}

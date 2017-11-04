@@ -9,4 +9,7 @@ urlpatterns = [
     url(r'^delete_course$', views.delete_course, name='delete_course'),
     url(r'^add_section$', views.add_section, name='add_section'),
     url(r'^delete_section$', views.delete_section, name='delete_section'),
+    url(r'^user_login$', views.user_login, name='user_login'),
+    url(r'^user_home$', views.user_home, name='user_home'),
+
 ]

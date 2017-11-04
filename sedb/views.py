@@ -15,6 +15,7 @@ def admin_login(request):
             print("exists")
             request.session['admin_id'] = user.id
             request.session['is_admin'] = True
+            request.session['is_user'] = False
             return redirect('admin_home')
         else:
             print("doesn't exist")
@@ -81,3 +82,32 @@ def delete_section(request):
         else:
             print("section doesn't exists")
     return JsonResponse({'success': False})
+
+def user_login(request):
+    if request.method == 'POST':
+        id_or_email = request.POST['id_email']
+        pwd = request.POST['pwd']
+
+        user = User.objects.get(user_id=id_or_email)
+        if user.password == pwd:
+            print("exists")
+            request.session['user_id'] = user.user_id
+            request.session['is_admin'] = False
+            request.session['is_user'] = True
+            return redirect('user_home')
+        else:
+            print("doesn't exist")
+    return render(request, 'sedb/user_login.html')
+
+@user_required
+def user_home(request):
+    courses = Course.objects.all()
+    for c in courses:
+    	section = Section.objects.filter(course_id=c.course_id)
+    	setattr(c,'section',section);
+    	for s in section:
+    		cursor = connection.cursor()
+    		cursor.execute('''select name from "user" where user_id in (select user_id from sec_user where sec_id =%s);''',[s.sec_id])
+    		setattr(s,'instructor',cursor.fetchall());
+    users = User.objects.all()
+    return render(request, 'sedb/user_home.html', {'courses': courses, 'user':users})
