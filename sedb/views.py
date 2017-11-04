@@ -141,3 +141,6 @@ def user_signup(request):
 
 
 
+def display_section(request):
+	# secuser = SecUser.objects.filter(user=request.session['user_id'], sec=reques);
+	return render(request, 'sedb/display_section.html')
