@@ -112,3 +112,7 @@ def user_login(request):
 def user_home(request):
     secuser = SecUser.objects.filter(user=request.session['user_id']);
     return render(request, 'sedb/user_home.html', {'section': secuser})
+
+def display_section(request):
+	# secuser = SecUser.objects.filter(user=request.session['user_id'], sec=reques);
+	return render(request, 'sedb/display_section.html')
