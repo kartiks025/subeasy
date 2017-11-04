@@ -114,5 +114,6 @@ def user_home(request):
     return render(request, 'sedb/user_home.html', {'section': secuser})
 
 def display_section(request):
-	# secuser = SecUser.objects.filter(user=request.session['user_id'], sec=reques);
+	secuser = SecUser.objects.get(id=request.POST['sec_id']);
+	print(request.POST['sec_id'])
 	return render(request, 'sedb/display_section.html')
