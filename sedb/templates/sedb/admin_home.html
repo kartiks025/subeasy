@@ -2,7 +2,10 @@
 
 {% block content %}
 <div class="container">
-    <i class="material-icons prefix">search</i><input type="text" id="search"  placeholder="Search for names..">
+<i class="fa fa-search" aria-hidden="true"></i>
+<input type="text" id="search"  placeholder="&#xf002;">
+    <i class="icon-camera-retro"></i>
+
     <ul class="collapsible popout" data-collapsible="accordion">
           {% for c in courses %}
           <li class="course-row" cid="{{c.course_id}}" cname="{{c.name}}">
@@ -19,6 +22,11 @@
                           <td>{{ forloop.counter }}</td>
                           <td>{{s.sec_name}}</td>
                           <td>{{s.semester}}</td>
+                          <td>
+                          {% for i in s.instructor %}
+                            {{i}}<br>
+                          {% endfor %}
+                          </td>
                           <td>{{s.year}}</td>
                           <td><a class="delete-section" id={{s.sec_id}}><i class="material-icons teal-text" style="font-size: 20px">delete</i></a></td>
                       </tr>

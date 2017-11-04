@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from .models import *
 from .helpers import *
 from django.http import JsonResponse
+from django.db import connection
 
 
 def admin_login(request):
@@ -26,6 +27,10 @@ def admin_home(request):
     for c in courses:
     	section = Section.objects.filter(course_id=c.course_id)
     	setattr(c,'section',section);
+    	for s in section:
+    		cursor = connection.cursor()
+    		cursor.execute('''select name from "user" where user_id in (select user_id from sec_user where sec_id =%s);''',[s.sec_id])
+    		setattr(s,'instructor',cursor.fetchall());
     users = User.objects.all()
     return render(request, 'sedb/admin_home.html', {'courses': courses, 'user':users})
 
