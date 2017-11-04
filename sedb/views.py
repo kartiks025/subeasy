@@ -15,6 +15,7 @@ def admin_login(request):
             print("exists")
             request.session['admin_id'] = user.id
             request.session['is_admin'] = True
+            request.session.set_expiry(5*60)
             return redirect('admin_home')
         else:
             print("doesn't exist")
@@ -25,14 +26,16 @@ def admin_login(request):
 def admin_home(request):
     courses = Course.objects.all()
     for c in courses:
-    	section = Section.objects.filter(course_id=c.course_id)
-    	setattr(c,'section',section);
-    	for s in section:
-    		cursor = connection.cursor()
-    		cursor.execute('''select name from "user" where user_id in (select user_id from sec_user where sec_id =%s);''',[s.sec_id])
-    		setattr(s,'instructor',cursor.fetchall());
+        section = Section.objects.filter(course_id=c.course_id)
+        setattr(c, 'section', section);
+        for s in section:
+            cursor = connection.cursor()
+            cursor.execute(
+                '''select name from "user" where user_id in (select user_id from sec_user where sec_id =%s);''',
+                [s.sec_id])
+            setattr(s, 'instructor', cursor.fetchall());
     users = User.objects.all()
-    return render(request, 'sedb/admin_home.html', {'courses': courses, 'user':users})
+    return render(request, 'sedb/admin_home.html', {'courses': courses, 'user': users})
 
 
 @admin_required
@@ -59,17 +62,20 @@ def delete_course(request):
             print("course doesn't exists")
     return JsonResponse({'success': False})
 
+
 @admin_required
 def add_section(request):
     if request.method == 'POST':
-    	s = Section(sec_name=request.POST['sec_name'],semester=request.POST['semester'],year=request.POST['year'],course_id=request.POST['course_id'],num_assignments=0)
-    	s.save()
-    	instructor = request.POST.getlist('instructor')
-    	for i in instructor:
-    		u = User.objects.filter(user_id=i)
-    		secuser = SecUser(role="Instructor",user=u[0],sec=s)
-    		secuser.save()
+        s = Section(sec_name=request.POST['sec_name'], semester=request.POST['semester'], year=request.POST['year'],
+                    course_id=request.POST['course_id'], num_assignments=0)
+        s.save()
+        instructor = request.POST.getlist('instructor')
+        for i in instructor:
+            u = User.objects.filter(user_id=i)
+            secuser = SecUser(role="Instructor", user=u[0], sec=s)
+            secuser.save()
     return redirect('admin_home')
+
 
 @admin_required
 def delete_section(request):
