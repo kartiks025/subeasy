@@ -3,6 +3,7 @@ from .models import *
 from .helpers import *
 from django.http import JsonResponse
 from django.db import connection
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def admin_login(request):
@@ -11,14 +12,13 @@ def admin_login(request):
         pwd = request.POST['pwd']
 
         try:
-        	user = Admin.objects.get(id=id_or_email,password=pwd)
-			print("exists")
+            user = Admin.objects.get(id=id_or_email, password=pwd)
             request.session['admin_id'] = user.id
             request.session['is_admin'] = True
             request.session['is_user'] = False
-            request.session.set_expiry(5*60)
+            request.session.set_expiry(5 * 60)
             return redirect('admin_home')
-        except KeyError:
+        except ObjectDoesNotExist:
             print("doesn't exist")
     return render(request, 'sedb/admin_login.html')
 
@@ -28,7 +28,7 @@ def admin_home(request):
     courses = Course.objects.all()
     for c in courses:
         section = Section.objects.filter(course_id=c.course_id)
-        setattr(c, 'section', section);
+        setattr(c, 'section', section)
         for s in section:
             cursor = connection.cursor()
             cursor.execute(
@@ -89,22 +89,24 @@ def delete_section(request):
             print("section doesn't exists")
     return JsonResponse({'success': False})
 
+
 def user_login(request):
     if request.method == 'POST':
         id_or_email = request.POST['id_email']
         pwd = request.POST['pwd']
 
-        user = User.objects.get(user_id=id_or_email)
-        if user.password == pwd:
+        try:
+            user = User.objects.get(user_id=id_or_email, password=pwd)
             print("exists")
             request.session['user_id'] = user.user_id
             request.session['is_admin'] = False
             request.session['is_user'] = True
-            request.session.set_expiry(5*60)
+            request.session.set_expiry(5 * 60)
             return redirect('user_home')
-        else:
+        except ObjectDoesNotExist:
             print("doesn't exist")
     return render(request, 'sedb/user_login.html')
+
 
 @user_required
 def user_home(request):
