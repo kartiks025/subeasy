@@ -12,5 +12,9 @@ urlpatterns = [
     url(r'^user_login$', views.user_login, name='user_login'),
     url(r'^user_home$', views.user_home, name='user_home'),
     url(r'^display_section$', views.display_section, name='display_section'),
+    url(r'^user_signup$', views.user_signup, name='user_signup'),
+    url(r'^display_instructor$', views.display_instructor, name='display_instructor'),
+    url(r'^display_ta$', views.display_ta, name='display_ta'),
+    url(r'^display_student$', views.display_student, name='display_student'),
 
 ]

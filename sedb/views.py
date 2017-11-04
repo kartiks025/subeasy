@@ -115,7 +115,7 @@ def user_home(request):
     return render(request, 'sedb/user_home.html', {'section': secuser})
 
 def user_signup(request):
-    if request.method == 'POST'
+    if request.method == 'POST':
         userID = request.POST['userID']
         user_name = request.POST['user_name']
         email_id = request.POST['email_id']
@@ -130,18 +130,37 @@ def user_signup(request):
             messages.add_message(request,messages.ERROR,'Email ID already taken')
             return render(request, 'sedb/user_signup.html')
 
-        if pwd != cnfrpwd
+        if pwd != cnfrpwd:
             messages.add_message(request,messages.ERROR,'Password do not match')
             return render(request, 'sedb/user_signup.html')
 
-        newuser=User.objects.create_user(userID,user_name,email_id,pwd)
+        newuser=User(user_id=userID,name=user_name,email=email_id,password=pwd)
         newuser.save()
         messages.add_message(request,messages.ERROR,'Succesfully Registered')
         return render(request, 'sedb/user_signup.html')
+    return render(request, 'sedb/user_signup.html')
 
 
 
 def display_section(request):
-	secuser = SecUser.objects.get(id=request.POST['sec_id']);
-	print(request.POST['sec_id'])
+	if request.method == 'POST':
+		secuser = SecUser.objects.get(id=request.POST['sec_id']);
+		request.session['sec_id'] = request.POST['sec_id']
+		if(secuser.role=="Instructor"):
+			return redirect('display_instructor')
+		elif(secuser.role=="TA"):
+			return redirect('display_ta')
+		elif(secuser.role=="Student"):
+			return redirect('display_student')
+
+
 	return render(request, 'sedb/display_section.html')
+
+def display_instructor(request):
+	return render(request, 'sedb/display_instructor.html')
+
+def display_ta(request):
+	return render(request, 'sedb/display_ta.html')
+
+def display_student(request):
+	return render(request, 'sedb/display_student.html')
