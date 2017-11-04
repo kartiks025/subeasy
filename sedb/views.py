@@ -4,6 +4,7 @@ from .helpers import *
 from django.http import JsonResponse
 from django.db import connection
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib import messages
 
 
 def admin_login(request):
@@ -112,6 +113,33 @@ def user_login(request):
 def user_home(request):
     secuser = SecUser.objects.filter(user=request.session['user_id']);
     return render(request, 'sedb/user_home.html', {'section': secuser})
+
+def user_signup(request):
+    if request.method == 'POST'
+        userID = request.POST['userID']
+        user_name = request.POST['user_name']
+        email_id = request.POST['email_id']
+        pwd = request.POST['pwd']
+        cnfrpwd = request.POST['cnfrpwd']
+
+        if User.objects.filter(user_id = userID).exists():
+            messages.add_message(request,messages.ERROR,'User ID already taken')
+            return render(request, 'sedb/user_signup.html')
+
+        if User.objects.filter(email = email_id).exists():
+            messages.add_message(request,messages.ERROR,'Email ID already taken')
+            return render(request, 'sedb/user_signup.html')
+
+        if pwd != cnfrpwd
+            messages.add_message(request,messages.ERROR,'Password do not match')
+            return render(request, 'sedb/user_signup.html')
+
+        newuser=User.objects.create_user(userID,user_name,email_id,pwd)
+        newuser.save()
+        messages.add_message(request,messages.ERROR,'Succesfully Registered')
+        return render(request, 'sedb/user_signup.html')
+
+
 
 def display_section(request):
 	secuser = SecUser.objects.get(id=request.POST['sec_id']);
