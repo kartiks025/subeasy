@@ -12,6 +12,7 @@ from django.db import models
 
 class Admin(models.Model):
     id = models.CharField(primary_key=True, max_length=20)
+    email = models.CharField(unique=True, max_length=50)
     password = models.CharField(max_length=20)
     name = models.CharField(max_length=50, blank=True, null=True)
 
@@ -21,9 +22,10 @@ class Admin(models.Model):
 
 
 class AssignIp(models.Model):
-    start_ip = models.CharField(primary_key=True, max_length=60)
+    start_ip = models.CharField(max_length=60)
     end_ip = models.CharField(max_length=60)
-    assignment = models.ForeignKey('Assignment', models.CASCADE)
+    assignment = models.ForeignKey('Assignment', models.DO_NOTHING)
+    id = models.BigAutoField(primary_key=True)
 
     class Meta:
         managed = False
@@ -41,8 +43,8 @@ class Assignment(models.Model):
     helper_file_name = models.CharField(max_length=50, blank=True, null=True)
     helper_file = models.BinaryField(blank=True, null=True)
     crib_deadline = models.DateTimeField()
-    sec = models.ForeignKey('Section', models.CASCADE)
-    deadline = models.ForeignKey('Deadline', models.CASCADE)
+    sec = models.ForeignKey('Section', models.DO_NOTHING)
+    deadline = models.ForeignKey('Deadline', models.DO_NOTHING)
     num_problems = models.IntegerField()
 
     class Meta:
@@ -50,78 +52,78 @@ class Assignment(models.Model):
         db_table = 'assignment'
 
 
-# class AuthGroup(models.Model):
-#     name = models.CharField(unique=True, max_length=80)
+class AuthGroup(models.Model):
+    name = models.CharField(unique=True, max_length=80)
 
-#     class Meta:
-#         managed = False
-#         db_table = 'auth_group'
-
-
-# class AuthGroupPermissions(models.Model):
-#     group = models.ForeignKey(AuthGroup, models.CASCADE)
-#     permission = models.ForeignKey('AuthPermission', models.CASCADE)
-
-#     class Meta:
-#         managed = False
-#         db_table = 'auth_group_permissions'
-#         unique_together = (('group', 'permission'),)
+    class Meta:
+        managed = False
+        db_table = 'auth_group'
 
 
-# class AuthPermission(models.Model):
-#     name = models.CharField(max_length=255)
-#     content_type = models.ForeignKey('DjangoContentType', models.CASCADE)
-#     codename = models.CharField(max_length=100)
+class AuthGroupPermissions(models.Model):
+    group = models.ForeignKey(AuthGroup, models.DO_NOTHING)
+    permission = models.ForeignKey('AuthPermission', models.DO_NOTHING)
 
-#     class Meta:
-#         managed = False
-#         db_table = 'auth_permission'
-#         unique_together = (('content_type', 'codename'),)
-
-
-# class AuthUser(models.Model):
-#     password = models.CharField(max_length=128)
-#     last_login = models.DateTimeField(blank=True, null=True)
-#     is_superuser = models.BooleanField()
-#     username = models.CharField(unique=True, max_length=150)
-#     first_name = models.CharField(max_length=30)
-#     last_name = models.CharField(max_length=30)
-#     email = models.CharField(max_length=254)
-#     is_staff = models.BooleanField()
-#     is_active = models.BooleanField()
-#     date_joined = models.DateTimeField()
-
-#     class Meta:
-#         managed = False
-#         db_table = 'auth_user'
+    class Meta:
+        managed = False
+        db_table = 'auth_group_permissions'
+        unique_together = (('group', 'permission'),)
 
 
-# class AuthUserGroups(models.Model):
-#     user = models.ForeignKey(AuthUser, models.CASCADE)
-#     group = models.ForeignKey(AuthGroup, models.CASCADE)
+class AuthPermission(models.Model):
+    name = models.CharField(max_length=255)
+    content_type = models.ForeignKey('DjangoContentType', models.DO_NOTHING)
+    codename = models.CharField(max_length=100)
 
-#     class Meta:
-#         managed = False
-#         db_table = 'auth_user_groups'
-#         unique_together = (('user', 'group'),)
+    class Meta:
+        managed = False
+        db_table = 'auth_permission'
+        unique_together = (('content_type', 'codename'),)
 
 
-# class AuthUserUserPermissions(models.Model):
-#     user = models.ForeignKey(AuthUser, models.CASCADE)
-#     permission = models.ForeignKey(AuthPermission, models.CASCADE)
+class AuthUser(models.Model):
+    password = models.CharField(max_length=128)
+    last_login = models.DateTimeField(blank=True, null=True)
+    is_superuser = models.BooleanField()
+    username = models.CharField(unique=True, max_length=150)
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30)
+    email = models.CharField(max_length=254)
+    is_staff = models.BooleanField()
+    is_active = models.BooleanField()
+    date_joined = models.DateTimeField()
 
-#     class Meta:
-#         managed = False
-#         db_table = 'auth_user_user_permissions'
-#         unique_together = (('user', 'permission'),)
+    class Meta:
+        managed = False
+        db_table = 'auth_user'
+
+
+class AuthUserGroups(models.Model):
+    user = models.ForeignKey(AuthUser, models.DO_NOTHING)
+    group = models.ForeignKey(AuthGroup, models.DO_NOTHING)
+
+    class Meta:
+        managed = False
+        db_table = 'auth_user_groups'
+        unique_together = (('user', 'group'),)
+
+
+class AuthUserUserPermissions(models.Model):
+    user = models.ForeignKey(AuthUser, models.DO_NOTHING)
+    permission = models.ForeignKey(AuthPermission, models.DO_NOTHING)
+
+    class Meta:
+        managed = False
+        db_table = 'auth_user_user_permissions'
+        unique_together = (('user', 'permission'),)
 
 
 class Comment(models.Model):
     comment_id = models.BigAutoField(primary_key=True)
-    crib = models.ForeignKey('Crib', models.CASCADE)
+    crib = models.ForeignKey('Crib', models.DO_NOTHING)
     text = models.TextField()
     timestamp = models.DateTimeField()
-    user = models.ForeignKey('User', models.CASCADE)
+    user = models.ForeignKey('User', models.DO_NOTHING)
 
     class Meta:
         managed = False
@@ -142,8 +144,8 @@ class Crib(models.Model):
     text = models.TextField()
     resolved = models.BooleanField()
     timestamp = models.DateTimeField()
-    user = models.ForeignKey('User', models.CASCADE)
-    problem = models.ForeignKey('Problem', models.CASCADE)
+    user = models.ForeignKey('User', models.DO_NOTHING)
+    problem = models.ForeignKey('Problem', models.DO_NOTHING)
 
     class Meta:
         managed = False
@@ -162,48 +164,48 @@ class Deadline(models.Model):
         db_table = 'deadline'
 
 
-# class DjangoAdminLog(models.Model):
-#     action_time = models.DateTimeField()
-#     object_id = models.TextField(blank=True, null=True)
-#     object_repr = models.CharField(max_length=200)
-#     action_flag = models.SmallIntegerField()
-#     change_message = models.TextField()
-#     content_type = models.ForeignKey('DjangoContentType', models.CASCADE, blank=True, null=True)
-#     user = models.ForeignKey(AuthUser, models.CASCADE)
+class DjangoAdminLog(models.Model):
+    action_time = models.DateTimeField()
+    object_id = models.TextField(blank=True, null=True)
+    object_repr = models.CharField(max_length=200)
+    action_flag = models.SmallIntegerField()
+    change_message = models.TextField()
+    content_type = models.ForeignKey('DjangoContentType', models.DO_NOTHING, blank=True, null=True)
+    user = models.ForeignKey(AuthUser, models.DO_NOTHING)
 
-#     class Meta:
-#         managed = False
-#         db_table = 'django_admin_log'
-
-
-# class DjangoContentType(models.Model):
-#     app_label = models.CharField(max_length=100)
-#     model = models.CharField(max_length=100)
-
-#     class Meta:
-#         managed = False
-#         db_table = 'django_content_type'
-#         unique_together = (('app_label', 'model'),)
+    class Meta:
+        managed = False
+        db_table = 'django_admin_log'
 
 
-# class DjangoMigrations(models.Model):
-#     app = models.CharField(max_length=255)
-#     name = models.CharField(max_length=255)
-#     applied = models.DateTimeField()
+class DjangoContentType(models.Model):
+    app_label = models.CharField(max_length=100)
+    model = models.CharField(max_length=100)
 
-#     class Meta:
-#         managed = False
-#         db_table = 'django_migrations'
+    class Meta:
+        managed = False
+        db_table = 'django_content_type'
+        unique_together = (('app_label', 'model'),)
 
 
-# class DjangoSession(models.Model):
-#     session_key = models.CharField(primary_key=True, max_length=40)
-#     session_data = models.TextField()
-#     expire_date = models.DateTimeField()
+class DjangoMigrations(models.Model):
+    app = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
+    applied = models.DateTimeField()
 
-#     class Meta:
-#         managed = False
-#         db_table = 'django_session'
+    class Meta:
+        managed = False
+        db_table = 'django_migrations'
+
+
+class DjangoSession(models.Model):
+    session_key = models.CharField(primary_key=True, max_length=40)
+    session_data = models.TextField()
+    expire_date = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'django_session'
 
 
 class Problem(models.Model):
@@ -217,8 +219,8 @@ class Problem(models.Model):
     solution_file = models.BinaryField(blank=True, null=True)
     compile_cmd = models.TextField(blank=True, null=True)
     sol_visibility = models.BooleanField()
-    assignment = models.ForeignKey(Assignment, models.CASCADE)
-    resource_limit = models.ForeignKey('ResourceLimit', models.CASCADE)
+    assignment = models.ForeignKey(Assignment, models.DO_NOTHING)
+    resource_limit = models.ForeignKey('ResourceLimit', models.DO_NOTHING)
     num_testcases = models.IntegerField()
 
     class Meta:
@@ -242,8 +244,9 @@ class ResourceLimit(models.Model):
 
 class SecUser(models.Model):
     role = models.CharField(max_length=10)
-    user = models.ForeignKey('User', models.CASCADE, primary_key=True)
-    sec = models.ForeignKey('Section', models.CASCADE)
+    user = models.ForeignKey('User', models.DO_NOTHING)
+    sec = models.ForeignKey('Section', models.DO_NOTHING)
+    id = models.BigAutoField(primary_key=True)
 
     class Meta:
         managed = False
@@ -256,7 +259,7 @@ class Section(models.Model):
     sec_name = models.CharField(max_length=20)
     semester = models.CharField(max_length=10)
     year = models.IntegerField()
-    course = models.ForeignKey(Course, models.CASCADE)
+    course = models.ForeignKey(Course, models.DO_NOTHING)
     num_assignments = models.IntegerField(blank=True, null=True)
 
     class Meta:
@@ -265,13 +268,14 @@ class Section(models.Model):
 
 
 class Submission(models.Model):
-    user = models.ForeignKey('User', models.CASCADE)
-    problem = models.ForeignKey(Problem, models.CASCADE)
-    sub_no = models.IntegerField(primary_key=True)
+    user = models.ForeignKey('User', models.DO_NOTHING)
+    problem = models.ForeignKey(Problem, models.DO_NOTHING)
+    sub_no = models.IntegerField()
     marks_auto = models.IntegerField()
     marks_inst = models.IntegerField()
     sub_file_name = models.CharField(max_length=50)
     sub_file = models.BinaryField()
+    id = models.BigAutoField(primary_key=True)
 
     class Meta:
         managed = False
@@ -280,14 +284,15 @@ class Submission(models.Model):
 
 
 class Testcase(models.Model):
-    problem = models.ForeignKey(Problem, models.CASCADE)
-    testcase_no = models.IntegerField(primary_key=True)
+    problem = models.ForeignKey(Problem, models.DO_NOTHING)
+    testcase_no = models.IntegerField()
     infile_name = models.CharField(max_length=50)
     infile = models.BinaryField()
     outfile_name = models.CharField(max_length=50)
     outfile = models.BinaryField()
     marks = models.IntegerField()
     visibility = models.BooleanField()
+    id = models.BigAutoField(primary_key=True)
 
     class Meta:
         managed = False
@@ -298,7 +303,8 @@ class Testcase(models.Model):
 class User(models.Model):
     user_id = models.CharField(primary_key=True, max_length=20)
     name = models.CharField(max_length=50, blank=True, null=True)
-    password = models.CharField(max_length=20)
+    email = models.CharField(unique=True, max_length=50)
+    password = models.CharField(max_length=256)
 
     class Meta:
         managed = False
@@ -306,10 +312,11 @@ class User(models.Model):
 
 
 class UserSubmissions(models.Model):
-    user = models.ForeignKey(User, models.CASCADE, primary_key=True)
-    problem = models.ForeignKey(Problem, models.CASCADE)
+    user = models.ForeignKey(User, models.DO_NOTHING)
+    problem = models.ForeignKey(Problem, models.DO_NOTHING)
     num_submissions = models.IntegerField()
     final_submission_no = models.IntegerField()
+    id = models.BigAutoField(primary_key=True)
 
     class Meta:
         managed = False

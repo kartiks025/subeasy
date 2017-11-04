@@ -10,15 +10,15 @@ def admin_login(request):
         id_or_email = request.POST['id_email']
         pwd = request.POST['pwd']
 
-        user = Admin.objects.get(id=id_or_email)
-        if user.password == pwd:
-            print("exists")
+        try:
+        	user = Admin.objects.get(id=id_or_email,password=pwd)
+			print("exists")
             request.session['admin_id'] = user.id
             request.session['is_admin'] = True
             request.session['is_user'] = False
             request.session.set_expiry(5*60)
             return redirect('admin_home')
-        else:
+        except KeyError:
             print("doesn't exist")
     return render(request, 'sedb/admin_login.html')
 
