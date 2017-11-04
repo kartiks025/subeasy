@@ -5,7 +5,7 @@
     <i class="material-icons prefix">search</i><input type="text" id="search"  placeholder="Search for names..">
     <ul class="collapsible popout" data-collapsible="accordion">
           {% for c in courses %}
-          <li class="course-row">
+          <li class="course-row" cid="{{c.course_id}}" cname="{{c.name}}">
           <div class="collapsible-header row"><i class="material-icons">label</i>
             {{c.course_id}}-{{c.name}}
             <a class="delete-course" id={{c.course_id}}><i class="material-icons teal-text">delete</i></em></a>
@@ -26,16 +26,31 @@
                   </table>
               </div>
               <form class="col l12" action="add_section" method="post">{% csrf_token %}
-                      <div class='input-field col l6'><input name="sec_name" type="text" class="form-control" placeholder="Section Name" required autofocus></div>
-                      <div class='input-field col l6'><select class="year browser-default" name="year" placeholder="Year"></select></div>
-                      <div class='input-field col l3 offser-l2' align="left"><select class="browser-default" name="semester" placeholder="Semester" required>
-                        <option value="Fall">Fall</option>
-                        <option value="Spring">Spring</option>
-                        <option value="Summer">Summer</option>
-                        <option value="Winter">Winter</option>
-                      </select></div>
-                      <div class='input-field col l6'><input name="course_id" type="text" value="{{c.course_id}}" class="form-control"></div>
-                      <div class='input-field col l6'><button class="btn btn-lg btn-primary" type="submit">Add Section</button></div>
+                      <div class='row'>
+                        <div class='input-field col l6'><input name="sec_name" type="text" class="form-control" placeholder="Section Name" required autofocus></div>
+                        <div class='input-field col l3'><select class="year browser-default" name="year" placeholder="Year"></select></div>
+                        <div class='input-field col l3'><select class="browser-default"  name="semester" placeholder="Semester" required>
+                          <option value="Fall">Fall</option>
+                          <option value="Spring">Spring</option>
+                          <option value="Summer">Summer</option>
+                          <option value="Winter">Winter</option>
+                        </select></div>
+                        <input name="course_id" type="hidden" value="{{c.course_id}}" class="form-control">
+                      </div>
+                      <div class='row'>
+                        <div class='col l12'>
+                          <select multiple class="js-example-basic-multiple" name="instructor" >
+                            {% if user %}
+                              {% for u in user %}
+                                <option value="{{u.user_id}}">{{u.user_id}} - {{u.name}}</option>
+                              {% endfor %}
+                            {% endif %}
+                          </select>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class='input-field col l12'><button class="btn btn-lg btn-primary" type="submit">Add Section</button></div>
+                      </div>
               </form>
             </div>
           </div>
@@ -58,6 +73,11 @@
 
 {% block javascript %}
   <script>
+    $(document).ready(function() {
+        // $('select').material_select();
+        // $('.js-example-basic-single').select2();
+        $('.js-example-basic-multiple').select2();
+    });
     $(".delete-course").click(function () {
       var course_id = $(this).attr('id');
       $.ajax({
@@ -100,16 +120,12 @@
         $('.year').html(options);
     });
     $("#search").on("keyup", function() {
-        var value = $(this).val();
+        var value = $(this).val().toUpperCase();
         $(".course-row").each(function(index) {
             $row = $(this);
-
-            var id = $row.find("td:nth-child(2)").text();
-            var id1 = $row.find("td:nth-child(3)").text();
-            console.log(id);
-            console.log(id1);
-
-            if (id.indexOf(value) !== 0 && id1.indexOf(value) !== 0) {
+            var id = $row.attr('cid').toUpperCase();
+            var name = $row.attr('cname').toUpperCase();
+            if (id.indexOf(value) !== 0 && name.indexOf(value) !== 0) {
                 $row.hide();
             }
             else if ($row.is('.collapse:not(.show)')) {
@@ -119,9 +135,6 @@
                 $row.show();
             }
         });
-    });
-    $(document).ready(function() {
-        $('select').material_select();
     });
   </script>
 {% endblock %}

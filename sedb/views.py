@@ -26,7 +26,8 @@ def admin_home(request):
     for c in courses:
     	section = Section.objects.filter(course_id=c.course_id)
     	setattr(c,'section',section);
-    return render(request, 'sedb/admin_home.html', {'courses': courses})
+    users = User.objects.all()
+    return render(request, 'sedb/admin_home.html', {'courses': courses, 'user':users})
 
 
 @admin_required
@@ -58,6 +59,11 @@ def add_section(request):
     if request.method == 'POST':
     	s = Section(sec_name=request.POST['sec_name'],semester=request.POST['semester'],year=request.POST['year'],course_id=request.POST['course_id'],num_assignments=0)
     	s.save()
+    	instructor = request.POST.getlist('instructor')
+    	for i in instructor:
+    		u = User.objects.filter(user_id=i)
+    		secuser = SecUser(role="Instructor",user=u[0],sec=s)
+    		secuser.save()
     return redirect('admin_home')
 
 @admin_required
