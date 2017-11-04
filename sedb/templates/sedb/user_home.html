@@ -1,0 +1,38 @@
+{% extends 'sedb/base.html' %}
+
+{% block content %}
+{% load staticfiles %}
+<div class="list-group">
+  {% for s in section %}
+  <a href="#" class="sec-select list-group-item list-group-item-action flex-column align-items-start active" id={{s.sec.sec_id}}>
+    <div class="d-flex w-100 justify-content-between">
+      <h5 class="mb-1">{{s.sec.course.name}}</h5>
+      <small>{{s.role}}</small>
+    </div>
+    <small>s.</small>
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block javascript %}
+	<script>
+    $(".sec-select").click(function () {
+      var section_id = $(this).attr('id');
+      $.ajax({
+        method: "POST",
+        url: '/sedb/section',
+        data: {
+          'sec_id': section_id,
+        },
+        dataType: 'json',
+        success: function (data) {
+          if(data.success){
+              location.reload();
+          }
+        }
+      });
+    });
+    </script>
+
+{% endblock %}
