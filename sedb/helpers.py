@@ -67,3 +67,21 @@ def send_forgot_password_email(uid,email):
     text = msg.as_string()
     server.sendmail(fromaddr, toaddr, text)
     server.quit()
+
+def send_verify_account_email(uid,email):
+    fromaddr = "kartik_singhal@iitb.ac.in"
+    toaddr = email
+    msg = MIMEMultipart()
+    msg['From'] = fromaddr
+    msg['To'] = toaddr
+    msg['Subject'] = "Verify Account"
+     
+    body = "Click on this link http://localhost:8000/sedb/verify_account/"+uid+"/"
+    msg.attach(MIMEText(body, 'plain'))
+     
+    server = smtplib.SMTP('smtp-auth.iitb.ac.in', 25)
+    server.starttls()
+    server.login("kartik_singhal@iitb.ac.in", "yamini@1990")
+    text = msg.as_string()
+    server.sendmail(fromaddr, toaddr, text)
+    server.quit()

@@ -22,4 +22,6 @@ urlpatterns = [
     url(r'^forgot_password.html$', views.forgot_password, name='forgot_password'),
     url(r'^change_password/$', views.change_password, name='change_password'),
     url(r'^add_assignment/$', views.add_assignment, name='add_assignment'),
+    url(r'^admin_logout/$', views.admin_logout, name='admin_logout'),
+    url(r'^user_logout$', views.user_logout, name='user_logout'),
 ]

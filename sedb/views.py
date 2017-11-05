@@ -9,9 +9,15 @@ from bcrypt import hashpw, checkpw
 import uuid
 import hashlib
 from datetime import datetime
+from django.views.decorators.cache import cache_control
 
 
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def admin_login(request):
+    print("login called")
+    if request.session.get('is_admin') is not None:
+        if request.session['is_admin'] == True:
+            return redirect('admin_home')
     if request.method == 'POST':
         id_or_email = request.POST['id_email']
         pwd = request.POST['pwd']
@@ -33,16 +39,18 @@ def admin_login(request):
 
 @admin_required
 def admin_home(request):
-    courses = Course.objects.all()
+    courses = Course.objects.all().order_by('course_id')
     for c in courses:
-        section = Section.objects.filter(course_id=c.course_id)
+        section = Section.objects.filter(course_id=c.course_id).order_by('-year')
         setattr(c, 'section', section)
         for s in section:
             cursor = connection.cursor()
             cursor.execute(
                 '''select name from "user" where user_id in (select user_id from sec_user where sec_id =%s);''',
                 [s.sec_id])
-            setattr(s, 'instructor', cursor.fetchall());
+            row = [item[0] for item in cursor.fetchall()]
+            print(row)
+            setattr(s, 'instructor', row);
     users = User.objects.all()
     return render(request, 'sedb/admin_home.html', {'courses': courses, 'user': users})
 
@@ -54,6 +62,7 @@ def add_course(request):
         name = request.POST['name']
         if Course.objects.filter(course_id=course_id).exists():
             print("course already exists")
+            messages.add_message(request, messages.ERROR, 'Course ID already exists')
         else:
             c = Course(course_id=course_id, name=name)
             c.save()
@@ -75,14 +84,19 @@ def delete_course(request):
 @admin_required
 def add_section(request):
     if request.method == 'POST':
-        s = Section(sec_name=request.POST['sec_name'], semester=request.POST['semester'], year=request.POST['year'],
-                    course_id=request.POST['course_id'], num_assignments=0)
-        s.save()
-        instructor = request.POST.getlist('instructor')
-        for i in instructor:
-            u = User.objects.filter(user_id=i)
-            secuser = SecUser(role="Instructor", user=u[0], sec=s)
-            secuser.save()
+        if Section.objects.filter(sec_name=request.POST['sec_name'], semester=request.POST['semester'],
+                                  year=request.POST['year'],
+                                  course_id=request.POST['course_id']).exists():
+            messages.add_message(request, messages.ERROR, 'Same Section already exists')
+        else:
+            s = Section(sec_name=request.POST['sec_name'], semester=request.POST['semester'], year=request.POST['year'],
+                        course_id=request.POST['course_id'], num_assignments=0)
+            s.save()
+            instructor = request.POST.getlist('instructor')
+            for i in instructor:
+                u = User.objects.filter(user_id=i)
+                secuser = SecUser(role="Instructor", user=u[0], sec=s)
+                secuser.save()
     return redirect('admin_home')
 
 
@@ -141,12 +155,16 @@ def user_signup(request):
             messages.add_message(request, messages.ERROR, 'Email ID already taken')
             return render(request, 'sedb/user_signup.html')
 
-        if pwd != cnfrpwd:
-            messages.add_message(request, messages.ERROR, 'Password do not match')
-            return render(request, 'sedb/user_signup.html')
-
-        newuser = User(user_id=userID, name=user_name, email=email_id, password=pwd)
+        if VerifyAccount.objects.filter(user_id=userID).exists():
+            VerifyAccount.objects.filter(user_id=userID).delete()
+        if VerifyAccount.objects.filter(email=email_id).exists():
+            VerifyAccount.objects.filter(email=email_id).delete()
+        uid = uuid.uuid4().hex
+        dt = datetime.now()
+        newuser = VerifyAccount(user_id=userID, name=user_name, email=email_id, password=gethashedpwd(pwd),
+                                uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest(), timestamp=dt)
         newuser.save()
+        send_verify_account_email(uid, email_id)
         messages.add_message(request, messages.ERROR, 'Succesfully Registered')
         return render(request, 'sedb/user_signup.html')
     return render(request, 'sedb/user_signup.html')
@@ -206,8 +224,20 @@ def reset_password(request):
     return render(request, 'sedb/forgot_password.html')
 
 
+def add_assignment(request):
+    return render(request, 'sedb/add_assignment.html')
+
+
 def verify_account(request, uid):
     print(uid)
+    if VerifyAccount.objects.filter(uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest()).exists():
+        va = VerifyAccount.objects.get(uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest())
+        u = User(user_id=va.user_id, email=va.email, password=va.password, name=va.name)
+        u.save()
+        va.delete()
+        return render(request, 'sedb/verify_account.html')
+    else:
+        return redirect('user_login')
 
 
 def reset_password(request, uid):
@@ -225,8 +255,20 @@ def change_password(request):
         u.password = gethashedpwd(request.POST['pwd'])
         u.save()
         print("done-dana-dan")
-    return render(request, 'sedb/user_login.html')
+    return redirect('user_login')
 
 
-def add_assignment(request):
-    return render(request, 'sedb/add_assignment.html')
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def admin_logout(request):
+    if request.session.get('is_admin') is not None:
+        if request.session['is_admin']:
+            request.session.delete()
+    return redirect('admin_login')
+
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def user_logout(request):
+    if request.session.get('is_user') is not None:
+        if request.session['is_user']:
+            request.session.delete()
+    return redirect('user_login')

@@ -332,3 +332,17 @@ class UserSubmissions(models.Model):
         managed = False
         db_table = 'user_submissions'
         unique_together = (('user', 'problem'),)
+
+
+class VerifyAccount(models.Model):
+    uuid = models.CharField(primary_key=True, max_length=64)
+    timestamp = models.DateTimeField()
+    user_id = models.CharField(max_length=20)
+    name = models.CharField(max_length=50, blank=True, null=True)
+    email = models.CharField(max_length=50)
+    password = models.CharField(max_length=64)
+    
+    class Meta:
+        managed = False
+        db_table = 'verify_account'
+        unique_together = (('email', 'user_id'),)
