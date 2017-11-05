@@ -1,0 +1,73 @@
+LOG:  database system was shut down at 2017-11-05 06:14:38 IST
+LOG:  MultiXact member wraparound protections are now enabled
+LOG:  database system is ready to accept connections
+LOG:  autovacuum launcher started
+ERROR:  syntax error at or near "(" at character 19
+STATEMENT:  ALTER TABLE admin (password VARCHAR(64));
+ERROR:  syntax error at or near "character" at character 43
+STATEMENT:  alter table "user" alter column passsword character varying (64) NOT NULL
+ERROR:  syntax error at or near "NOT" at character 71
+STATEMENT:  alter table "user" alter column passsword TYPE character varying (64) NOT NULL
+ERROR:  column "passsword" of relation "user" does not exist
+STATEMENT:  alter table "user" alter column passsword TYPE character varying (64)
+ERROR:  value too long for type character varying(64)
+STATEMENT:  UPDATE public."user" SET password='kartik$2b$12$4YuBd8QUDd2QA0mcCccw9eqQaoyThBLZl3QmJWdhcqpjpfojtNKaC'::character varying(256) WHERE user_id = 'kartik'::character varying(20)
+ERROR:  syntax error at or near ")" at character 240
+STATEMENT:  CREATE TABLE reset_password
+	(
+	  uuid varchar(32) NOT NULL,
+	  timestamp timestamp NOT NULL,
+	  email varchar(50) NOT NULL,
+	  PRIMARY KEY (uuid),
+	  FOREIGN KEY (email) REFERENCES "user"(email)
+	      on delete cascade
+	      on update cascade,
+	);
+ERROR:  end-of-copy marker corrupt
+CONTEXT:  COPY user, line 4
+STATEMENT:  COPY "user" (user_id, name, email, password) FROM stdin;
+ERROR:  missing data for column "name"
+CONTEXT:  COPY user, line 1: ""
+STATEMENT:  COPY "user" (user_id, name, email, password) FROM stdin;
+ERROR:  cannot drop table "user" because other objects depend on it
+DETAIL:  constraint reset_password_email_fkey on table reset_password depends on table "user"
+HINT:  Use DROP ... CASCADE to drop the dependent objects too.
+STATEMENT:  DROP TABLE "user";
+ERROR:  table "comment" does not exist
+STATEMENT:  DROP TABLE comment;
+ERROR:  table "crib" does not exist
+STATEMENT:  DROP TABLE crib;
+ERROR:  table "sec_user" does not exist
+STATEMENT:  DROP TABLE sec_user;
+ERROR:  table "submission" does not exist
+STATEMENT:  DROP TABLE submission;
+ERROR:  table "testcase" does not exist
+STATEMENT:  DROP TABLE testcase;
+ERROR:  table "assign_ip" does not exist
+STATEMENT:  DROP TABLE assign_ip;
+ERROR:  table "user_submissions" does not exist
+STATEMENT:  DROP TABLE user_submissions;
+ERROR:  table "problem" does not exist
+STATEMENT:  DROP TABLE problem;
+ERROR:  table "assignment" does not exist
+STATEMENT:  DROP TABLE assignment;
+ERROR:  table "resource_limit" does not exist
+STATEMENT:  DROP TABLE resource_limit;
+ERROR:  table "section" does not exist
+STATEMENT:  DROP TABLE section;
+ERROR:  table "deadline" does not exist
+STATEMENT:  DROP TABLE deadline;
+ERROR:  table "course" does not exist
+STATEMENT:  DROP TABLE course;
+ERROR:  table "admin" does not exist
+STATEMENT:  DROP TABLE admin;
+ERROR:  table "reset_password" does not exist
+STATEMENT:  DROP TABLE reset_password;
+ERROR:  unexpected EOF on client connection with an open transaction
+CONTEXT:  COPY user, line 1
+STATEMENT:  COPY "user" (user_id, name, email, password) FROM stdin;
+FATAL:  terminating connection because protocol synchronization was lost
+LOG:  could not send data to client: Broken pipe
+ERROR:  insert or update on table "reset_password" violates foreign key constraint "reset_password_email_fkey"
+DETAIL:  Key (email)=(kartik) is not present in table "user".
+STATEMENT:  INSERT INTO "reset_password" ("uuid", "timestamp", "email") VALUES ('$2b$12$hb1Fazo15SwREV9jddVFT.MpHtybSB6P.u/G/g9EPOmn07oC4Dzf2', '2017-11-05T13:22:12.810122+00:00'::timestamptz, 'kartik')

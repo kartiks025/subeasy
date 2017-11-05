@@ -14,34 +14,19 @@
     </div>
     <small>s.</small>
   </a>
+  <form action="display_section" method="post" id="form{{s.sec.sec_id}}">{% csrf_token %}
+    <input type="hidden" name="sec_id" value="{{s.id}}">
+  </form>
   {% endfor %}
 </div>
 {% endblock %}
 
 {% block javascript %}
 	<script>
-    $(".sec-select").click(function () {
-      var section_id = $(this).attr('id');
-      <!--$.ajax({-->
-        <!--method: "POST",-->
-        <!--url: '/sedb/section',-->
-        <!--data: {-->
-          <!--'sec_id': section_id,-->
-        <!--},-->
-        <!--dataType: 'json',-->
-        <!--success: function (data) {-->
-          <!--if(data.success){-->
-              <!--location.reload();-->
-          <!--}-->
-        <!--}-->
-      <!--});-->
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", /sedb/display_section, true);
-      xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.send(JSON.stringify({
-          sec_id: section_id
-      }));
+    $( ".sec-select" ).click(function() {
+      id = $(this).attr('id');
+      $( "#form"+id ).submit();
     });
-    </script>
+  </script>
 
 {% endblock %}

@@ -1,0 +1,16 @@
+DROP TABLE comment;
+DROP TABLE crib;
+DROP TABLE sec_user;
+DROP TABLE submission;
+DROP TABLE testcase;
+DROP TABLE assign_ip;
+DROP TABLE user_submissions;
+DROP TABLE problem;
+DROP TABLE assignment;
+DROP TABLE resource_limit;
+DROP TABLE section;
+DROP TABLE deadline;
+DROP TABLE course;
+DROP TABLE "user";
+DROP TABLE admin;
+DROP TABLE reset_password;
