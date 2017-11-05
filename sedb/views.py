@@ -6,7 +6,9 @@ from django.db import connection
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from bcrypt import hashpw,checkpw
-
+import uuid
+import hashlib
+from datetime import datetime
 
 def admin_login(request):
     if request.method == 'POST':
@@ -148,7 +150,7 @@ def user_signup(request):
     return render(request, 'sedb/user_signup.html')
 
 
-
+@user_required
 def display_section(request):
 	if request.method == 'POST':
 		secuser = SecUser.objects.get(id=request.POST['sec_id']);
@@ -163,11 +165,55 @@ def display_section(request):
 
 	return render(request, 'sedb/display_section.html')
 
+@user_required
 def display_instructor(request):
 	return render(request, 'sedb/display_instructor.html')
 
+@user_required
 def display_ta(request):
 	return render(request, 'sedb/display_ta.html')
 
+@user_required
 def display_student(request):
 	return render(request, 'sedb/display_student.html')
+
+def forgot_password(request):
+	if request.method == 'POST':
+		email = request.POST['email']
+		ResetPassword.objects.filter(email=email).delete()
+		print(email)
+		if User.objects.filter(email=email).exists():
+			print("yes")
+			u = User.objects.get(email=email);
+			uid = uuid.uuid4().hex
+			dt = datetime.now()
+			print(uid)
+			print()
+			rs = ResetPassword(email_id=email,uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest(),timestamp=dt)
+			rs.save()
+			send_forgot_password_email(uid,email)
+	return render(request, 'sedb/forgot_password.html')
+
+def reset_password(request):
+	if request.method == 'POST':
+		print("yes")
+	return render(request, 'sedb/forgot_password.html')
+
+def verify_account(request, uid):
+	print(uid)
+
+def reset_password(request, uid):
+	request.session['uid']=uid
+	return render(request, 'sedb/reset_password.html')
+
+def change_password(request):
+	if request.method == 'POST':
+		uid = request.session['uid']
+		print(request.session['uid'])
+		print(hashlib.sha256(uid.encode('utf-8')).hexdigest())
+		rp = ResetPassword.objects.get(uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest())
+		u = User.objects.get(email=rp.email_id)
+		u.password = gethashedpwd(request.POST['pwd'])
+		u.save()
+		print("done-dana-dan")
+	return render(request, 'sedb/user_login.html')

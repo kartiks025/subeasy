@@ -3,6 +3,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from bcrypt import hashpw, gensalt
+import uuid
 
 def admin_required(fun):
     def wrap(request):
@@ -49,5 +50,20 @@ def send_verify_mail():
 def gethashedpwd(pwd):
     return hashpw(pwd.encode('utf-8'), gensalt()).decode('utf-8')
 
-print(gethashedpwd("kartik"))
-print(gethashedpwd("pranay"))
+def send_forgot_password_email(uid,email):
+    fromaddr = "kartik_singhal@iitb.ac.in"
+    toaddr = email
+    msg = MIMEMultipart()
+    msg['From'] = fromaddr
+    msg['To'] = toaddr
+    msg['Subject'] = "Reset Password"
+     
+    body = "Click on this link http://localhost:8000/sedb/reset_password/"+uid+"/"
+    msg.attach(MIMEText(body, 'plain'))
+     
+    server = smtplib.SMTP('smtp-auth.iitb.ac.in', 25)
+    server.starttls()
+    server.login("kartik_singhal@iitb.ac.in", "yamini@1990")
+    text = msg.as_string()
+    server.sendmail(fromaddr, toaddr, text)
+    server.quit()

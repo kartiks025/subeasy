@@ -13,7 +13,7 @@ from django.db import models
 class Admin(models.Model):
     id = models.CharField(primary_key=True, max_length=20)
     email = models.CharField(unique=True, max_length=50)
-    password = models.CharField(max_length=20)
+    password = models.CharField(max_length=64)
     name = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
@@ -228,6 +228,16 @@ class Problem(models.Model):
         db_table = 'problem'
 
 
+class ResetPassword(models.Model):
+    uuid = models.CharField(primary_key=True, max_length=64)
+    timestamp = models.DateTimeField()
+    email = models.ForeignKey('User', models.DO_NOTHING, db_column='email', unique=True)
+
+    class Meta:
+        managed = False
+        db_table = 'reset_password'
+
+
 class ResourceLimit(models.Model):
     resource_limit_id = models.BigAutoField(primary_key=True)
     cpu_time = models.IntegerField()
@@ -304,7 +314,7 @@ class User(models.Model):
     user_id = models.CharField(primary_key=True, max_length=20)
     name = models.CharField(max_length=50, blank=True, null=True)
     email = models.CharField(unique=True, max_length=50)
-    password = models.CharField(max_length=256)
+    password = models.CharField(max_length=64)
 
     class Meta:
         managed = False
