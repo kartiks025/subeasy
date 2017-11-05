@@ -143,8 +143,15 @@ def user_signup(request):
             messages.add_message(request,messages.ERROR,'Password do not match')
             return render(request, 'sedb/user_signup.html')
 
-        newuser=User(user_id=userID,name=user_name,email=email_id,password=pwd)
+        if VerifyAccount.objects.filter(user_id = userID).exists():
+        	VerifyAccount.objects.filter(user_id = userID).delete()
+        if VerifyAccount.objects.filter(email = email_id).exists(): 
+        	VerifyAccount.objects.filter(email = email_id).delete()
+        uid = uuid.uuid4().hex
+        dt = datetime.now()
+        newuser=VerifyAccount(user_id=userID,name=user_name,email=email_id,password=gethashedpwd(pwd),uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest(),timestamp=dt)
         newuser.save()
+        send_verify_account_email(uid,email_id)
         messages.add_message(request,messages.ERROR,'Succesfully Registered')
         return render(request, 'sedb/user_signup.html')
     return render(request, 'sedb/user_signup.html')
@@ -201,6 +208,15 @@ def reset_password(request):
 
 def verify_account(request, uid):
 	print(uid)
+	if VerifyAccount.objects.filter(uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest()).exists():
+		va = VerifyAccount.objects.get(uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest())
+		u = User(user_id=va.user_id,email=va.email,password=va.password,name=va.name)
+		u.save()
+		va.delete()
+		return render(request, 'sedb/verify_account.html')
+	else:
+		return redirect('user_login')
+
 
 def reset_password(request, uid):
 	request.session['uid']=uid
@@ -216,4 +232,4 @@ def change_password(request):
 		u.password = gethashedpwd(request.POST['pwd'])
 		u.save()
 		print("done-dana-dan")
-	return render(request, 'sedb/user_login.html')
+	return redirect('user_login')

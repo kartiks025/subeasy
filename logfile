@@ -71,3 +71,9 @@ LOG:  could not send data to client: Broken pipe
 ERROR:  insert or update on table "reset_password" violates foreign key constraint "reset_password_email_fkey"
 DETAIL:  Key (email)=(kartik) is not present in table "user".
 STATEMENT:  INSERT INTO "reset_password" ("uuid", "timestamp", "email") VALUES ('$2b$12$hb1Fazo15SwREV9jddVFT.MpHtybSB6P.u/G/g9EPOmn07oC4Dzf2', '2017-11-05T13:22:12.810122+00:00'::timestamptz, 'kartik')
+ERROR:  duplicate key value violates unique constraint "verify_account_email_user_id_key"
+DETAIL:  Key (email, user_id)=(himanshu.0896@gmail.com, himanshu) already exists.
+STATEMENT:  INSERT INTO "verify_account" ("uuid", "timestamp", "user_id", "name", "email", "password") VALUES ('0b1c199ba1660245cff83d7d75bf5a8e5afacdd919df1a0dd527389fc1872868', '2017-11-05T19:28:01.127591+00:00'::timestamptz, 'himanshu', 'Himanshu Gupta', 'himanshu.0896@gmail.com', '$2b$12$9R05v3w.xpWwQPF.dqn8O.nhxVyBCwuMr6s.P1zErx5KtQiRX.Ui6')
+ERROR:  null value in column "email" violates not-null constraint
+DETAIL:  Failing row contains (VerifyAccount.object, null, null, null).
+STATEMENT:  INSERT INTO public."user"(user_id) VALUES ('VerifyAccount.objects.filter(email = email_id)'::character varying(20))

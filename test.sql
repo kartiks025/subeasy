@@ -234,3 +234,15 @@ CREATE TABLE reset_password
       on update cascade,
   UNIQUE(email)
 );
+
+CREATE TABLE verify_account
+(
+  uuid varchar(64) NOT NULL,
+  timestamp timestamp NOT NULL,
+  user_id varchar(20) NOT NULL,
+  name varchar(50),
+  email varchar(50) NOT NULL,
+  password varchar(64) NOT NULL,
+  PRIMARY KEY (uuid),
+  UNIQUE(email,user_id)
+);
