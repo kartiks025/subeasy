@@ -39,14 +39,16 @@ def admin_login(request):
 def admin_home(request):
     courses = Course.objects.all()
     for c in courses:
-        section = Section.objects.filter(course_id=c.course_id)
+        section = Section.objects.filter(course_id=c.course_id).order_by('-year')
         setattr(c, 'section', section)
         for s in section:
             cursor = connection.cursor()
             cursor.execute(
                 '''select name from "user" where user_id in (select user_id from sec_user where sec_id =%s);''',
                 [s.sec_id])
-            setattr(s, 'instructor', cursor.fetchall());
+            row = [item[0] for item in cursor.fetchall()]
+            print(row)
+            setattr(s, 'instructor', row);
     users = User.objects.all()
     return render(request, 'sedb/admin_home.html', {'courses': courses, 'user': users})
 

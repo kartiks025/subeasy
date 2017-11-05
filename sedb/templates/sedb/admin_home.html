@@ -2,16 +2,14 @@
 
 {% block content %}
 <div class="container">
-<i class="fa fa-search" aria-hidden="true"></i>
-<input type="text" id="search"  placeholder="&#xf002;">
-    <i class="icon-camera-retro"></i>
+<input type="text" id="search"  placeholder="&#xf002; Search for a course">
 
     <ul class="collapsible popout" data-collapsible="accordion">
           {% for c in courses %}
           <li class="course-row" cid="{{c.course_id}}" cname="{{c.name}}">
             <div class="collapsible-header l9">
              <i class="material-icons teal-text">label</i>
-              <a class="delete-course" id={{c.course_id}}><i class="material-icons teal-text">delete</i></em></a>
+              <a class="delete-course" id={{c.course_id}} data-iconpos="notext" data-role="button" data-icon="check"><i class="material-icons teal-text">delete</i></em></a>
               {{c.course_id}}-{{c.name}}
               
           </div>
@@ -23,13 +21,13 @@
                       <tr>
                           <td>{{ forloop.counter }}</td>
                           <td>{{s.sec_name}}</td>
+                          <td>{{s.year}}</td>
                           <td>{{s.semester}}</td>
                           <td>
                           {% for i in s.instructor %}
                             {{i}}<br>
                           {% endfor %}
                           </td>
-                          <td>{{s.year}}</td>
                           <td><a class="delete-section" id={{s.sec_id}}><i class="material-icons teal-text" style="font-size: 20px">delete</i></a></td>
                       </tr>
                       {% endfor %}
@@ -39,7 +37,7 @@
                       <div class='row'>
                         <div class='input-field col l6'><input name="sec_name" type="text" class="form-control" placeholder="Section Name" required autofocus></div>
                         <div class='input-field col l3'><select class="year browser-default" name="year" placeholder="Year"></select></div>
-                        <div class='input-field col l3'><select class="browser-default"  name="semester" placeholder="Semester" required>
+                        <div class='input-field col l3'><select class="browser-default"  name="semester" placeholder="Semester">
                           <option value="Fall">Fall</option>
                           <option value="Spring">Spring</option>
                           <option value="Summer">Summer</option>
@@ -48,8 +46,8 @@
                         <input name="course_id" type="hidden" value="{{c.course_id}}" class="form-control">
                       </div>
                       <div class='row'>
-                        <div class='col l12'>
-                          <select multiple class="js-example-basic-multiple" name="instructor" >
+                        <div class='input-field col l6'>
+                          <select multiple class="js-example-basic-multiple browser-default" style="width:300px height:50px" name="instructor" placeholder = "Select Instructors" required>
                             {% if user %}
                               {% for u in user %}
                                 <option value="{{u.user_id}}">{{u.user_id}} - {{u.name}}</option>
@@ -57,9 +55,7 @@
                             {% endif %}
                           </select>
                         </div>
-                      </div>
-                      <div class="row">
-                        <div class='input-field col l12'><button class="btn btn-lg btn-primary" type="submit">Add Section</button></div>
+                        <div class='input-field col l3 push-l2'><button class="btn btn-lg btn-primary" type="submit">Add Section</button></div>
                       </div>
               </form>
             </div>
@@ -75,6 +71,7 @@
                       <input name="name" type="text" class="form-control" placeholder="Coure Name" required>
                       <button class="btn btn-lg btn-primary" type="submit">Add Course</button>
               </form>
+              <br>
           </div>
           </div>
           </li>
@@ -89,11 +86,11 @@
         // $('.js-example-basic-single').select2();
         $('.js-example-basic-multiple').select2();
     });
-    var $panel_headers = $('.collapsible').find('> li > .collapsible-header');
-    $(".delete-course").click(function () {
-      $('.collapsible').off('click.collapse', '.collapsible-header');
-      $panel_headers.off('click.collapse').css('pointer-events', 'none');
+    $(".delete-course").click(function (e) {
       var course_id = $(this).attr('id');
+      e.stopPropagation();
+      e.stopImmediatePropagation(); 
+      e.preventDefault();
       $.ajax({
         method: "POST",
         url: '/sedb/delete_course',

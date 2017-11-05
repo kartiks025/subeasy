@@ -17,9 +17,20 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" rel='stylesheet' type='text/css'>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/js/select2.min.js"></script>
-  <script src="https://use.fontawesome.com/3dd9b0bab0.js"></script>
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 
-    {% block stylesheet %}{% endblock %}
+{% block stylesheet %}
+    <style>
+    textarea, input {
+      padding:10px;
+      font-family: FontAwesome, "Open Sans", Verdana, sans-serif;
+        font-style: normal;
+        font-weight: normal;
+        text-decoration: inherit;
+    }
+    </style>
+{% endblock %}
+
 </head>
   <body>
     <nav class="navbar navbar-inverse">
