@@ -34,7 +34,7 @@ def admin_login(request):
 def admin_home(request):
     courses = Course.objects.all()
     for c in courses:
-        section = Section.objects.filter(course_id=c.course_id)
+        section = Section.objects.filter(course_id=c.course_id).order_by('-year')
         setattr(c, 'section', section)
         for s in section:
             cursor = connection.cursor()
