@@ -139,10 +139,6 @@ def user_signup(request):
             messages.add_message(request,messages.ERROR,'Email ID already taken')
             return render(request, 'sedb/user_signup.html')
 
-        if pwd != cnfrpwd:
-            messages.add_message(request,messages.ERROR,'Password do not match')
-            return render(request, 'sedb/user_signup.html')
-
         newuser=User(user_id=userID,name=user_name,email=email_id,password=pwd)
         newuser.save()
         messages.add_message(request,messages.ERROR,'Succesfully Registered')

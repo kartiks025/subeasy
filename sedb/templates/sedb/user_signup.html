@@ -9,7 +9,7 @@
             <div class="account-wall">
                 <img class="profile-img" src="{% static 'sedb/signup.png' %}"
                     alt="">
-                <form class="form-signup" action="user_signup" method="post">{% csrf_token %}
+                <form class="form-signup" name="signupForm" action="user_signup" onsubmit="return validateForm()" method="post">{% csrf_token %}
                 <input name="userID" type="text" class="form-control" placeholder="User ID" required autofocus>
                 <input name="user_name" type="text" class="form-control" placeholder="Name" required autofocus>
                 <input name="email_id" type="text" class="form-control" placeholder="Email ID" required autofocus>
@@ -24,7 +24,7 @@
 <!--                 <a href="#" class="pull-right need-help">Need help? </a><span class="clearfix"></span>
  -->                </form>
                 {% if messages %}
-                    <ul class="messages">
+                    <ul class="messages" style="color:red;">
                         {% for message in messages %}
                         <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
                         {% endfor %}
@@ -36,25 +36,21 @@
     </div>
 </div>
 {% endblock %}
-<!-- 
+ 
 {% block javascript %}
     <script>
-    $(".form-control-uid").blur(function () {
-      var uid_entered = $(this).value;
-      $.ajax({
-        method: "POST",
-        url: '/sedb/section',
-        data: {
-          'sec_id': section_id,
-        },
-        dataType: 'json',
-        success: function (data) {
-          if(data.success){
-              location.reload();
-          }
+    function validateForm() 
+    {
+        var pwd = document.forms["signupForm"]["pwd"].value;
+        var cnfrpwd = document.forms["signupForm"]["cnfrpwd"].value;
+        if (pwd != cnfrpwd) {
+            alert("Passwords don't match!");
+            document.forms["signupForm"]["pwd"].value = "";
+            document.forms["signupForm"]["cnfrpwd"].value = "";
+            return false;
         }
-      });
-    });
+        else return true;   
+    }
     </script>
 
-{% endblock %} -->
+{% endblock %}
