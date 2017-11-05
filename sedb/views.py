@@ -5,20 +5,24 @@ from django.http import JsonResponse
 from django.db import connection
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
+from bcrypt import hashpw,checkpw
 
 
 def admin_login(request):
     if request.method == 'POST':
         id_or_email = request.POST['id_email']
         pwd = request.POST['pwd']
-
         try:
-            user = Admin.objects.get(id=id_or_email, password=pwd)
-            request.session['admin_id'] = user.id
-            request.session['is_admin'] = True
-            request.session['is_user'] = False
-            request.session.set_expiry(5 * 60)
-            return redirect('admin_home')
+            user = Admin.objects.get(id=id_or_email)
+            if checkpw(pwd.encode('utf-8'), user.password.encode('utf-8')):
+                print ("It matches")
+                request.session['admin_id'] = user.id
+                request.session['is_admin'] = True
+                request.session['is_user'] = False
+                request.session.set_expiry(5 * 60)
+                return redirect('admin_home')
+            else:
+                print ("It does not match")
         except ObjectDoesNotExist:
             print("doesn't exist")
     return render(request, 'sedb/admin_login.html')
@@ -97,13 +101,16 @@ def user_login(request):
         pwd = request.POST['pwd']
 
         try:
-            user = User.objects.get(user_id=id_or_email, password=pwd)
-            print("exists")
-            request.session['user_id'] = user.user_id
-            request.session['is_admin'] = False
-            request.session['is_user'] = True
-            request.session.set_expiry(5 * 60)
-            return redirect('user_home')
+            user = User.objects.get(user_id=id_or_email)
+            if checkpw(pwd.encode('utf-8'), user.password.encode('utf-8')):
+                print ("It matches")
+                request.session['user_id'] = user.user_id
+                request.session['is_admin'] = False
+                request.session['is_user'] = True
+                request.session.set_expiry(5 * 60)
+                return redirect('user_home')
+            else:
+                print ("It does not match")            
         except ObjectDoesNotExist:
             print("doesn't exist")
     return render(request, 'sedb/user_login.html')

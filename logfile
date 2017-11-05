@@ -1,0 +1,14 @@
+LOG:  database system was shut down at 2017-11-05 06:14:38 IST
+LOG:  MultiXact member wraparound protections are now enabled
+LOG:  database system is ready to accept connections
+LOG:  autovacuum launcher started
+ERROR:  syntax error at or near "(" at character 19
+STATEMENT:  ALTER TABLE admin (password VARCHAR(64));
+ERROR:  syntax error at or near "character" at character 43
+STATEMENT:  alter table "user" alter column passsword character varying (64) NOT NULL
+ERROR:  syntax error at or near "NOT" at character 71
+STATEMENT:  alter table "user" alter column passsword TYPE character varying (64) NOT NULL
+ERROR:  column "passsword" of relation "user" does not exist
+STATEMENT:  alter table "user" alter column passsword TYPE character varying (64)
+ERROR:  value too long for type character varying(64)
+STATEMENT:  UPDATE public."user" SET password='kartik$2b$12$4YuBd8QUDd2QA0mcCccw9eqQaoyThBLZl3QmJWdhcqpjpfojtNKaC'::character varying(256) WHERE user_id = 'kartik'::character varying(20)
