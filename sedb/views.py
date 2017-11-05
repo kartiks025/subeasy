@@ -41,7 +41,9 @@ def admin_home(request):
             cursor.execute(
                 '''select name from "user" where user_id in (select user_id from sec_user where sec_id =%s);''',
                 [s.sec_id])
-            setattr(s, 'instructor', cursor.fetchall());
+            row = [item[0] for item in cursor.fetchall()]
+            print(row)
+            setattr(s, 'instructor', row);
     users = User.objects.all()
     return render(request, 'sedb/admin_home.html', {'courses': courses, 'user': users})
 
