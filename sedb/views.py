@@ -32,7 +32,7 @@ def admin_login(request):
 
 @admin_required
 def admin_home(request):
-    courses = Course.objects.all()
+    courses = Course.objects.all().order_by('course_id')
     for c in courses:
         section = Section.objects.filter(course_id=c.course_id).order_by('-year')
         setattr(c, 'section', section)
@@ -55,6 +55,7 @@ def add_course(request):
         name = request.POST['name']
         if Course.objects.filter(course_id=course_id).exists():
             print("course already exists")
+            messages.add_message(request,messages.ERROR,'Course ID already exists')
         else:
             c = Course(course_id=course_id, name=name)
             c.save()
@@ -76,14 +77,18 @@ def delete_course(request):
 @admin_required
 def add_section(request):
     if request.method == 'POST':
-        s = Section(sec_name=request.POST['sec_name'], semester=request.POST['semester'], year=request.POST['year'],
-                    course_id=request.POST['course_id'], num_assignments=0)
-        s.save()
-        instructor = request.POST.getlist('instructor')
-        for i in instructor:
-            u = User.objects.filter(user_id=i)
-            secuser = SecUser(role="Instructor", user=u[0], sec=s)
-            secuser.save()
+        if Section.objects.filter(sec_name=request.POST['sec_name'], semester=request.POST['semester'], year=request.POST['year'],
+                    course_id=request.POST['course_id']).exists():
+            messages.add_message(request,messages.ERROR,'Same Section already exists')
+        else:
+            s = Section(sec_name=request.POST['sec_name'], semester=request.POST['semester'], year=request.POST['year'],
+                        course_id=request.POST['course_id'], num_assignments=0)
+            s.save()
+            instructor = request.POST.getlist('instructor')
+            for i in instructor:
+                u = User.objects.filter(user_id=i)
+                secuser = SecUser(role="Instructor", user=u[0], sec=s)
+                secuser.save()
     return redirect('admin_home')
 
 
@@ -142,9 +147,9 @@ def user_signup(request):
             return render(request, 'sedb/user_signup.html')
 
         if VerifyAccount.objects.filter(user_id = userID).exists():
-        	VerifyAccount.objects.filter(user_id = userID).delete()
+            VerifyAccount.objects.filter(user_id = userID).delete()
         if VerifyAccount.objects.filter(email = email_id).exists(): 
-        	VerifyAccount.objects.filter(email = email_id).delete()
+            VerifyAccount.objects.filter(email = email_id).delete()
         uid = uuid.uuid4().hex
         dt = datetime.now()
         newuser=VerifyAccount(user_id=userID,name=user_name,email=email_id,password=gethashedpwd(pwd),uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest(),timestamp=dt)
@@ -157,77 +162,77 @@ def user_signup(request):
 
 @user_required
 def display_section(request):
-	if request.method == 'POST':
-		secuser = SecUser.objects.get(id=request.POST['sec_id']);
-		request.session['sec_id'] = request.POST['sec_id']
-		if(secuser.role=="Instructor"):
-			return redirect('display_instructor')
-		elif(secuser.role=="TA"):
-			return redirect('display_ta')
-		elif(secuser.role=="Student"):
-			return redirect('display_student')
+    if request.method == 'POST':
+        secuser = SecUser.objects.get(id=request.POST['sec_id']);
+        request.session['sec_id'] = request.POST['sec_id']
+        if(secuser.role=="Instructor"):
+            return redirect('display_instructor')
+        elif(secuser.role=="TA"):
+            return redirect('display_ta')
+        elif(secuser.role=="Student"):
+            return redirect('display_student')
 
 
-	return render(request, 'sedb/display_section.html')
+    return render(request, 'sedb/display_section.html')
 
 @user_required
 def display_instructor(request):
-	return render(request, 'sedb/display_instructor.html')
+    return render(request, 'sedb/display_instructor.html')
 
 @user_required
 def display_ta(request):
-	return render(request, 'sedb/display_ta.html')
+    return render(request, 'sedb/display_ta.html')
 
 @user_required
 def display_student(request):
-	return render(request, 'sedb/display_student.html')
+    return render(request, 'sedb/display_student.html')
 
 def forgot_password(request):
-	if request.method == 'POST':
-		email = request.POST['email']
-		ResetPassword.objects.filter(email=email).delete()
-		print(email)
-		if User.objects.filter(email=email).exists():
-			print("yes")
-			u = User.objects.get(email=email);
-			uid = uuid.uuid4().hex
-			dt = datetime.now()
-			print(uid)
-			print()
-			rs = ResetPassword(email_id=email,uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest(),timestamp=dt)
-			rs.save()
-			send_forgot_password_email(uid,email)
-	return render(request, 'sedb/forgot_password.html')
+    if request.method == 'POST':
+        email = request.POST['email']
+        ResetPassword.objects.filter(email=email).delete()
+        print(email)
+        if User.objects.filter(email=email).exists():
+            print("yes")
+            u = User.objects.get(email=email);
+            uid = uuid.uuid4().hex
+            dt = datetime.now()
+            print(uid)
+            print()
+            rs = ResetPassword(email_id=email,uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest(),timestamp=dt)
+            rs.save()
+            send_forgot_password_email(uid,email)
+    return render(request, 'sedb/forgot_password.html')
 
 def reset_password(request):
-	if request.method == 'POST':
-		print("yes")
-	return render(request, 'sedb/forgot_password.html')
+    if request.method == 'POST':
+        print("yes")
+    return render(request, 'sedb/forgot_password.html')
 
 def verify_account(request, uid):
-	print(uid)
-	if VerifyAccount.objects.filter(uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest()).exists():
-		va = VerifyAccount.objects.get(uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest())
-		u = User(user_id=va.user_id,email=va.email,password=va.password,name=va.name)
-		u.save()
-		va.delete()
-		return render(request, 'sedb/verify_account.html')
-	else:
-		return redirect('user_login')
+    print(uid)
+    if VerifyAccount.objects.filter(uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest()).exists():
+        va = VerifyAccount.objects.get(uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest())
+        u = User(user_id=va.user_id,email=va.email,password=va.password,name=va.name)
+        u.save()
+        va.delete()
+        return render(request, 'sedb/verify_account.html')
+    else:
+        return redirect('user_login')
 
 
 def reset_password(request, uid):
-	request.session['uid']=uid
-	return render(request, 'sedb/reset_password.html')
+    request.session['uid']=uid
+    return render(request, 'sedb/reset_password.html')
 
 def change_password(request):
-	if request.method == 'POST':
-		uid = request.session['uid']
-		print(request.session['uid'])
-		print(hashlib.sha256(uid.encode('utf-8')).hexdigest())
-		rp = ResetPassword.objects.get(uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest())
-		u = User.objects.get(email=rp.email_id)
-		u.password = gethashedpwd(request.POST['pwd'])
-		u.save()
-		print("done-dana-dan")
-	return redirect('user_login')
+    if request.method == 'POST':
+        uid = request.session['uid']
+        print(request.session['uid'])
+        print(hashlib.sha256(uid.encode('utf-8')).hexdigest())
+        rp = ResetPassword.objects.get(uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest())
+        u = User.objects.get(email=rp.email_id)
+        u.password = gethashedpwd(request.POST['pwd'])
+        u.save()
+        print("done-dana-dan")
+    return redirect('user_login')
