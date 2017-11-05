@@ -21,4 +21,6 @@ urlpatterns = [
     url(r'^reset_password/(?P<uid>[a-z^0-9]+)/$', views.reset_password, name='reset_password'),
     url(r'^forgot_password.html$', views.forgot_password, name='forgot_password'),
     url(r'^change_password/$', views.change_password, name='change_password'),
+    url(r'^admin_logout/$', views.admin_logout, name='admin_logout'),
+    url(r'^user_logout$', views.user_logout, name='user_logout'),
 ]

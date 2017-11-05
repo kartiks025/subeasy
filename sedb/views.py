@@ -9,8 +9,14 @@ from bcrypt import hashpw,checkpw
 import uuid
 import hashlib
 from datetime import datetime
+from django.views.decorators.cache import cache_control
 
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def admin_login(request):
+    print("login called")
+    if request.session.get('is_admin') is not None:
+        if request.session['is_admin'] == True:
+            return redirect('admin_home')
     if request.method == 'POST':
         id_or_email = request.POST['id_email']
         pwd = request.POST['pwd']
@@ -28,7 +34,6 @@ def admin_login(request):
         except ObjectDoesNotExist:
             print("doesn't exist")
     return render(request, 'sedb/admin_login.html')
-
 
 @admin_required
 def admin_home(request):
@@ -229,3 +234,18 @@ def change_password(request):
 		u.save()
 		print("done-dana-dan")
 	return redirect('user_login')
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def admin_logout(request):
+    if request.session.get('is_admin') is not None:
+        if request.session['is_admin'] == True:
+            request.session.delete();
+    return redirect('admin_login')
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def user_logout(request):
+    if request.session.get('is_user') is not None:
+        if request.session['is_user'] == True:
+            request.session.delete();
+    return redirect('user_login')
+
