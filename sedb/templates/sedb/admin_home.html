@@ -3,7 +3,13 @@
 {% block content %}
 <div class="container">
 <input type="text" id="search"  placeholder="&#xf002; Search for a course">
-
+  {% if messages %}
+        <ul class="messages" style="color:red;">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %} 
     <ul class="collapsible popout" data-collapsible="accordion">
           {% for c in courses %}
           <li class="course-row" cid="{{c.course_id}}" cname="{{c.name}}">
@@ -28,7 +34,7 @@
                             {{i}}<br>
                           {% endfor %}
                           </td>
-                          <td><a class="delete-section" id={{s.sec_id}}><i class="material-icons teal-text" style="font-size: 20px">delete</i></a></td>
+                          <td><a style="cursor: pointer;" class="delete-section" id={{s.sec_id}}><i class="material-icons teal-text" style="font-size: 20px">delete</i></a></td>
                       </tr>
                       {% endfor %}
                   </table>
