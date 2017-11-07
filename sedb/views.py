@@ -187,7 +187,8 @@ def display_section(request):
 
 @user_required
 def display_instructor(request):
-    return render(request, 'sedb/display_instructor.html')
+    users = User.objects.all()
+    return render(request, 'sedb/display_instructor.html',{'user' :users})
 
 
 @user_required
@@ -223,7 +224,7 @@ def reset_password(request):
         print("yes")
     return render(request, 'sedb/forgot_password.html')
 
-
+@user_required
 def add_assignment(request):
     return render(request, 'sedb/add_assignment.html')
 
@@ -272,3 +273,13 @@ def user_logout(request):
         if request.session['is_user']:
             request.session.delete()
     return redirect('user_login')
+
+@user_required
+def add_ta(request):
+	if request.method == 'POST':
+		ta = request.POST.getlist('ta')
+		for i in ta:
+		    u = User.objects.get(user_id=i)
+		    secuser = SecUser(role="TA", user=u, sec_id=request.session['sec_id'])
+		    secuser.save()
+	return redirect('display_instructor')

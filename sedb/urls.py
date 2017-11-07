@@ -24,4 +24,5 @@ urlpatterns = [
     url(r'^add_assignment/$', views.add_assignment, name='add_assignment'),
     url(r'^admin_logout/$', views.admin_logout, name='admin_logout'),
     url(r'^user_logout$', views.user_logout, name='user_logout'),
+    url(r'^add_ta$', views.add_ta, name='add_ta'),
 ]
