@@ -4,139 +4,209 @@
 {% load staticfiles %}
 
 <center><h5>Assignment</h5></center>
-<div class="col-sm-2"> <!-- required for floating -->
+<div class="col-xs-2"> <!-- required for floating -->
     <!-- Nav tabs -->
     <ul class="nav nav-tabs tabs-left">
-      <li class="active"><a href="#home" data-toggle="tab">Home</a></li>
+      <li class="active"><a id="tab-home" href="#assign_home" data-toggle="tab">Home</a></li>
       <li><a href="#profile" data-toggle="tab">Profile</a></li>
       <li><a href="#messages" data-toggle="tab">Messages</a></li>
       <li><a href="#settings" data-toggle="tab">Settings</a></li>
     </ul>
 </div>
 
-<div class="col-sm-6">
-    <div class="container">
-        <div class="panel panel-primary">
+<div class="panel panel-primary col-xs-9">
     <!-- Tab panes -->
-        <div class="tab-content">
-          <div class="tab-pane" id="profile">Profile Tab.</div>
-          <div class="tab-pane" id="messages">Messages Tab.</div>
-          <div class="tab-pane" id="settings">Settings Tab.</div>
+    <div class="tab-content panel-body">
+        <div class="tab-pane active" id="assign_home">
+            <button type="button" class="edit-btn btn btn-default btn-sm pull-right">
+                <span id="homeEditSave" class="glyphicon glyphicon-pencil"></span>
+            </button>
 
-            <div class="tab-pane" id="home">
-              <div class="container" style="margin-top:50px">
-                <form class="form-horizontal" action="/action_page.php">
-                  <div class="form-group">
-                    <label class="control-label col-sm-2" for="assign_num">Number:</label>
-                    <div class="col-sm-6">
-                      <input type="number" min="0" class="form-control" id="assign_num" placeholder="Enter assignment number" name="assign_num" required>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label class="control-label col-sm-2" for="title">Title:</label>
-                    <div class="col-sm-6">
-                      <input type="text" class="form-control" id="title" placeholder="Title" name="assign_title" required>
-                    </div>
-                  </div>
+            <div class="container">
+                <form class="form-horizontal" id="form" action="{% url 'sedb:edit_assign_home' %}" method="post">
+                    <input id="sec_user_id" type="hidden" name="sec_user_id" value="{{ sec_user_id }}">
+                    <input id="assign_id" type="hidden" name="assign_id" value="{{ assign_id }}">
+
                     <div class="form-group">
-                        <label class="control-label col-sm-2">Visibility:</label>
-                        <div class="col-sm-6">
+                        <label class="control-label col-xs-2" for="assign_num">Number:</label>
+                        <div class="col-xs-6">
+                            <input type="number" min="0" class="form-control" id="assign_num" placeholder="Enter assignment number" name="assign_num" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-xs-2" for="title">Title:</label>
+                        <div class="col-xs-6">
+                            <input type="text" class="form-control" id="title" placeholder="Title" name="assign_title" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-xs-2">Visibility:</label>
+                        <div class="col-xs-6">
                             <label class="radio-inline">
-                              <input type="radio" name="optradio">Visible
+                                <input id="visible" type="radio" name="visibility" value="1">Visible
                             </label>
                             <label class="radio-inline">
-                              <input type="radio" name="optradio">Hidden
+                                <input id="hidden" type="radio" name="visibility" value="0" checked>Hidden
                             </label>
-
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-sm-2" for="pub_time">Publish Time:</label>
-                        <div class="col-sm-6">
-                          <input type="datetime-local" class="form-control" id="pub_time" name="assign_title" required>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="soft_deadline">Soft Deadline:</label>
-                        <div class="col-sm-6">
-                          <input type="datetime-local" class="form-control" id="soft_deadline" name="soft_deadline" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-sm-2" for="hard_deadline">Hard Deadline:</label>
-                        <div class="col-sm-6">
-                          <input type="datetime-local" class="form-control" id="hard_deadline" name="hard_deadline" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-sm-2" for="freeze_deadline">Freezing Deadline:</label>
-                        <div class="col-sm-6">
-                          <input type="datetime-local" class="form-control" id="freeze_deadline" name="freeze_deadline" required>
+                        <label class="control-label col-xs-2" for="pub_time">Publish Time:</label>
+                        <div class="col-xs-6">
+                            <input type="datetime-local" class="form-control" id="pub_time" name="pub_time" required>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="crib_deadline">Crib Deadline:</label>
-                        <div class="col-sm-6">
-                          <input type="datetime-local" class="form-control" id="crib_deadline" name="crib_deadline" required>
+                        <label class="control-label col-xs-2" for="soft_deadline">Soft Deadline:</label>
+                        <div class="col-xs-6">
+                            <input type="datetime-local" class="form-control" id="soft_deadline" name="soft_deadline" required>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="helper_file">Helper File:</label>
-                        <div class="col-sm-6">
-                          <input type="file" accept=".tar.gz,.zip" class="form-control" id="helper_file" name="helper_file">
+                        <label class="control-label col-xs-2" for="hard_deadline">Hard Deadline:</label>
+                        <div class="col-xs-6">
+                            <input type="datetime-local" class="form-control" id="hard_deadline" name="hard_deadline" required>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label col-sm-2" for="description">Description:</label>
-                        <div class="col-sm-6">
+                        <label class="control-label col-xs-2" for="freeze_deadline">Freezing Deadline:</label>
+                        <div class="col-xs-6">
+                            <input type="datetime-local" class="form-control" id="freeze_deadline" name="freeze_deadline" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-xs-2" for="crib_deadline">Crib Deadline:</label>
+                        <div class="col-xs-6">
+                            <input type="datetime-local" class="form-control" id="crib_deadline" name="crib_deadline" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-xs-2" for="helper_file">Helper File:</label>
+                        <div class="col-xs-6">
+                            <input type="file" accept=".tar.gz,.zip" class="form-control" id="helper_file" name="helper_file">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-xs-2" for="description">Description:</label>
+                        <div class="col-xs-6">
                             <textarea class="form-control" rows="5" id="description" placeholder="Description" name="description" required></textarea>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <div class="col-sm-offset-2 col-sm-4">
-                          <button type="submit" class="btn btn-default">Save</button>
-                        </div>
-                    </div>
                 </form>
-              </div>
             </div>
-          </div>
+
         </div>
-    </div>
-</div>
+
+
+
+        <div class="tab-pane" id="profile">Profile Tab.</div>
+        <div class="tab-pane" id="messages">Messages Tab.</div>
+        <div class="tab-pane" id="settings">Settings Tab.</div>
     </div>
 </div>
 {% endblock %}
 
 {% block javascript %}
-
 <script>
-    $(document).ready(function(){
-        var date = new Date();
-        var dd = date.getDate();
-        var mm = date.getMonth()+1; //January is 0!
-        var yyyy = date.getFullYear();
-        var hour = date.getHours();
-        var min = date.getMinutes();
-         if(dd<10){
-                dd='0'+dd
-            }
-            if(mm<10){
-                mm='0'+mm
-            }
-         if(hour < 10) hour = '0'+hour;
-         if(min < 10) min = '0' + min;
-        var day = dd+'/'+mm+'/'+yyyy ;
-        var time = hour + ':' + min;
-        <!--$("#pub_time").attr("min", currentTime);-->
-        <!--$("#pub_time").attr("placeholder", currentTime);-->
-        $("input[type='datetime-local']").attr('placeholder',day+' '+time);
-    });
-    </script>
+    function loadHome(){
+        var sec_user_id = $("#sec_user_id").val();
+        var assign_id = $("#assign_id").val();
+        if(assign_id != "0"){
+            $.post("{% url 'sedb:get_assign_home' %}",
+            {
+                assign_id: assign_id,
+                sec_user_id: sec_user_id
+            },
+            function(data, status){
+                if(status == "success"){
+                    var obj = data.assign;
+                    var deadline = data.deadline;
+                    $("#assign_num").val(obj.assignment_no);
+                    $("#title").val(obj.title);
+                    if(obj.visibility == "1"){
+                        $("#visible").attr('checked',true);
+                    }
+                    else{
+                        $("#hidden").attr('checked',true);
+                    }
+                    $("#pub_time").val(obj.publish_time);
+                    $("#soft_deadline").val(deadline.soft_deadline);
+                    $("#hard_deadline").val(deadline.hard_deadline);
+                    $("#freeze_deadline").val(deadline.freezing_deadline);
+                    $("#crib_deadline").val(obj.crib_deadline);
+                    $("#description").val(obj.description);
+                }
+                else{
+                    console.log("Some Error Occurred");
+                }
+            });
+        }
+    }
 
+    $(document).ready(function(){
+        $("input").attr('disabled',true);
+        $("textarea").attr('disabled',true);
+        loadHome();
+    });
+
+    $("#tab-home").click(function(){
+        loadHome();
+    });
+
+    $(".edit-btn").click(function(){
+        var pid = "#"+$(this).parent().attr('id');
+        var rval = $(pid+" input").prop('disabled');
+
+        var elem = $(this).find("> span");
+        if (elem.hasClass('glyphicon-pencil')){
+            elem.removeClass('glyphicon-pencil');
+            elem.addClass('glyphicon-ok');
+
+            $(pid+" input").attr('disabled',!rval);
+            $(pid+" textarea").attr('disabled',!rval);
+        }
+        else{
+            var frm = $(pid+" form");
+            frm.validate();
+            if(frm.valid()){
+                $.ajax({
+                    type: frm.attr('method'),
+                    url: frm.attr('action'),
+                    data: frm.serialize(),
+                    success: function (data) {
+                        console.log('Submission was successful.');
+                        console.log(data);
+
+                        if(data.to_redirect){
+                            window.location.href=data.url;
+                        }
+                        else{
+                            <!--loadHome();-->
+                        }
+                    },
+                    error: function (data) {
+                        console.log('An error occurred.');
+                        console.log(data);
+                    },
+                });
+
+                elem.removeClass('glyphicon-ok');
+                elem.addClass('glyphicon-pencil');
+
+                $(pid+" input").attr('disabled',!rval);
+                $(pid+" textarea").attr('disabled',!rval);
+            }
+        }
+    });
+</script>
 {% endblock %}

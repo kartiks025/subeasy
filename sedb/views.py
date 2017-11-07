@@ -3,7 +3,7 @@ from .models import *
 from .helpers import *
 from django.http import JsonResponse
 from django.db import connection
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import *
 from django.contrib import messages
 from bcrypt import hashpw, checkpw
 import uuid
@@ -16,8 +16,8 @@ from django.views.decorators.cache import cache_control
 def admin_login(request):
     print("login called")
     if request.session.get('is_admin') is not None:
-        if request.session['is_admin'] == True:
-            return redirect('admin_home')
+        if request.session['is_admin']:
+            return redirect('sedb:admin_home')
     if request.method == 'POST':
         id_or_email = request.POST['id_email']
         pwd = request.POST['pwd']
@@ -28,8 +28,8 @@ def admin_login(request):
                 request.session['admin_id'] = user.id
                 request.session['is_admin'] = True
                 request.session['is_user'] = False
-                request.session.set_expiry(5 * 60)
-                return redirect('admin_home')
+                # request.session.set_expiry(5 * 60)
+                return redirect('sedb:admin_home')
             else:
                 print("It does not match")
         except ObjectDoesNotExist:
@@ -66,7 +66,7 @@ def add_course(request):
         else:
             c = Course(course_id=course_id, name=name)
             c.save()
-    return redirect('admin_home')
+    return redirect('sedb:admin_home')
 
 
 @admin_required
@@ -97,7 +97,7 @@ def add_section(request):
                 u = User.objects.filter(user_id=i)
                 secuser = SecUser(role="Instructor", user=u[0], sec=s)
                 secuser.save()
-    return redirect('admin_home')
+    return redirect('sedb:admin_home')
 
 
 @admin_required
@@ -124,8 +124,8 @@ def user_login(request):
                 request.session['user_id'] = user.user_id
                 request.session['is_admin'] = False
                 request.session['is_user'] = True
-                request.session.set_expiry(5 * 60)
-                return redirect('user_home')
+                # request.session.set_expiry(10 * 60)
+                return redirect('sedb:user_home')
             else:
                 print("It does not match")
         except ObjectDoesNotExist:
@@ -173,22 +173,22 @@ def user_signup(request):
 @user_required
 def display_section(request):
     if request.method == 'POST':
-        secuser = SecUser.objects.get(id=request.POST['sec_id']);
-        request.session['sec_id'] = request.POST['sec_id']
-        if secuser.role == "Instructor":
-            return redirect('display_instructor')
-        elif secuser.role == "TA":
-            return redirect('display_ta')
-        elif secuser.role == "Student":
-            return redirect('display_student')
+        sec_user = SecUser.objects.get(id=request.POST['sec_id']);
+        if sec_user.role == "Instructor":
+            return display_instructor(request, sec_user)
+        elif sec_user.role == "TA":
+            return redirect('sedb:display_ta')
+        elif sec_user.role == "Student":
+            return redirect('sedb:display_student')
 
     return render(request, 'sedb/display_section.html')
 
 
-@user_required
-def display_instructor(request):
+def display_instructor(request, sec_user):
     users = User.objects.all()
-    return render(request, 'sedb/display_instructor.html',{'user' :users})
+    assignments = Assignment.objects.filter(sec=sec_user.sec)
+    context = {'user': users, 'section': sec_user.sec, 'sec_user_id': sec_user.id, 'assignments': assignments}
+    return render(request, 'sedb/display_instructor.html', context)
 
 
 @user_required
@@ -224,9 +224,18 @@ def reset_password(request):
         print("yes")
     return render(request, 'sedb/forgot_password.html')
 
-@user_required
+
+@instructor_required
 def add_assignment(request):
-    return render(request, 'sedb/add_assignment.html')
+    context = {'sec_user_id': request.POST['sec_user_id'], 'assign_id': 0}
+    return render(request, 'sedb/add_assignment.html', context)
+
+
+@instructor_required
+def show_assignment(request):
+    assign_id = request.POST['assign_id']
+    context = {'sec_user_id': request.POST['sec_user_id'], 'assign_id': assign_id, }
+    return render(request, 'sedb/add_assignment.html', context)
 
 
 def verify_account(request, uid):
@@ -238,7 +247,7 @@ def verify_account(request, uid):
         va.delete()
         return render(request, 'sedb/verify_account.html')
     else:
-        return redirect('user_login')
+        return redirect('sedb:user_login')
 
 
 def reset_password(request, uid):
@@ -256,7 +265,7 @@ def change_password(request):
         u.password = gethashedpwd(request.POST['pwd'])
         u.save()
         print("done-dana-dan")
-    return redirect('user_login')
+    return redirect('sedb:user_login')
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -264,7 +273,7 @@ def admin_logout(request):
     if request.session.get('is_admin') is not None:
         if request.session['is_admin']:
             request.session.delete()
-    return redirect('admin_login')
+    return redirect('sedb:admin_login')
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -272,14 +281,15 @@ def user_logout(request):
     if request.session.get('is_user') is not None:
         if request.session['is_user']:
             request.session.delete()
-    return redirect('user_login')
+    return redirect('sedb:user_login')
+
 
 @user_required
 def add_ta(request):
-	if request.method == 'POST':
-		ta = request.POST.getlist('ta')
-		for i in ta:
-		    u = User.objects.get(user_id=i)
-		    secuser = SecUser(role="TA", user=u, sec_id=request.session['sec_id'])
-		    secuser.save()
-	return redirect('display_instructor')
+    if request.method == 'POST':
+        ta = request.POST.getlist('ta')
+        for i in ta:
+            u = User.objects.get(user_id=i)
+            secuser = SecUser(role="TA", user=u, sec_id=request.session['sec_id'])
+            secuser.save()
+    return redirect('sedb:display_instructor')

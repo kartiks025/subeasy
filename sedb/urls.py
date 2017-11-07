@@ -1,7 +1,8 @@
 from django.conf.urls import url
 
-from . import views
+from . import views, helpers
 
+app_name = 'sedb'
 urlpatterns = [
     url(r'^admin_login$', views.admin_login, name='admin_login'),
     url(r'^admin_home$', views.admin_home, name='admin_home'),
@@ -25,4 +26,8 @@ urlpatterns = [
     url(r'^admin_logout/$', views.admin_logout, name='admin_logout'),
     url(r'^user_logout$', views.user_logout, name='user_logout'),
     url(r'^add_ta$', views.add_ta, name='add_ta'),
+
+    url(r'^edit_assign_home$', helpers.edit_assign_home, name='edit_assign_home'),
+    url(r'^show_assignment$', views.show_assignment, name='show_assignment'),
+    url(r'^get_assign_home$', helpers.get_assign_home, name='get_assign_home'),
 ]
