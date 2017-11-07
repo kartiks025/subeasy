@@ -26,6 +26,8 @@ urlpatterns = [
     url(r'^admin_logout/$', views.admin_logout, name='admin_logout'),
     url(r'^user_logout$', views.user_logout, name='user_logout'),
     url(r'^add_ta$', views.add_ta, name='add_ta'),
+    url(r'^add_ex_student$', views.add_ex_student, name='add_ex_student'),
+    url(r'^add_new_student$', views.add_new_student, name='add_new_student'),
 
     url(r'^edit_assign_home$', helpers.edit_assign_home, name='edit_assign_home'),
     url(r'^show_assignment$', views.show_assignment, name='show_assignment'),

@@ -11,6 +11,7 @@
 
         <div class="panel-body">
             <form class="col l12" action="add_ta" method="post">{% csrf_token %}
+            	<input type="hidden" name="sec_user_id" value="{{ sec_user_id }}">
                 <div class='row'>
                   <div class='input-field col l6'>
                     <select multiple class="js-example-basic-multiple browser-default" style="width:300px height:50px" name="ta" placeholder = "Select TA" required>
@@ -23,6 +24,56 @@
                   </div>
                   <div class='input-field col l3 push-l2'><button class="btn btn-lg btn-primary" type="submit">Add TA</button></div>
                 </div>
+            </form>
+
+            {% if instructor %}
+	            Instructors
+	            <ul>
+	            	{% for i in instructor %}
+                          <li user_id="{{i.user_id}}">{{i.name}}</li>
+                    {% endfor %}
+	            </ul>
+            {% endif %}
+            {% if ta %}
+	            Teaching Assistants
+	            <ul>
+	            	{% for i in ta %}
+                          <li user_id="{{i.user_id}}">{{i.name}}</li>
+                    {% endfor %}
+	            </ul>
+            {% endif %}
+            {% if student %}
+	            Students
+	            <ul>
+	            	{% for i in student %}
+                          <li user_id="{{i.user_id}}">{{i.name}}</li>
+                    {% endfor %}
+	            </ul>
+            {% endif %}
+
+            <h3> Add existing user as student</h3>
+            <form class="col l12" action="add_ex_student" method="post">{% csrf_token %}
+            	<input type="hidden" name="sec_user_id" value="{{ sec_user_id }}">
+                <div class='row'>
+                  <div class='input-field col l6'>
+                    <select multiple class="js-example-basic-multiple browser-default" style="width:300px height:50px" name="student" placeholder = "Select Student" required>
+                      {% if user %}
+                        {% for u in user %}
+                          <option value="{{u.user_id}}">{{u.user_id}} - {{u.name}}</option>
+                        {% endfor %}
+                      {% endif %}
+                    </select>
+                  </div>
+                  <div class='input-field col l3 push-l2'><button class="btn btn-lg btn-primary" type="submit">Add Student</button></div>
+                </div>
+            </form>
+
+            <h3> Add new user as student, mail will be sent</h3>
+            <form class="col l12" action="add_new_student" method="post">{% csrf_token %}
+            	<input type="hidden" name="sec_user_id" value="{{ sec_user_id }}">
+            	<input type="text" name="email" placeholder = "Email" required>
+            	<input type="text" name="name" placeholder = "Name" required>
+            	<button class="btn btn-lg btn-primary" type="submit">Add Student</button>
             </form>
 
             <div class="panel panel-default">

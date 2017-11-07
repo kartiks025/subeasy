@@ -3,8 +3,8 @@
 {% block content %}
 {% load staticfiles %}
 <div class="list-group">
-  {% for s in section %}
-  <a href="#" class="sec-select list-group-item list-group-item-action flex-column align-items-start active" id={{s.sec.sec_id}}>
+  {% for s in secuser %}
+  <a href="#" class="sec-select list-group-item list-group-item-action flex-column align-items-start active" id={{s.id}}>
     <div class="d-flex w-100 justify-content-between">
       <h5 class="mb-1">{{s.sec.course.name}}</h5>
       <small>{{s.role}}</small><br>
@@ -14,8 +14,8 @@
     </div>
     <small>s.</small>
   </a>
-  <form action="display_section" method="post" id="form{{s.sec.sec_id}}">{% csrf_token %}
-    <input type="hidden" name="sec_id" value="{{s.id}}">
+  <form action="display_section" method="post" id="form{{s.id}}">{% csrf_token %}
+    <input type="hidden" name="sec_user_id" value="{{s.id}}">
   </form>
   {% endfor %}
 </div>
@@ -25,6 +25,7 @@
 	<script>
     $( ".sec-select" ).click(function() {
       id = $(this).attr('id');
+      alert(id)
       $( "#form"+id ).submit();
     });
   </script>

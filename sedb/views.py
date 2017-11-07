@@ -136,7 +136,7 @@ def user_login(request):
 @user_required
 def user_home(request):
     secuser = SecUser.objects.filter(user=request.session['user_id']);
-    return render(request, 'sedb/user_home.html', {'section': secuser})
+    return render(request, 'sedb/user_home.html', {'secuser': secuser})
 
 
 def user_signup(request):
@@ -172,8 +172,9 @@ def user_signup(request):
 
 @user_required
 def display_section(request):
+    print(request.POST['sec_user_id'])
     if request.method == 'POST':
-        sec_user = SecUser.objects.get(id=request.POST['sec_id']);
+        sec_user = SecUser.objects.get(id=request.POST['sec_user_id']);
         if sec_user.role == "Instructor":
             return display_instructor(request, sec_user)
         elif sec_user.role == "TA":
@@ -185,9 +186,28 @@ def display_section(request):
 
 
 def display_instructor(request, sec_user):
-    users = User.objects.all()
+    print(sec_user.sec_id)
+    all_secusers = SecUser.objects.filter(sec_id=sec_user.sec_id) # all users of this section
+    instructor = []
+    student = []
+    ta = []
+    for s_user in all_secusers:
+        if s_user.role == "Instructor":
+            instructor.append(s_user.user)
+        elif s_user.role == "TA":
+            ta.append(s_user.user)
+        elif s_user.role == "Student":
+            student.append(s_user.user)
+
+    all_users = [item.user for item in all_secusers]
+    cursor = connection.cursor()
+    cursor.execute(
+        '''select user_id,name from "user" where user_id not in (select user_id from sec_user where sec_id=%s);''',
+        [sec_user.sec_id])
+    users = dictfetchall(cursor)
+
     assignments = Assignment.objects.filter(sec=sec_user.sec)
-    context = {'user': users, 'section': sec_user.sec, 'sec_user_id': sec_user.id, 'assignments': assignments}
+    context = {'user': users, 'section': sec_user.sec, 'sec_user_id': sec_user.id , 'assignments': assignments,'ta':ta,'instructor':instructor,'student':student}
     return render(request, 'sedb/display_instructor.html', context)
 
 
@@ -284,12 +304,42 @@ def user_logout(request):
     return redirect('sedb:user_login')
 
 
-@user_required
+@instructor_required
 def add_ta(request):
+    sec_user = SecUser.objects.get(id=request.POST['sec_user_id']);
     if request.method == 'POST':
         ta = request.POST.getlist('ta')
         for i in ta:
             u = User.objects.get(user_id=i)
-            secuser = SecUser(role="TA", user=u, sec_id=request.session['sec_id'])
+            secuser = SecUser(role="TA", user=u, sec_id=sec_user.sec_id)
             secuser.save()
-    return redirect('sedb:display_instructor')
+    return display_instructor(request,sec_user)
+
+@instructor_required
+def add_ex_student(request):
+    sec_user = SecUser.objects.get(id=request.POST['sec_user_id']);
+    if request.method == 'POST':
+        student = request.POST.getlist('student')
+        for i in student:
+            u = User.objects.get(user_id=i)
+            secuser = SecUser(role="Student", user=u, sec_id=sec_user.sec_id)
+            secuser.save()
+    return display_instructor(request,sec_user)
+
+@instructor_required
+def add_new_student(request):
+    sec_user = SecUser.objects.get(id=request.POST['sec_user_id']);
+    if request.method == 'POST':
+        email = request.POST['email']
+        u = User(user_id=email,email=email,name=request.POST['name'],password=gethashedpwd(uuid.uuid4().hex))
+        u.save()
+        secuser = SecUser(role="Student", user=u, sec_id=sec_user.sec_id)
+        secuser.save()
+        uid = uuid.uuid4().hex
+        dt = datetime.now()
+        print(uid)
+        print()
+        rs = ResetPassword(email_id=email, uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest(), timestamp=dt)
+        rs.save()
+        send_new_account_email(uid, email)
+    return display_instructor(request,sec_user)

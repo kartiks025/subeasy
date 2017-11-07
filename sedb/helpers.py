@@ -57,8 +57,10 @@ def instructor_required(fun):
     def wrap(request):
         try:
             if not request.session['is_user']:
+                print(request.POST['sec_user_id'])
                 return doredirect(request, 'sedb:user_login')
             else:
+                print(request.POST['sec_user_id'])
                 sec_user = SecUser.objects.get(id=request.POST['sec_user_id'])
                 if not sec_user.user.user_id == request.session['user_id']:
                     print(sec_user.user.user_id + "," + request.session['user_id'])
@@ -199,3 +201,29 @@ def get_assign_home(request):
     deadline = assignment.deadline
     context = {'assign': model_to_dict(assignment), 'deadline': model_to_dict(deadline)}
     return JsonResponse(context)
+
+def dictfetchall(cursor):
+    "Return all rows from a cursor as a dict"
+    columns = [col[0] for col in cursor.description]
+    return [
+        dict(zip(columns, row))
+        for row in cursor.fetchall()
+    ]
+
+def send_new_account_email(uid, email):
+    fromaddr = "kartik_singhal@iitb.ac.in"
+    toaddr = email
+    msg = MIMEMultipart()
+    msg['From'] = fromaddr
+    msg['To'] = toaddr
+    msg['Subject'] = "Registered on SubEasy! Reset Password"
+
+    body = "Click on this link http://localhost:8000/sedb/reset_password/" + uid + "/"
+    msg.attach(MIMEText(body, 'plain'))
+
+    server = smtplib.SMTP('smtp-auth.iitb.ac.in', 25)
+    server.starttls()
+    server.login("kartik_singhal@iitb.ac.in", "yamini@1990")
+    text = msg.as_string()
+    server.sendmail(fromaddr, toaddr, text)
+    server.quit()
