@@ -1,8 +1,9 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
 
 from . import views, helpers
 
 app_name = 'sedb'
+
 urlpatterns = [
     url(r'^admin_login$', views.admin_login, name='admin_login'),
     url(r'^admin_home$', views.admin_home, name='admin_home'),
@@ -12,7 +13,6 @@ urlpatterns = [
     url(r'^delete_section$', views.delete_section, name='delete_section'),
     url(r'^user_login$', views.user_login, name='user_login'),
     url(r'^user_home$', views.user_home, name='user_home'),
-    url(r'^display_section/(?P<sec_user_id>[0-9]+)/$', views.display_section, name='display_section'),
     url(r'^user_signup$', views.user_signup, name='user_signup'),
     url(r'^display_instructor$', views.display_instructor, name='display_instructor'),
     url(r'^display_ta$', views.display_ta, name='display_ta'),
@@ -29,9 +29,13 @@ urlpatterns = [
     url(r'^add_ex_student/(?P<sec_user_id>[0-9]+)/$', views.add_ex_student, name='add_ex_student'),
     url(r'^add_new_student/(?P<sec_user_id>[0-9]+)/$', views.add_new_student, name='add_new_student'),
 
-    url(r'^edit_assign_home/(?P<sec_user_id>[0-9]+)/$', helpers.edit_assign_home, name='edit_assign_home'),
-    url(r'^show_assignment/(?P<sec_user_id>[0-9]+)/$', views.show_assignment, name='show_assignment'),
-    url(r'^get_assign_home/(?P<sec_user_id>[0-9]+)/$', helpers.get_assign_home, name='get_assign_home'),
+    url(r'^section/(?P<sec_user_id>[0-9]+)/', include([
+        url(r'^$', views.display_section, name='display_section'),
+        url(r'^assignment/(?P<assign_id>[0-9]+)/edit_assign_home/$', helpers.edit_assign_home, name='edit_assign_home'),
+        url(r'^assignment/(?P<assign_id>[0-9]+)/$', views.show_assignment, name='show_assignment'),
+        url(r'^assignment/(?P<assign_id>[0-9]+)/get_assign_home/$', helpers.get_assign_home, name='get_assign_home'),
+    ])),
+
 
     url(r'^assignment_tab/(?P<sec_user_id>[0-9]+)/$', views.assignment_tab, name='assignment_tab'),
     url(r'^instructor_tab/(?P<sec_user_id>[0-9]+)/$', views.instructor_tab, name='instructor_tab'),

@@ -40,14 +40,15 @@ def user_required(fun):
     wrap.__name__ = fun.__name__
     return wrap
 
+
 def user1_required(fun):
-    def wrap(request,sec_user_id):
+    def wrap(request, sec_user_id):
         try:
             if not request.session['is_user']:
                 return redirect('sedb:user_login')
         except KeyError:
             return redirect('sedb:user_login')
-        return fun(request,sec_user_id)
+        return fun(request, sec_user_id)
 
     wrap.__doc__ = fun.__doc__
     wrap.__name__ = fun.__name__
@@ -67,7 +68,7 @@ def doredirect(request, url):
 
 
 def instructor_required(fun):
-    def wrap(request,sec_user_id):
+    def wrap(request, sec_user_id):
         try:
             if not request.session['is_user']:
                 print(sec_user_id)
@@ -81,7 +82,29 @@ def instructor_required(fun):
         except KeyError:
             print("error in instructor_required")
             return doredirect(request, 'sedb:user_login')
-        return fun(request,sec_user_id)
+        return fun(request, sec_user_id)
+
+    wrap.__doc__ = fun.__doc__
+    wrap.__name__ = fun.__name__
+    return wrap
+
+
+def instructor1_required(fun):
+    def wrap(request, sec_user_id, assign_id):
+        try:
+            if not request.session['is_user']:
+                print(sec_user_id)
+                return doredirect(request, 'sedb:user_login')
+            else:
+                print(sec_user_id)
+                sec_user = SecUser.objects.get(id=sec_user_id)
+                if not sec_user.user.user_id == request.session['user_id']:
+                    print(sec_user.user.user_id + "," + request.session['user_id'])
+                    return doredirect(request, 'sedb:user_login')
+        except KeyError:
+            print("error in instructor_required")
+            return doredirect(request, 'sedb:user_login')
+        return fun(request, sec_user_id, assign_id)
 
     wrap.__doc__ = fun.__doc__
     wrap.__name__ = fun.__name__
@@ -149,13 +172,11 @@ def send_verify_account_email(uid, email):
     server.quit()
 
 
-@instructor_required
-def edit_assign_home(request):
+# @instructor_required
+def edit_assign_home(request, sec_user_id, assign_id):
     print("edit_assign_home called")
 
     if request.method == 'POST':
-        sec_user_id = request.POST['sec_user_id']
-        assign_id = request.POST['assign_id']
         assign_num = request.POST['assign_num']
         title = request.POST['assign_title']
         visibility = request.POST['visibility']
@@ -208,12 +229,19 @@ def edit_assign_home(request):
     return HttpResponse()
 
 
-@instructor_required
-def get_assign_home(request):
-    assignment = Assignment.objects.get(assignment_id=request.POST['assign_id'])
+# @instructor_required
+def get_assign_home(request, sec_user_id, assign_id):
+    if assign_id == '0':
+        return JsonResponse(
+            {
+                'new_assign': True
+            }
+        )
+    assignment = Assignment.objects.get(assignment_id=assign_id)
     deadline = assignment.deadline
-    context = {'assign': model_to_dict(assignment), 'deadline': model_to_dict(deadline)}
+    context = {'new_assign': False, 'assign': model_to_dict(assignment), 'deadline': model_to_dict(deadline)}
     return JsonResponse(context)
+
 
 def dictfetchall(cursor):
     "Return all rows from a cursor as a dict"
@@ -222,6 +250,7 @@ def dictfetchall(cursor):
         dict(zip(columns, row))
         for row in cursor.fetchall()
     ]
+
 
 def send_new_account_email(uid, email):
     fromaddr = "kartik_singhal@iitb.ac.in"

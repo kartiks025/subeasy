@@ -173,7 +173,7 @@ def user_signup(request):
 @user1_required
 def display_section(request, sec_user_id):
     print(sec_user_id)
-    sec_user = SecUser.objects.get(id=sec_user_id);
+    sec_user = SecUser.objects.get(id=sec_user_id)
     if sec_user.role == "Instructor":
         return display_instructor(request, sec_user)
     elif sec_user.role == "TA":
@@ -184,7 +184,7 @@ def display_section(request, sec_user_id):
 
 
 def display_instructor(request, sec_user):
-    print(sec_user.sec_id)
+    print("display_instructor")
     assignments = Assignment.objects.filter(sec=sec_user.sec)
     context = {'section': sec_user.sec, 'sec_user_id': sec_user.id, 'assignments': assignments}
     return render(request, 'sedb/assignment_tab.html', context)
@@ -228,9 +228,8 @@ def add_assignment(request, sec_user_id):
     return render(request, 'sedb/add_assignment.html', context)
 
 
-@instructor_required
-def show_assignment(request, sec_user_id):
-    assign_id = request.POST['assign_id']
+# @instructor_required
+def show_assignment(request, sec_user_id, assign_id):
     context = {'sec_user_id': sec_user_id, 'assign_id': assign_id, }
     return render(request, 'sedb/add_assignment.html', context)
 
@@ -291,7 +290,7 @@ def add_ta(request, sec_user_id):
             u = User.objects.get(user_id=i)
             secuser = SecUser(role="TA", user=u, sec_id=sec_user.sec_id)
             secuser.save()
-    return ta_tab(request)
+    return ta_tab(request,sec_user_id)
 
 
 @instructor_required
@@ -303,7 +302,7 @@ def add_ex_student(request, sec_user_id):
             u = User.objects.get(user_id=i)
             secuser = SecUser(role="Student", user=u, sec_id=sec_user.sec_id)
             secuser.save()
-    return student_tab(request)
+    return student_tab(request,sec_user_id)
 
 
 @instructor_required
@@ -322,7 +321,7 @@ def add_new_student(request, sec_user_id):
         rs = ResetPassword(email_id=email, uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest(), timestamp=dt)
         rs.save()
         send_new_account_email(uid, email)
-    return student_tab(request)
+    return student_tab(request,sec_user_id)
 
 
 @instructor_required

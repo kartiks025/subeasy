@@ -18,19 +18,11 @@
   {% endfor %}
 </div>
 </div>
-<!--   {% for s in secuser %}
-  <form action="display_section" method="post" id="form{{s.id}}">{% csrf_token %}
-      <input type="hidden" name="sec_user_id" value="{{s.id}}">
-  </form>
-  {% endfor %} -->
+
 {% endblock %}
 
 {% block javascript %}
 	<script>
-    // $( ".sec-select" ).click(function() {
-    //   id = $(this).attr('id');
-    //   $( "#form"+id ).submit();
-    // });
   </script>
 
 {% endblock %}

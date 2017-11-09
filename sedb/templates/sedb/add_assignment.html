@@ -23,9 +23,7 @@
             </button>
 
             <div class="container">
-                <form class="form-horizontal" id="form" action="{% url 'sedb:edit_assign_home' %}" method="post">
-                    <input id="sec_user_id" type="hidden" name="sec_user_id" value="{{ sec_user_id }}">
-                    <input id="assign_id" type="hidden" name="assign_id" value="{{ assign_id }}">
+                <form class="form-horizontal" id="form" action="{% url 'sedb:edit_assign_home' sec_user_id assign_id %}" method="post">
 
                     <div class="form-group">
                         <label class="control-label col-xs-2" for="assign_num">Number:</label>
@@ -119,16 +117,10 @@
 {% block javascript %}
 <script>
     function loadHome(){
-        var sec_user_id = $("#sec_user_id").val();
-        var assign_id = $("#assign_id").val();
-        if(assign_id != "0"){
-            $.post("{% url 'sedb:get_assign_home' %}",
-            {
-                assign_id: assign_id,
-                sec_user_id: sec_user_id
-            },
-            function(data, status){
-                if(status == "success"){
+        $.get("{% url 'sedb:get_assign_home' sec_user_id assign_id %}",
+        function(data, status){
+            if(status == "success"){
+                if (!data.new_assign){
                     var obj = data.assign;
                     var deadline = data.deadline;
                     $("#assign_num").val(obj.assignment_no);
@@ -146,11 +138,11 @@
                     $("#crib_deadline").val(obj.crib_deadline);
                     $("#description").val(obj.description);
                 }
-                else{
-                    console.log("Some Error Occurred");
-                }
-            });
-        }
+            }
+            else{
+                console.log("Some Error Occurred");
+            }
+        });
     }
 
     $(document).ready(function(){
