@@ -10,6 +10,7 @@ import uuid
 import hashlib
 from datetime import datetime
 from django.views.decorators.cache import cache_control
+import csv
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -32,7 +33,9 @@ def admin_login(request):
                 return redirect('sedb:admin_home')
             else:
                 print("It does not match")
+                messages.add_message(request, messages.ERROR, 'Wrong username/password')
         except ObjectDoesNotExist:
+            messages.add_message(request, messages.ERROR, 'Wrong username/password')
             print("doesn't exist")
     return render(request, 'sedb/admin_login.html')
 
@@ -46,7 +49,7 @@ def admin_home(request):
         for s in section:
             cursor = connection.cursor()
             cursor.execute(
-                '''select name from "user" where user_id in (select user_id from sec_user where sec_id =%s);''',
+                '''select name from "user" where user_id in (select user_id from sec_user where sec_id =%s and role='Instructor');''',
                 [s.sec_id])
             row = [item[0] for item in cursor.fetchall()]
             print(row)
@@ -111,7 +114,7 @@ def delete_section(request):
             print("section doesn't exists")
     return JsonResponse({'success': False})
 
-
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def user_login(request):
     if request.method == 'POST':
         id_or_email = request.POST['id_email']
@@ -127,8 +130,10 @@ def user_login(request):
                 # request.session.set_expiry(10 * 60)
                 return redirect('sedb:user_home')
             else:
+                messages.add_message(request, messages.ERROR, 'Wrong username/password')
                 print("It does not match")
         except ObjectDoesNotExist:
+            messages.add_message(request, messages.ERROR, 'Wrong username/password')
             print("doesn't exist")
     return render(request, 'sedb/user_login.html')
 
@@ -216,7 +221,7 @@ def forgot_password(request):
     return render(request, 'sedb/forgot_password.html')
 
 
-def reset_password(request):
+def r_password(request):
     if request.method == 'POST':
         print("yes")
     return render(request, 'sedb/forgot_password.html')
@@ -325,7 +330,41 @@ def add_new_student(request, sec_user_id):
 
 
 @instructor_required
+<<<<<<< HEAD
 def assignment_tab(request, sec_user_id):
+=======
+def add_csv_student(request,sec_user_id):
+    sec_user = SecUser.objects.get(id=sec_user_id);
+    if request.method == 'POST':
+        file = request.FILES['student_csv'] 
+        decoded_file = file.read().decode('utf-8').splitlines()
+        reader = csv.reader(decoded_file)
+        for row in reader:
+            print(row)
+            try:
+                if User.objects.filter(email=row[0]).exists():
+                    u = User.objects.get(email=row[0])
+                    secuser = SecUser(role="Student", user=u, sec_id=sec_user.sec_id)
+                    secuser.save()
+                else:
+                    u = User(user_id=row[0],email=row[0],name=row[1],password=gethashedpwd(uuid.uuid4().hex))
+                    u.save()
+                    secuser = SecUser(role="Student", user=u, sec_id=sec_user.sec_id)
+                    secuser.save()
+                    uid = uuid.uuid4().hex
+                    dt = datetime.now()
+                    print(uid)
+                    print()
+                    rs = ResetPassword(email_id=row[0], uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest(), timestamp=dt)
+                    rs.save()
+                    send_new_account_email(uid, row[0])
+            except Exception:
+                print("exists")
+    return student_tab(request,sec_user_id)
+
+@instructor_required
+def assignment_tab(request,sec_user_id):
+>>>>>>> 89cce39804d6522968abad413bee05b1bc9f9943
     sec_user = SecUser.objects.get(id=sec_user_id);
     print(sec_user.id)
     assignments = Assignment.objects.filter(sec=sec_user.sec)

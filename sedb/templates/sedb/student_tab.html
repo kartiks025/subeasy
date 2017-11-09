@@ -36,8 +36,8 @@
 	            </form>
 
 	            <h3> Add new user as student, mail will be sent</h3>
-	            <form class="col l12" action="add_new_student" method="post">{% csrf_token %}
-	            	<input type="file" accept=".tar.gz,.zip" class="form-control" id="helper_file" name="helper_file">
+	            <form class="col l12" action="{% url 'sedb:add_csv_student' sec_user_id %}" method="post" enctype="multipart/form-data">{% csrf_token %}
+	            	<input type="file" accept=".csv" class="form-control" id="student_csv" name="student_csv">
 	            	<button class="btn btn-lg btn-primary" type="submit">Add Student</button>
 	            </form>
 
