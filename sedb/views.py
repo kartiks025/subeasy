@@ -49,7 +49,7 @@ def admin_home(request):
         for s in section:
             cursor = connection.cursor()
             cursor.execute(
-                '''select name from "user" where user_id in (select user_id from sec_user where sec_id =%s);''',
+                '''select name from "user" where user_id in (select user_id from sec_user where sec_id =%s and role='Instructor');''',
                 [s.sec_id])
             row = [item[0] for item in cursor.fetchall()]
             print(row)
@@ -114,7 +114,7 @@ def delete_section(request):
             print("section doesn't exists")
     return JsonResponse({'success': False})
 
-
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def user_login(request):
     if request.method == 'POST':
         id_or_email = request.POST['id_email']
