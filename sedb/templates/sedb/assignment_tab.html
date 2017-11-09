@@ -17,9 +17,7 @@
 
 
 
-            <form id="form1" action="{% url 'sedb:add_assignment' sec_user_id  %}" method="post">{% csrf_token %}
-                <a href="#" class="submit-form list-group-item">Add Assignment</a>
-            </form>
+            <a href="{% url 'sedb:add_assignment' sec_user_id  %}" class="submit-form list-group-item">Add Assignment</a>
         </div>
     </div>
 </div>

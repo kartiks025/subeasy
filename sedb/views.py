@@ -290,7 +290,7 @@ def add_ta(request,sec_user_id):
             u = User.objects.get(user_id=i)
             secuser = SecUser(role="TA", user=u, sec_id=sec_user.sec_id)
             secuser.save()
-    return ta_tab(request)
+    return ta_tab(request,sec_user_id)
 
 @instructor_required
 def add_ex_student(request,sec_user_id):
@@ -301,7 +301,7 @@ def add_ex_student(request,sec_user_id):
             u = User.objects.get(user_id=i)
             secuser = SecUser(role="Student", user=u, sec_id=sec_user.sec_id)
             secuser.save()
-    return student_tab(request)
+    return student_tab(request,sec_user_id)
 
 @instructor_required
 def add_new_student(request,sec_user_id):
@@ -319,7 +319,7 @@ def add_new_student(request,sec_user_id):
         rs = ResetPassword(email_id=email, uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest(), timestamp=dt)
         rs.save()
         send_new_account_email(uid, email)
-    return student_tab(request)
+    return student_tab(request,sec_user_id)
 
 @instructor_required
 def assignment_tab(request,sec_user_id):
