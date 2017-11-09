@@ -1,0 +1,42 @@
+{% extends 'sedb/sidenavbar.html' %}
+
+{% block content %}
+{% load staticfiles %}
+
+            {% if ta %}
+	            Teaching Assistants
+	            <ul>
+	            	{% for i in ta %}
+                          <li user_id="{{i.user_id}}">{{i.name}}</li>
+                    {% endfor %}
+	            </ul>
+            {% endif %}
+            <form class="col l12" action="add_ta" method="post">{% csrf_token %}
+            	<input type="hidden" name="sec_user_id" value="{{ sec_user_id }}">
+                <div class='row'>
+                  <div class='input-field col l6'>
+                    <select multiple class="js-example-basic-multiple browser-default" style="width:300px height:50px" name="ta" placeholder = "Select TA" required>
+                      {% if user %}
+                        {% for u in user %}
+                          <option value="{{u.user_id}}">{{u.user_id}} - {{u.name}}</option>
+                        {% endfor %}
+                      {% endif %}
+                    </select>
+                  </div>
+                  <div class='input-field col l3 push-l2'><button class="btn btn-lg btn-primary" type="submit">Add TA</button></div>
+                </div>
+            </form>
+
+{% endblock %}
+
+
+{% block javascript %}
+  <script>
+    $(document).ready(function() {
+        // $('select').material_select();
+        // $('.js-example-basic-single').select2();
+        $('.js-example-basic-multiple').select2();
+    });
+
+    </script>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'sedb/sidenavbar.html' %}
+
+{% block content %}
+{% load staticfiles %}
+<div class="panel panel-default">
+    <div class="panel-heading"><center><h5> Assignments </h5></center></div>
+    <div class="panel-body">
+        <div class="list-group">
+            {% if assignments %}
+                {% for assign in assignments %}
+                    <form action="{% url 'sedb:show_assignment' %}" method="post">{% csrf_token %}
+                        <input type="hidden" name="sec_user_id" value="{{ sec_user_id }}">
+                        <input type="hidden" name="assign_id" value="{{ assign.assignment_id }}">
+                        <a href="#" class="submit-form list-group-item">{{ assign.title }}</a>
+                    </form>
+                {% endfor %}
+            {% endif %}
+
+
+
+            <form id="form1" action="{% url 'sedb:add_assignment' %}" method="post">{% csrf_token %}
+                <input type="hidden" name="sec_user_id" value="{{ sec_user_id }}">
+                <a href="#" class="submit-form list-group-item">Add Assignment</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

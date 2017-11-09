@@ -76,6 +76,12 @@
             	<button class="btn btn-lg btn-primary" type="submit">Add Student</button>
             </form>
 
+            <h3> Add new user as student, mail will be sent</h3>
+            <form class="col l12" action="add_new_student" method="post">{% csrf_token %}
+            	<input type="file" accept=".tar.gz,.zip" class="form-control" id="helper_file" name="helper_file">
+            	<button class="btn btn-lg btn-primary" type="submit">Add Student</button>
+            </form>
+
             <div class="panel panel-default">
                 <div class="panel-heading"><center><h5> Assignments </h5></center></div>
                 <div class="panel-body">
