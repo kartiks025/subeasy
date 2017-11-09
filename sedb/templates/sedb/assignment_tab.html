@@ -8,8 +8,7 @@
         <div class="list-group">
             {% if assignments %}
                 {% for assign in assignments %}
-                    <form action="{% url 'sedb:show_assignment' %}" method="post">{% csrf_token %}
-                        <input type="hidden" name="sec_user_id" value="{{ sec_user_id }}">
+                    <form action="{% url 'sedb:show_assignment' sec_user_id %}" method="post">{% csrf_token %}
                         <input type="hidden" name="assign_id" value="{{ assign.assignment_id }}">
                         <a href="#" class="submit-form list-group-item">{{ assign.title }}</a>
                     </form>
@@ -18,8 +17,7 @@
 
 
 
-            <form id="form1" action="{% url 'sedb:add_assignment' %}" method="post">{% csrf_token %}
-                <input type="hidden" name="sec_user_id" value="{{ sec_user_id }}">
+            <form id="form1" action="{% url 'sedb:add_assignment' sec_user_id  %}" method="post">{% csrf_token %}
                 <a href="#" class="submit-form list-group-item">Add Assignment</a>
             </form>
         </div>

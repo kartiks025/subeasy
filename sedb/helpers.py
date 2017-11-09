@@ -40,6 +40,19 @@ def user_required(fun):
     wrap.__name__ = fun.__name__
     return wrap
 
+def user1_required(fun):
+    def wrap(request,sec_user_id):
+        try:
+            if not request.session['is_user']:
+                return redirect('sedb:user_login')
+        except KeyError:
+            return redirect('sedb:user_login')
+        return fun(request,sec_user_id)
+
+    wrap.__doc__ = fun.__doc__
+    wrap.__name__ = fun.__name__
+    return wrap
+
 
 def doredirect(request, url):
     if request.is_ajax():
@@ -54,21 +67,21 @@ def doredirect(request, url):
 
 
 def instructor_required(fun):
-    def wrap(request):
+    def wrap(request,sec_user_id):
         try:
             if not request.session['is_user']:
-                print(request.POST['sec_user_id'])
+                print(sec_user_id)
                 return doredirect(request, 'sedb:user_login')
             else:
-                print(request.POST['sec_user_id'])
-                sec_user = SecUser.objects.get(id=request.POST['sec_user_id'])
+                print(sec_user_id)
+                sec_user = SecUser.objects.get(id=sec_user_id)
                 if not sec_user.user.user_id == request.session['user_id']:
                     print(sec_user.user.user_id + "," + request.session['user_id'])
                     return doredirect(request, 'sedb:user_login')
         except KeyError:
             print("error in instructor_required")
             return doredirect(request, 'sedb:user_login')
-        return fun(request)
+        return fun(request,sec_user_id)
 
     wrap.__doc__ = fun.__doc__
     wrap.__name__ = fun.__name__

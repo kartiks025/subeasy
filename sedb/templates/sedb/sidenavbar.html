@@ -40,29 +40,17 @@
                         </ul>
                     </li>
                     <li>
-                    <form action="{% url 'sedb:assignment_tab' %}" method="post">{% csrf_token %}
-                        <input type="hidden" name="sec_user_id" value="{{sec_user_id}}">
-                        <a href="#" class="submit-form ">Assignments</a>
-                    </form>
-                        
+                        <a href="{% url 'sedb:assignment_tab' sec_user_id %}">Assignments</a>                        
                     </li>
                     <li>
-                        <form action="{% url 'sedb:instructor_tab' %}" method="post">{% csrf_token %}
-                        <input type="hidden" name="sec_user_id" value="{{sec_user_id}}">
-                        <a href="#" class="submit-form ">Instructor</a>
+                        <a href="{% url 'sedb:instructor_tab' sec_user_id %}" class="submit-form ">Instructor</a>
                     </form>
                     </li>
                     <li>
-                        <form action="{% url 'sedb:student_tab' %}" method="post">{% csrf_token %}
-                        <input type="hidden" name="sec_user_id" value="{{sec_user_id}}">
-                        <a href="#" class="submit-form ">Student</a>
-                        </form>
+                        <a href="{% url 'sedb:student_tab' sec_user_id %}" class="submit-form ">Student</a>
                     </li>
                     <li>
-                        <form action="{% url 'sedb:ta_tab' %}" method="post">{% csrf_token %}
-                        <input type="hidden" name="sec_user_id" value="{{sec_user_id}}">
-                        <a href="#" class="submit-form ">Teaching Assistant</a>
-                        </form>
+                        <a href="{% url 'sedb:ta_tab' sec_user_id %}" class="submit-form ">Teaching Assistant</a>
                     </li>
                 </ul>
 
@@ -93,9 +81,6 @@
                     $('.collapse.in').toggleClass('in');
                     $('a[aria-expanded=true]').attr('aria-expanded', 'false');
                 });
-            });
-            $('.submit-form').click(function(){
-                $(this).parent().submit();
             });
         </script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/js/select2.min.js"></script>

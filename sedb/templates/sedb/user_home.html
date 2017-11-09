@@ -9,7 +9,7 @@
 <div class="container">
 <div class="collection">
   {% for s in secuser %}
-  <a href="#" class="sec-select collection-item" id={{s.id}}>
+  <a href="{% url 'sedb:display_section' s.id %}" class="sec-select collection-item" id={{s.id}}>
       <h3>{{s.sec.course.course_id}}-{{s.sec.course.name}}</h3>
       <h4>{{s.sec.sec_name}}</h4>
       <h5>{{s.role}}</h5>
@@ -18,19 +18,19 @@
   {% endfor %}
 </div>
 </div>
-  {% for s in secuser %}
+<!--   {% for s in secuser %}
   <form action="display_section" method="post" id="form{{s.id}}">{% csrf_token %}
       <input type="hidden" name="sec_user_id" value="{{s.id}}">
   </form>
-  {% endfor %}
+  {% endfor %} -->
 {% endblock %}
 
 {% block javascript %}
 	<script>
-    $( ".sec-select" ).click(function() {
-      id = $(this).attr('id');
-      $( "#form"+id ).submit();
-    });
+    // $( ".sec-select" ).click(function() {
+    //   id = $(this).attr('id');
+    //   $( "#form"+id ).submit();
+    // });
   </script>
 
 {% endblock %}
