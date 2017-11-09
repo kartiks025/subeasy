@@ -268,7 +268,7 @@ def change_password(request):
 def admin_logout(request):
     if request.session.get('is_admin') is not None:
         if request.session['is_admin']:
-            request.session.delete()
+            request.session.flush()
     return redirect('sedb:admin_login')
 
 
@@ -276,7 +276,7 @@ def admin_logout(request):
 def user_logout(request):
     if request.session.get('is_user') is not None:
         if request.session['is_user']:
-            request.session.delete()
+            request.session.flush()
     return redirect('sedb:user_login')
 
 
