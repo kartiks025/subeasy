@@ -1,17 +1,17 @@
 {% load static %}
 <html>
   <head>
-  <title>Admin Login</title>
+  <title>User</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" href="{% static 'sedb/admin_login.css' %}">
   <link rel="stylesheet" href="{% static 'sedb/table.css' %}">
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" rel='stylesheet' type='text/css'>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css" rel="stylesheet" />
@@ -32,11 +32,15 @@
 
 </head>
   <body>
-    <nav style="background-color: #009999;min-height:55px;height:55px" class="navbar navbar-inverse">
+    <nav style="background-color: #009999;min-height:55px;height:55px"class="navbar navbar-inverse">
       <div class="container-fluid">
         <div class="navbar-header">
-          <a class="navbar-brand" style="color:white;" href="#">SubEasy Admin</a>
+          <a class="navbar-brand" style="color:white;" href="#">SubEasy</a>
         </div>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="/sedb/user_signup/" style="color:white;" ><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+          <li><a href="/sedb/user_login/" style="color:white;" ><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+        </ul>
       </div>
     </nav>
       {% block content %}

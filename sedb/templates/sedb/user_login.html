@@ -1,4 +1,4 @@
-{% extends 'sedb/base.html' %}
+{% extends 'sedb/user_base1.html' %}
 
 {% block content %}
 {% load staticfiles %}
@@ -9,7 +9,7 @@
             <div class="account-wall">
                 <img class="profile-img" src="{% static 'sedb/login.jpeg' %}"
                     alt="">
-                <form class="form-signin" action="user_login" method="post">{% csrf_token %}
+                <form class="form-signin" action="{% url 'sedb:user_login'%}" method="post">{% csrf_token %}
                 <input name="id_email" type="text" class="form-control" placeholder="UserId or Email" required autofocus>
                 <input name="pwd" type="password" class="form-control" placeholder="Password" required>
                 <button class="btn btn-lg btn-primary btn-block" type="submit">
@@ -18,8 +18,15 @@
                     <input type="checkbox" value="remember-me">
                     Remember me
                 </label> -->
-                <a href="forgot_password.html" class="pull-right need-help">Forgot Password? </a><span class="clearfix"></span>
+                <a href="{% url 'sedb:r_password'%}" class="pull-right need-help">Forgot Password? </a><span class="clearfix"></span>
                 </form>
+                {% if messages %}
+                    <ul class="messages" style="color:red;">
+                        {% for message in messages %}
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             </div>
             <!-- <a href="#" class="text-center new-account">Create an account </a> -->
         </div>

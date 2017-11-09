@@ -39,7 +39,7 @@
                       {% endfor %}
                   </table>
               </div>
-              <form class="col l12" action="add_section" method="post">{% csrf_token %}
+              <form class="col l12" action="{% url 'sedb:add_section'%}" method="post">{% csrf_token %}
                       <div class='row'>
                         <div class='input-field col l6'><input name="sec_name" type="text" class="form-control" placeholder="Section Name" required autofocus></div>
                         <div class='input-field col l3'><select class="year browser-default" name="year" placeholder="Year"></select></div>
@@ -72,7 +72,7 @@
           <div class="collapsible-header"><i class="material-icons">add</i>Add New Course</div>
           <div class="collapsible-body">
           <div class="container">
-              <form class="form-inline" action="add_course" method="post">{% csrf_token %}
+              <form class="form-inline" action="{% url 'sedb:add_course'%}" method="post">{% csrf_token %}
                       <input name="course_id" type="text" class="form-control" placeholder="Course ID" required autofocus>
                       <input name="name" type="text" class="form-control" placeholder="Coure Name" required>
                       <button class="btn btn-lg btn-primary" type="submit">Add Course</button>
