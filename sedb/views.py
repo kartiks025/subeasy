@@ -10,6 +10,7 @@ import uuid
 import hashlib
 from datetime import datetime
 from django.views.decorators.cache import cache_control
+import csv
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -319,6 +320,36 @@ def add_new_student(request,sec_user_id):
         rs = ResetPassword(email_id=email, uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest(), timestamp=dt)
         rs.save()
         send_new_account_email(uid, email)
+    return student_tab(request,sec_user_id)
+
+@instructor_required
+def add_csv_student(request,sec_user_id):
+    sec_user = SecUser.objects.get(id=sec_user_id);
+    if request.method == 'POST':
+        file = request.FILES['student_csv'] 
+        decoded_file = file.read().decode('utf-8').splitlines()
+        reader = csv.reader(decoded_file)
+        for row in reader:
+            print(row)
+            try:
+                if User.objects.filter(email=row[0]).exists():
+                    u = User.objects.get(email=row[0])
+                    secuser = SecUser(role="Student", user=u, sec_id=sec_user.sec_id)
+                    secuser.save()
+                else:
+                    u = User(user_id=row[0],email=row[0],name=row[1],password=gethashedpwd(uuid.uuid4().hex))
+                    u.save()
+                    secuser = SecUser(role="Student", user=u, sec_id=sec_user.sec_id)
+                    secuser.save()
+                    uid = uuid.uuid4().hex
+                    dt = datetime.now()
+                    print(uid)
+                    print()
+                    rs = ResetPassword(email_id=row[0], uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest(), timestamp=dt)
+                    rs.save()
+                    send_new_account_email(uid, row[0])
+            except Exception:
+                print("exists")
     return student_tab(request,sec_user_id)
 
 @instructor_required

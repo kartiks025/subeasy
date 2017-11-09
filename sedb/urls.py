@@ -37,4 +37,5 @@ urlpatterns = [
     url(r'^instructor_tab/(?P<sec_user_id>[0-9]+)/$', views.instructor_tab, name='instructor_tab'),
     url(r'^student_tab/(?P<sec_user_id>[0-9]+)/$', views.student_tab, name='student_tab'),
     url(r'^ta_tab/(?P<sec_user_id>[0-9]+)/$', views.ta_tab, name='ta_tab'),
+    url(r'^add_csv_student/(?P<sec_user_id>[0-9]+)/$', views.add_csv_student, name='add_csv_student'),
 ]
