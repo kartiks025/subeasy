@@ -1,23 +1,52 @@
-{% extends 'sedb/base1.html' %}
+{% extends 'sedb/assignment_base.html' %}
 
 {% block content %}
 {% load staticfiles %}
 
-<center><h5>Assignment</h5></center>
-<div class="col-xs-2"> <!-- required for floating -->
-    <!-- Nav tabs -->
-    <ul class="nav nav-tabs tabs-left">
-      <li class="active"><a id="tab-home" href="#assign_home" data-toggle="tab">Home</a></li>
-      <li><a href="#profile" data-toggle="tab">Profile</a></li>
-      <li><a href="#messages" data-toggle="tab">Messages</a></li>
-      <li><a href="#settings" data-toggle="tab">Settings</a></li>
-    </ul>
+<div class="wrapper">
+    <!-- Sidebar Holder -->
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <h3>Assignment</h3>
+        </div>
+
+        <ul class="list-unstyled components">
+            <li  class="active">
+                <a href="#details">Details</a>
+            </li>
+            <li>
+                <a href="#problemSubMenu" data-toggle="collapse" aria-expanded="false">Home</a>
+                <ul class="collapse list-unstyled" id="problemSubMenu">
+                    <li id="add-button">
+                        <a href="javascript:addNewProblem('{% url 'sedb:get_new_prob_no' sec_user_id assign_id %}')">
+                            <span class="glyphicon glyphicon-plus"></span>
+                            Add New Problem
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li>
+                <a href="#" class="submit-form ">Submissions</a>
+            </li>
+            <li>
+                <a href="#" class="submit-form ">Marksheet</a>
+            </li>
+            <li>
+                <a href="#" class="submit-form ">Announcements</a>
+            </li>
+        </ul>
+
+    </nav>
 </div>
 
-<div class="panel panel-primary col-xs-9">
-    <!-- Tab panes -->
-    <div class="tab-content panel-body">
-        <div class="tab-pane active" id="assign_home">
+<div id="content" class="container-fluid">
+<div class="panel panel-primary" id="details">
+    <div class="panel-heading">
+        <center><h5>Assignment</h5></center>
+    </div>
+    <div class="panel-body">
+        <div>
             <button type="button" class="edit-btn btn btn-default btn-sm pull-right">
                 <span id="homeEditSave" class="glyphicon glyphicon-pencil"></span>
             </button>
@@ -105,12 +134,8 @@
 
         </div>
 
-
-
-        <div class="tab-pane" id="profile">Profile Tab.</div>
-        <div class="tab-pane" id="messages">Messages Tab.</div>
-        <div class="tab-pane" id="settings">Settings Tab.</div>
     </div>
+</div>
 </div>
 {% endblock %}
 
@@ -149,6 +174,16 @@
         $("input").attr('disabled',true);
         $("textarea").attr('disabled',true);
         loadHome();
+
+        $("#sidebar").mCustomScrollbar({
+            theme: "minimal"
+        });
+
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar, #content').toggleClass('active');
+            $('.collapse.in').toggleClass('in');
+            $('a[aria-expanded=true]').attr('aria-expanded', 'false');
+        });
     });
 
     $("#tab-home").click(function(){
@@ -200,5 +235,7 @@
             }
         }
     });
+
 </script>
+
 {% endblock %}

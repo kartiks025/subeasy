@@ -28,13 +28,15 @@ def admin_required(fun):
 
 
 def user_required(fun):
-    def wrap(request):
+    print("user_required")
+
+    def wrap(*args):
         try:
-            if not request.session['is_user']:
+            if not args[0].session['is_user']:
                 return redirect('sedb:user_login')
         except KeyError:
             return redirect('sedb:user_login')
-        return fun(request)
+        return fun(*args)
 
     wrap.__doc__ = fun.__doc__
     wrap.__name__ = fun.__name__
@@ -172,7 +174,7 @@ def send_verify_account_email(uid, email):
     server.quit()
 
 
-# @instructor_required
+@instructor1_required
 def edit_assign_home(request, sec_user_id, assign_id):
     print("edit_assign_home called")
 
@@ -229,7 +231,7 @@ def edit_assign_home(request, sec_user_id, assign_id):
     return HttpResponse()
 
 
-# @instructor_required
+@instructor1_required
 def get_assign_home(request, sec_user_id, assign_id):
     if assign_id == '0':
         return JsonResponse(
@@ -269,3 +271,13 @@ def send_new_account_email(uid, email):
     text = msg.as_string()
     server.sendmail(fromaddr, toaddr, text)
     server.quit()
+
+
+@instructor1_required
+def get_new_prob_no(request, sec_user_id, assign_id):
+    assignment = Assignment.objects.get(assignment_id=assign_id)
+    assignment.num_problems += 1
+    assignment.save()
+    return JsonResponse({
+        'problem_no': assignment.num_problems
+    })

@@ -114,6 +114,7 @@ def delete_section(request):
             print("section doesn't exists")
     return JsonResponse({'success': False})
 
+
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def user_login(request):
     if request.method == 'POST':
@@ -233,7 +234,7 @@ def add_assignment(request, sec_user_id):
     return render(request, 'sedb/add_assignment.html', context)
 
 
-# @instructor_required
+@instructor1_required
 def show_assignment(request, sec_user_id, assign_id):
     context = {'sec_user_id': sec_user_id, 'assign_id': assign_id, }
     return render(request, 'sedb/add_assignment.html', context)
@@ -295,7 +296,7 @@ def add_ta(request, sec_user_id):
             u = User.objects.get(user_id=i)
             secuser = SecUser(role="TA", user=u, sec_id=sec_user.sec_id)
             secuser.save()
-    return ta_tab(request,sec_user_id)
+    return ta_tab(request, sec_user_id)
 
 
 @instructor_required
@@ -307,7 +308,7 @@ def add_ex_student(request, sec_user_id):
             u = User.objects.get(user_id=i)
             secuser = SecUser(role="Student", user=u, sec_id=sec_user.sec_id)
             secuser.save()
-    return student_tab(request,sec_user_id)
+    return student_tab(request, sec_user_id)
 
 
 @instructor_required
@@ -326,17 +327,14 @@ def add_new_student(request, sec_user_id):
         rs = ResetPassword(email_id=email, uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest(), timestamp=dt)
         rs.save()
         send_new_account_email(uid, email)
-    return student_tab(request,sec_user_id)
+    return student_tab(request, sec_user_id)
 
 
 @instructor_required
-<<<<<<< HEAD
-def assignment_tab(request, sec_user_id):
-=======
-def add_csv_student(request,sec_user_id):
+def add_csv_student(request, sec_user_id):
     sec_user = SecUser.objects.get(id=sec_user_id);
     if request.method == 'POST':
-        file = request.FILES['student_csv'] 
+        file = request.FILES['student_csv']
         decoded_file = file.read().decode('utf-8').splitlines()
         reader = csv.reader(decoded_file)
         for row in reader:
@@ -347,7 +345,7 @@ def add_csv_student(request,sec_user_id):
                     secuser = SecUser(role="Student", user=u, sec_id=sec_user.sec_id)
                     secuser.save()
                 else:
-                    u = User(user_id=row[0],email=row[0],name=row[1],password=gethashedpwd(uuid.uuid4().hex))
+                    u = User(user_id=row[0], email=row[0], name=row[1], password=gethashedpwd(uuid.uuid4().hex))
                     u.save()
                     secuser = SecUser(role="Student", user=u, sec_id=sec_user.sec_id)
                     secuser.save()
@@ -355,16 +353,17 @@ def add_csv_student(request,sec_user_id):
                     dt = datetime.now()
                     print(uid)
                     print()
-                    rs = ResetPassword(email_id=row[0], uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest(), timestamp=dt)
+                    rs = ResetPassword(email_id=row[0], uuid=hashlib.sha256(uid.encode('utf-8')).hexdigest(),
+                                       timestamp=dt)
                     rs.save()
                     send_new_account_email(uid, row[0])
             except Exception:
                 print("exists")
-    return student_tab(request,sec_user_id)
+    return student_tab(request, sec_user_id)
+
 
 @instructor_required
-def assignment_tab(request,sec_user_id):
->>>>>>> 89cce39804d6522968abad413bee05b1bc9f9943
+def assignment_tab(request, sec_user_id):
     sec_user = SecUser.objects.get(id=sec_user_id);
     print(sec_user.id)
     assignments = Assignment.objects.filter(sec=sec_user.sec)

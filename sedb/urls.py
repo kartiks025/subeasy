@@ -11,16 +11,10 @@ urlpatterns = [
     url(r'^delete_course$', views.delete_course, name='delete_course'),
     url(r'^add_section$', views.add_section, name='add_section'),
     url(r'^delete_section$', views.delete_section, name='delete_section'),
-<<<<<<< HEAD
-    url(r'^user_login$', views.user_login, name='user_login'),
-    url(r'^user_home$', views.user_home, name='user_home'),
-    url(r'^user_signup$', views.user_signup, name='user_signup'),
-=======
     url(r'^user_login/$', views.user_login, name='user_login'),
     url(r'^user_home/$', views.user_home, name='user_home'),
     url(r'^display_section/(?P<sec_user_id>[0-9]+)/$', views.display_section, name='display_section'),
     url(r'^user_signup/$', views.user_signup, name='user_signup'),
->>>>>>> 89cce39804d6522968abad413bee05b1bc9f9943
     url(r'^display_instructor$', views.display_instructor, name='display_instructor'),
     url(r'^display_ta$', views.display_ta, name='display_ta'),
     url(r'^display_student$', views.display_student, name='display_student'),
@@ -42,6 +36,7 @@ urlpatterns = [
         url(r'^assignment/(?P<assign_id>[0-9]+)/edit_assign_home/$', helpers.edit_assign_home, name='edit_assign_home'),
         url(r'^assignment/(?P<assign_id>[0-9]+)/$', views.show_assignment, name='show_assignment'),
         url(r'^assignment/(?P<assign_id>[0-9]+)/get_assign_home/$', helpers.get_assign_home, name='get_assign_home'),
+        url(r'^assignment/(?P<assign_id>[0-9]+)/get_new_prob_no/$', helpers.get_new_prob_no, name='get_new_prob_no'),
     ])),
 
 
