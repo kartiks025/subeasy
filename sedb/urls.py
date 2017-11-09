@@ -32,4 +32,9 @@ urlpatterns = [
     url(r'^edit_assign_home$', helpers.edit_assign_home, name='edit_assign_home'),
     url(r'^show_assignment$', views.show_assignment, name='show_assignment'),
     url(r'^get_assign_home$', helpers.get_assign_home, name='get_assign_home'),
+
+    url(r'^assignment_tab$', views.assignment_tab, name='assignment_tab'),
+    url(r'^instructor_tab$', views.instructor_tab, name='instructor_tab'),
+    url(r'^student_tab$', views.student_tab, name='student_tab'),
+    url(r'^ta_tab$', views.ta_tab, name='ta_tab'),
 ]

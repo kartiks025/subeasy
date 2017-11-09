@@ -1,0 +1,13 @@
+{% extends 'sedb/sidenavbar.html' %}
+
+{% block content %}
+{% load staticfiles %}
+            {% if instructor %}
+                Instructors
+                <ul>
+                    {% for i in instructor %}
+                          <li user_id="{{i.user_id}}">{{i.name}}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+{% endblock %}

@@ -1,31 +1,34 @@
 {% extends 'sedb/base.html' %}
 
+{% block stylesheet %}
+  <style type="text/css">
+  </style>
+{% endblock %}
 {% block content %}
 {% load staticfiles %}
-<div class="list-group">
+<div class="container">
+<div class="collection">
   {% for s in secuser %}
-  <a href="#" class="sec-select list-group-item list-group-item-action flex-column align-items-start active" id={{s.id}}>
-    <div class="d-flex w-100 justify-content-between">
-      <h5 class="mb-1">{{s.sec.course.name}}</h5>
-      <small>{{s.role}}</small><br>
-      <large class="mb-1">Section : {{s.sec.sec_name}}</large>
-      <large class="mb-1">{{s.sec.semester}}</large>
-      <large class="mb-1">{{s.sec.year}}</large>
-    </div>
-    <small>s.</small>
+  <a href="#" class="sec-select collection-item" id={{s.id}}>
+      <h3>{{s.sec.course.course_id}}-{{s.sec.course.name}}</h3>
+      <h4>{{s.sec.sec_name}}</h4>
+      <h5>{{s.role}}</h5>
+      <h5>{{s.sec.semester}} {{s.sec.year}}</h5>
   </a>
-  <form action="display_section" method="post" id="form{{s.id}}">{% csrf_token %}
-    <input type="hidden" name="sec_user_id" value="{{s.id}}">
-  </form>
   {% endfor %}
 </div>
+</div>
+  {% for s in secuser %}
+  <form action="display_section" method="post" id="form{{s.id}}">{% csrf_token %}
+      <input type="hidden" name="sec_user_id" value="{{s.id}}">
+  </form>
+  {% endfor %}
 {% endblock %}
 
 {% block javascript %}
 	<script>
     $( ".sec-select" ).click(function() {
       id = $(this).attr('id');
-      alert(id)
       $( "#form"+id ).submit();
     });
   </script>
