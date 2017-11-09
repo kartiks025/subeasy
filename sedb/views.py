@@ -171,29 +171,30 @@ def user_signup(request):
 
 
 @user1_required
-def display_section(request,sec_user_id):
+def display_section(request, sec_user_id):
     print(sec_user_id)
     sec_user = SecUser.objects.get(id=sec_user_id);
     if sec_user.role == "Instructor":
         return display_instructor(request, sec_user)
     elif sec_user.role == "TA":
-        return redirect('sedb:display_ta')
+        return display_ta(request, sec_user)
     elif sec_user.role == "Student":
-        return redirect('sedb:display_student')
+        return display_student(request, sec_user)
     return render(request, 'sedb/display_section.html')
+
 
 def display_instructor(request, sec_user):
     print(sec_user.sec_id)
     assignments = Assignment.objects.filter(sec=sec_user.sec)
-    context = {'section': sec_user.sec, 'sec_user_id': sec_user.id , 'assignments': assignments}
+    context = {'section': sec_user.sec, 'sec_user_id': sec_user.id, 'assignments': assignments}
     return render(request, 'sedb/assignment_tab.html', context)
 
 
-def display_ta(request):
+def display_ta(request, sec_user):
     return render(request, 'sedb/display_ta.html')
 
 
-def display_student(request):
+def display_student(request, sec_user):
     return render(request, 'sedb/display_student.html')
 
 
@@ -222,13 +223,13 @@ def reset_password(request):
 
 
 @instructor_required
-def add_assignment(request,sec_user_id):
+def add_assignment(request, sec_user_id):
     context = {'sec_user_id': sec_user_id, 'assign_id': 0}
     return render(request, 'sedb/add_assignment.html', context)
 
 
 @instructor_required
-def show_assignment(request,sec_user_id):
+def show_assignment(request, sec_user_id):
     assign_id = request.POST['assign_id']
     context = {'sec_user_id': sec_user_id, 'assign_id': assign_id, }
     return render(request, 'sedb/add_assignment.html', context)
@@ -281,7 +282,7 @@ def user_logout(request):
 
 
 @instructor_required
-def add_ta(request,sec_user_id):
+def add_ta(request, sec_user_id):
     sec_user = SecUser.objects.get(id=sec_user_id);
     print("yes" + sec_user_id)
     if request.method == 'POST':
@@ -292,8 +293,9 @@ def add_ta(request,sec_user_id):
             secuser.save()
     return ta_tab(request)
 
+
 @instructor_required
-def add_ex_student(request,sec_user_id):
+def add_ex_student(request, sec_user_id):
     sec_user = SecUser.objects.get(id=sec_user_id);
     if request.method == 'POST':
         student = request.POST.getlist('student')
@@ -303,12 +305,13 @@ def add_ex_student(request,sec_user_id):
             secuser.save()
     return student_tab(request)
 
+
 @instructor_required
-def add_new_student(request,sec_user_id):
+def add_new_student(request, sec_user_id):
     sec_user = SecUser.objects.get(id=sec_user_id);
     if request.method == 'POST':
         email = request.POST['email']
-        u = User(user_id=email,email=email,name=request.POST['name'],password=gethashedpwd(uuid.uuid4().hex))
+        u = User(user_id=email, email=email, name=request.POST['name'], password=gethashedpwd(uuid.uuid4().hex))
         u.save()
         secuser = SecUser(role="Student", user=u, sec_id=sec_user.sec_id)
         secuser.save()
@@ -321,26 +324,29 @@ def add_new_student(request,sec_user_id):
         send_new_account_email(uid, email)
     return student_tab(request)
 
+
 @instructor_required
-def assignment_tab(request,sec_user_id):
+def assignment_tab(request, sec_user_id):
     sec_user = SecUser.objects.get(id=sec_user_id);
     print(sec_user.id)
     assignments = Assignment.objects.filter(sec=sec_user.sec)
     [print(a.assignment_id) for a in assignments]
-    context = {'section': sec_user.sec, 'sec_user_id': sec_user.id , 'assignments': assignments}
+    context = {'section': sec_user.sec, 'sec_user_id': sec_user.id, 'assignments': assignments}
     return render(request, 'sedb/assignment_tab.html', context)
 
+
 @instructor_required
-def instructor_tab(request,sec_user_id):
+def instructor_tab(request, sec_user_id):
     sec_user = SecUser.objects.get(id=sec_user_id);
     print(sec_user.id)
     ins = SecUser.objects.filter(sec_id=sec_user.sec_id, role="Instructor")
     instructor = [a.user for a in ins]
-    context = {'section': sec_user.sec, 'sec_user_id': sec_user.id , 'instructor':instructor}
+    context = {'section': sec_user.sec, 'sec_user_id': sec_user.id, 'instructor': instructor}
     return render(request, 'sedb/instructor_tab.html', context)
 
+
 @instructor_required
-def student_tab(request,sec_user_id):
+def student_tab(request, sec_user_id):
     sec_user = SecUser.objects.get(id=sec_user_id);
     print(sec_user.id)
     stu = SecUser.objects.filter(sec_id=sec_user.sec_id, role="Student")
@@ -352,11 +358,12 @@ def student_tab(request,sec_user_id):
         [sec_user.sec_id])
     users = dictfetchall(cursor)
 
-    context = {'user': users, 'section': sec_user.sec, 'sec_user_id': sec_user.id , 'student':student}
+    context = {'user': users, 'section': sec_user.sec, 'sec_user_id': sec_user.id, 'student': student}
     return render(request, 'sedb/student_tab.html', context)
 
+
 @instructor_required
-def ta_tab(request,sec_user_id):
+def ta_tab(request, sec_user_id):
     print("what")
     print("no" + sec_user_id)
     sec_user = SecUser.objects.get(id=sec_user_id);
@@ -370,5 +377,5 @@ def ta_tab(request,sec_user_id):
         [sec_user.sec_id])
     users = dictfetchall(cursor)
 
-    context = {'user': users, 'section': sec_user.sec, 'sec_user_id': sec_user.id ,'ta':ta}
+    context = {'user': users, 'section': sec_user.sec, 'sec_user_id': sec_user.id, 'ta': ta}
     return render(request, 'sedb/ta_tab.html', context)
