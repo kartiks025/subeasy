@@ -32,7 +32,9 @@ def admin_login(request):
                 return redirect('sedb:admin_home')
             else:
                 print("It does not match")
+                messages.add_message(request, messages.ERROR, 'Wrong username/password')
         except ObjectDoesNotExist:
+            messages.add_message(request, messages.ERROR, 'Wrong username/password')
             print("doesn't exist")
     return render(request, 'sedb/admin_login.html')
 
@@ -127,8 +129,10 @@ def user_login(request):
                 # request.session.set_expiry(10 * 60)
                 return redirect('sedb:user_home')
             else:
+                messages.add_message(request, messages.ERROR, 'Wrong username/password')
                 print("It does not match")
         except ObjectDoesNotExist:
+            messages.add_message(request, messages.ERROR, 'Wrong username/password')
             print("doesn't exist")
     return render(request, 'sedb/user_login.html')
 
@@ -215,7 +219,7 @@ def forgot_password(request):
     return render(request, 'sedb/forgot_password.html')
 
 
-def reset_password(request):
+def r_password(request):
     if request.method == 'POST':
         print("yes")
     return render(request, 'sedb/forgot_password.html')
