@@ -1,12 +1,14 @@
 function addNewProblem(url){
-    alert(url);
-    $.get(url,
-        function(data, status){
-            if(status == "success"){
-                $('<li/>').append($('<a/>',{
-                    href : "#prob"+data.problem_no,
-                    text : "Problem "+data.problem_no
-                })).insertBefore($("#add-button"));
-            }
-    })
+    var problem_no = $("#problemSubMenu").children().length;
+    $('<li/>').append($('<a/>',{
+        href : "#prob"+problem_no,
+        text : "Problem "+problem_no,
+    })).insertBefore($("#add-button"));
+
+    $('<div/>',{
+        id: "prob"+problem_no,
+        "class" : "panel panel-primary nav-content",
+        html : $("#problem-form").html()
+    }).appendTo($("#content"));
+//    $("#prob"+problem_no).addClass("hidden");
 }

@@ -247,7 +247,6 @@
 
                 $('.js-example-basic-multiple').select2();
             });
-
             function loadAssign(){
                 $.get("{% url 'sedb:get_assignments' sec_user_id %}",
                 function(data, status){
