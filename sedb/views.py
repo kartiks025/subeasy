@@ -181,7 +181,7 @@ def display_section(request, sec_user_id):
     print(sec_user_id)
     sec_user = SecUser.objects.get(id=sec_user_id)
     if sec_user.role == "Instructor":
-        return display_instructor(request, sec_user)
+        return assignment_tab(request, sec_user_id)
     elif sec_user.role == "TA":
         return display_ta(request, sec_user)
     elif sec_user.role == "Student":
@@ -189,19 +189,15 @@ def display_section(request, sec_user_id):
     return render(request, 'sedb/display_section.html')
 
 
-def display_instructor(request, sec_user):
-    print("display_instructor")
-    assignments = Assignment.objects.filter(sec=sec_user.sec)
-    context = {'section': sec_user.sec, 'sec_user_id': sec_user.id, 'assignments': assignments}
-    return render(request, 'sedb/assignment_tab.html', context)
-
-
 def display_ta(request, sec_user):
     return render(request, 'sedb/display_ta.html')
 
 
 def display_student(request, sec_user):
-    return render(request, 'sedb/display_student.html')
+    print("display_instructor")
+    assignments = Assignment.objects.filter(sec=sec_user.sec)
+    context = {'section': sec_user.sec, 'sec_user_id': sec_user.id, 'assignments': assignments}
+    return render(request, 'sedb/display_student.html', context)
 
 
 def forgot_password(request):
@@ -416,3 +412,5 @@ def ta_tab(request, sec_user_id):
 
     context = {'user': users, 'section': sec_user.sec, 'sec_user_id': sec_user.id, 'ta': ta}
     return render(request, 'sedb/ta_tab.html', context)
+
+

@@ -1,0 +1,17 @@
+{% extends 'sedb/sidenavbar.html' %}
+
+{% block content %}
+{% load staticfiles %}
+<div class="panel panel-default">
+    <div class="panel-heading"><center><h5> Assignments </h5></center></div>
+    <div class="panel-body">
+        <div class="list-group">
+            {% if assignments %}
+                {% for assign in assignments %}
+                    <a href="{% url 'sedb:show_assignment' sec_user_id=sec_user_id assign_id=assign.assignment_id %}" class="submit-form list-group-item">{{ assign.title }}</a>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

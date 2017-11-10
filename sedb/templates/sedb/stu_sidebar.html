@@ -40,16 +40,13 @@
                         </ul>
                     </li>
                     <li>
-                        <a href="{% url 'sedb:assignment_tab' sec_user_id %}" class="yes">Assignments</a>                        
+                        <a href="{% url 'sedb:assignment_tab' sec_user_id %}">Assignments</a>                        
                     </li>
                     <li>
-                        <a href="{% url 'sedb:instructor_tab' sec_user_id %}" class="submit-form ">Instructor</a>
+                        <a href="{% url 'sedb:instructor_tab' sec_user_id %}" class="submit-form ">Marks</a>
                     </li>
                     <li>
-                        <a href="{% url 'sedb:student_tab' sec_user_id %}" class="submit-form ">Student</a>
-                    </li>
-                    <li>
-                        <a href="{% url 'sedb:ta_tab' sec_user_id %}" class="submit-form ">Teaching Assistant</a>
+                        <a href="{% url 'sedb:student_tab' sec_user_id %}" class="submit-form ">Crib</a>
                     </li>
                 </ul>
 
@@ -79,9 +76,6 @@
                     $('#sidebar, #content').toggleClass('active');
                     $('.collapse.in').toggleClass('in');
                     $('a[aria-expanded=true]').attr('aria-expanded', 'false');
-                });
-                $(".yes").on('click', function () {
-                    alert("ye");
                 });
             });
         </script>
