@@ -37,10 +37,11 @@ urlpatterns = [
     ])),
 
 
-    url(r'^assignment_tab/(?P<sec_user_id>[0-9]+)/$', views.assignment_tab, name='assignment_tab'),
-    url(r'^instructor_tab/(?P<sec_user_id>[0-9]+)/$', views.instructor_tab, name='instructor_tab'),
-    url(r'^student_tab/(?P<sec_user_id>[0-9]+)/$', views.student_tab, name='student_tab'),
-    url(r'^ta_tab/(?P<sec_user_id>[0-9]+)/$', views.ta_tab, name='ta_tab'),
+    url(r'^get_assignments/(?P<sec_user_id>[0-9]+)/$', helpers.get_assignments, name='get_assignments'),
+    url(r'^get_instructors/(?P<sec_user_id>[0-9]+)/$', helpers.get_instructors, name='get_instructors'),
+    url(r'^get_students/(?P<sec_user_id>[0-9]+)/$', helpers.get_students, name='get_students'),
+    url(r'^get_tas/(?P<sec_user_id>[0-9]+)/$', helpers.get_tas, name='get_tas'),
+
     url(r'^add_csv_student/(?P<sec_user_id>[0-9]+)/$', views.add_csv_student, name='add_csv_student'),
     url(r'^add_ta/(?P<sec_user_id>[0-9]+)/$', views.add_ta, name='add_ta'),
     url(r'^add_ex_student/(?P<sec_user_id>[0-9]+)/$', views.add_ex_student, name='add_ex_student'),

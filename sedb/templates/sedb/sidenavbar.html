@@ -69,7 +69,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading"><center><h5> Assignments </h5></center></div>
                 <div class="panel-body">
-                    <div class="list-group">
+                    <div id="assignment_list" sec_user_id={{sec_user_id}} class="list-group">
                         {% if assignments %}
                             {% for assign in assignments %}
                                 <a href="{% url 'sedb:show_assignment' sec_user_id=sec_user_id assign_id=assign.assignment_id %}" class="submit-form list-group-item">{{ assign.title }}</a>
@@ -88,7 +88,7 @@
 
             {% if instructor %}
                 Instructors
-                <ul>
+                <ul id="instructor_list">
                     {% for i in instructor %}
                           <li user_id="{{i.user_id}}">{{i.name}}</li>
                     {% endfor %}
@@ -100,7 +100,7 @@
 
             {% if student %}
                 Students
-                <ul>
+                <ul id="student_list">
                     {% for i in student %}
                           <li user_id="{{i.user_id}}">{{i.name}}</li>
                     {% endfor %}
@@ -111,7 +111,7 @@
             <form class="col l12" action="{% url 'sedb:add_ex_student' sec_user_id %}" method="post">{% csrf_token %}
                 <div class='row'>
                   <div class='input-field col l6'>
-                    <select multiple class="js-example-basic-multiple browser-default" style="width:300px height:50px" name="student" placeholder = "Select Student" required>
+                    <select id="stu-user" multiple class="js-example-basic-multiple browser-default" style="width:300px height:50px" name="student" placeholder = "Select Student" required>
                       {% if user %}
                         {% for u in user %}
                           <option value="{{u.user_id}}">{{u.user_id}} - {{u.name}}</option>
@@ -142,7 +142,7 @@
 
             {% if ta %}
                 Teaching Assistants
-                <ul>
+                <ul id="ta_list">
                     {% for i in ta %}
                           <li user_id="{{i.user_id}}">{{i.name}}</li>
                     {% endfor %}
@@ -151,7 +151,7 @@
             <form class="col l12" action="{% url 'sedb:add_ta' sec_user_id %}" method="post">{% csrf_token %}
                 <div class='row'>
                   <div class='input-field col l6'>
-                    <select multiple class="js-example-basic-multiple browser-default" style="width:300px height:50px" name="ta" placeholder = "Select TA" required>
+                    <select id="ta_user" multiple class="js-example-basic-multiple browser-default" style="width:300px height:50px" name="ta" placeholder = "Select TA" required>
                       {% if user %}
                         {% for u in user %}
                           <option value="{{u.user_id}}">{{u.user_id}} - {{u.name}}</option>
@@ -199,6 +199,7 @@
                       }
                     $("#assignment_div").toggleClass("show")
                     $(this).parent().attr("class", "active");
+                    loadAssign();
                 });
 
                 $("#instructor_tab").on('click', function () {
@@ -212,6 +213,7 @@
                       }
                     $("#instructor_div").toggleClass("show")
                     $(this).parent().attr("class", "active");
+                    loadIns();
 
                 });
 
@@ -226,6 +228,7 @@
                       }
                     $("#student_div").toggleClass("show")
                     $(this).parent().attr("class", "active");
+                    loadStu();
                 });
 
                 $("#ta_tab").on('click', function () {
@@ -239,32 +242,87 @@
                       }
                     $("#ta_div").toggleClass("show")
                     $(this).parent().attr("class", "active");
+                    loadTA();
                 });
 
                 $('.js-example-basic-multiple').select2();
             });
 
-            function loadHome(){
-                $.get("{% url 'sedb:get_assign_home' sec_user_id assign_id %}",
+            function loadAssign(){
+                $.get("{% url 'sedb:get_assignments' sec_user_id %}",
                 function(data, status){
                     if(status == "success"){
-                        if (!data.new_assign){
-                            var obj = data.assign;
-                            var deadline = data.deadline;
-                            $("#assign_num").val(obj.assignment_no);
-                            $("#title").val(obj.title);
-                            if(obj.visibility == "1"){
-                                $("#visible").attr('checked',true);
-                            }
-                            else{
-                                $("#hidden").attr('checked',true);
-                            }
-                            $("#pub_time").val(obj.publish_time);
-                            $("#soft_deadline").val(deadline.soft_deadline);
-                            $("#hard_deadline").val(deadline.hard_deadline);
-                            $("#freeze_deadline").val(deadline.freezing_deadline);
-                            $("#crib_deadline").val(obj.crib_deadline);
-                            $("#description").val(obj.description);
+                        $("#assignment_list").empty()
+                        var assign = data.assignments;
+                        console.log(assign);
+                        for(var i = 0; i < assign.length; i++){
+                            console.log(assign[i]);
+                            $("#assignment_list").append("<a href=\"/sedb/section/"+$("#assignment_list").attr("sec_user_id")+"/assignment/"+assign[i].id+"/\" class=\"submit-form list-group-item\">"+assign[i].title+"</a>");
+                        }
+                        $("#assignment_list").append("<a href=\"/sedb/add_assignment/"+$("#assignment_list").attr("sec_user_id")+"/\" class=\"submit-form list-group-item\">Add Assignment</a>");
+                    }
+                    else{
+                        console.log("Some Error Occurred");
+                    }
+                });
+            }
+
+            function loadIns(){
+                $.get("{% url 'sedb:get_instructors' sec_user_id %}",
+                function(data, status){
+                    if(status == "success"){
+                        $("#instructor_list").empty()
+                        var ins = data.instructor
+                        console.log(ins);
+                        for(var i = 0; i < ins.length; i++){
+                            console.log(ins[i])
+                            $("#instructor_list").append("<li>"+ins[i].name+"</li>")
+                        }
+                    }
+                    else{
+                        console.log("Some Error Occurred");
+                    }
+                });
+            }
+            function loadStu(){
+                $.get("{% url 'sedb:get_students' sec_user_id %}",
+                function(data, status){
+                    if(status == "success"){
+                        $("#student_list").empty()
+                        var stu = data.student
+                        console.log(stu);
+                        for(var i = 0; i < stu.length; i++){
+                            console.log(stu[i])
+                            $("#student_list").append("<li>"+stu[i].name+"</li>")
+                        }
+                        $("#stu-user").empty()
+                        var stu = data.user
+                        for(var i = 0; i < stu.length; i++){
+                            console.log(stu[i])
+                            $("#stu-user").append("<option value=\""+stu[i].user_id+"\">"+stu[i].user_id+" - "+stu[i].name+"</option>")
+                        }
+                    }
+                    else{
+                        console.log("Some Error Occurred");
+                    }
+                });
+            }
+            function loadTA(){
+                $.get("{% url 'sedb:get_tas' sec_user_id %}",
+                function(data, status){
+                    if(status == "success"){
+                        $("#ta_list").empty()
+                        var ta = data.ta
+                        console.log(ta);
+                        for(var i = 0; i < ta.length; i++){
+                            console.log(ta[i])
+                            $("#ta_list").append("<li>"+ta[i].name+"</li>")
+                        }
+                        $("#ta_user").empty()
+                        var ta = data.user
+                        for(var i = 0; i < ta.length; i++){
+                            console.log(ta[i])
+                            $("#ta_user").append("<option value=\""+ta[i].user_id+"\">"+ta[i].user_id+" - "+ta[i].name+"</option>")
                         }
                     }
                     else{

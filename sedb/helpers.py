@@ -9,6 +9,8 @@ from email.mime.text import MIMEText
 
 from bcrypt import hashpw, gensalt
 from django.shortcuts import redirect, reverse
+from django.core import serializers
+from django.db import connection
 
 from .models import *
 
@@ -244,6 +246,54 @@ def get_assign_home(request, sec_user_id, assign_id):
     context = {'new_assign': False, 'assign': model_to_dict(assignment), 'deadline': model_to_dict(deadline)}
     return JsonResponse(context)
 
+@instructor_required
+def get_assignments(request, sec_user_id):
+    sec_user = SecUser.objects.get(id=sec_user_id);
+    assign = Assignment.objects.filter(sec=sec_user.sec)
+    assignments = [{'id':a.assignment_id,'title':a.title} for a in assign]
+    context = {'assignments': assignments}
+    return JsonResponse(context, content_type="application/json")
+
+@instructor_required
+def get_instructors(request, sec_user_id):
+    sec_user = SecUser.objects.get(id=sec_user_id);
+    ins = SecUser.objects.filter(sec_id=sec_user.sec_id, role="Instructor")
+    instructor = [{'id':a.user.user_id,'name':a.user.name} for a in ins]
+    print(instructor)
+    context = {'instructor': instructor}
+    return JsonResponse(context, content_type="application/json")
+
+@instructor_required
+def get_students(request, sec_user_id):
+    sec_user = SecUser.objects.get(id=sec_user_id);
+    stu = SecUser.objects.filter(sec_id=sec_user.sec_id, role="Student")
+    student = [{'id':a.user.user_id,'name':a.user.name} for a in stu]
+
+    cursor = connection.cursor()
+    cursor.execute(
+        '''select user_id,name from "user" where user_id not in (select user_id from sec_user where sec_id=%s);''',
+        [sec_user.sec_id])
+    users = dictfetchall(cursor)
+
+    context = {'user': users, 'student':student }
+    return JsonResponse(context, content_type="application/json")
+
+@instructor_required
+def get_tas(request, sec_user_id):
+    sec_user = SecUser.objects.get(id=sec_user_id);
+    teach = SecUser.objects.filter(sec_id=sec_user.sec_id, role="TA")
+    ta = [{'id':a.user.user_id,'name':a.user.name} for a in teach]
+
+    cursor = connection.cursor()
+    cursor.execute(
+        '''select user_id,name from "user" where user_id not in (select user_id from sec_user where sec_id=%s);''',
+        [sec_user.sec_id])
+    users = dictfetchall(cursor)
+
+    context = {'user': users, 'ta':ta}
+    return JsonResponse(context, content_type="application/json")
+
+
 
 def dictfetchall(cursor):
     "Return all rows from a cursor as a dict"
@@ -281,3 +331,4 @@ def get_new_prob_no(request, sec_user_id, assign_id):
     return JsonResponse({
         'problem_no': assignment.num_problems
     })
+
