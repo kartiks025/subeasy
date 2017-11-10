@@ -244,34 +244,6 @@
                 $('.js-example-basic-multiple').select2();
             });
 
-            function loadHome(){
-                $.get("{% url 'sedb:get_assign_home' sec_user_id assign_id %}",
-                function(data, status){
-                    if(status == "success"){
-                        if (!data.new_assign){
-                            var obj = data.assign;
-                            var deadline = data.deadline;
-                            $("#assign_num").val(obj.assignment_no);
-                            $("#title").val(obj.title);
-                            if(obj.visibility == "1"){
-                                $("#visible").attr('checked',true);
-                            }
-                            else{
-                                $("#hidden").attr('checked',true);
-                            }
-                            $("#pub_time").val(obj.publish_time);
-                            $("#soft_deadline").val(deadline.soft_deadline);
-                            $("#hard_deadline").val(deadline.hard_deadline);
-                            $("#freeze_deadline").val(deadline.freezing_deadline);
-                            $("#crib_deadline").val(obj.crib_deadline);
-                            $("#description").val(obj.description);
-                        }
-                    }
-                    else{
-                        console.log("Some Error Occurred");
-                    }
-                });
-            }
         </script>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/js/select2.min.js"></script>
