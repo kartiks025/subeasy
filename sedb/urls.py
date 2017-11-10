@@ -46,5 +46,5 @@ urlpatterns = [
     url(r'^add_ex_student/(?P<sec_user_id>[0-9]+)/$', views.add_ex_student, name='add_ex_student'),
     url(r'^add_new_student/(?P<sec_user_id>[0-9]+)/$', views.add_new_student, name='add_new_student'),
 
-    #url(r'^assignments/(?P<sec_user_id>[0-9]+)/$', views.assignments, name='assignments'),
+    # url(r'^assignments/(?P<sec_user_id>[0-9]+)/$', views.assignments, name='assignments'),
 ]

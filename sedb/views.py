@@ -364,8 +364,25 @@ def assignment_tab(request, sec_user_id):
     print(sec_user.id)
     assignments = Assignment.objects.filter(sec=sec_user.sec)
     [print(a.assignment_id) for a in assignments]
-    context = {'section': sec_user.sec, 'sec_user_id': sec_user.id, 'assignments': assignments}
-    return render(request, 'sedb/assignment_tab.html', context)
+
+    stu = SecUser.objects.filter(sec_id=sec_user.sec_id, role="Student")
+    student = [a.user for a in stu]
+
+    cursor = connection.cursor()
+    cursor.execute(
+        '''select user_id,name from "user" where user_id not in (select user_id from sec_user where sec_id=%s);''',
+        [sec_user.sec_id])
+    users = dictfetchall(cursor)
+
+    ins = SecUser.objects.filter(sec_id=sec_user.sec_id, role="Instructor")
+    instructor = [a.user for a in ins]
+
+    teach = SecUser.objects.filter(sec_id=sec_user.sec_id, role="TA")
+    ta = [a.user for a in teach]
+
+    context = {'section': sec_user.sec, 'sec_user_id': sec_user.id, 'assignments': assignments, 'instructor': instructor,'student': student,'ta': ta,'user':users}
+
+    return render(request, 'sedb/sidenavbar.html', context)
 
 
 @instructor_required
