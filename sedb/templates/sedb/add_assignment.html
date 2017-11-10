@@ -15,7 +15,7 @@
                 <a href="#details">Details</a>
             </li>
             <li>
-                <a href="#problemSubMenu" data-toggle="collapse" aria-expanded="false">Home</a>
+                <a href="#problemSubMenu" data-toggle="collapse" aria-expanded="false">Problems</a>
                 <ul class="collapse list-unstyled" id="problemSubMenu">
                     <li id="add-button">
                         <a href="javascript:addNewProblem('{% url 'sedb:get_new_prob_no' sec_user_id assign_id %}')">
@@ -46,7 +46,7 @@
         <center><h5>Assignment</h5></center>
     </div>
     <div class="panel-body">
-        <div>
+        <div id="deatilsForm">
             <button type="button" class="edit-btn btn btn-default btn-sm pull-right">
                 <span id="homeEditSave" class="glyphicon glyphicon-pencil"></span>
             </button>
@@ -193,6 +193,7 @@
     $(".edit-btn").click(function(){
         var pid = "#"+$(this).parent().attr('id');
         var rval = $(pid+" input").prop('disabled');
+
 
         var elem = $(this).find("> span");
         if (elem.hasClass('glyphicon-pencil')){
