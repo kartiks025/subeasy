@@ -64,8 +64,9 @@ def user1_required(fun):
     wrap.__name__ = fun.__name__
     return wrap
 
+
 def user2_required(fun):
-    def wrap(request, sec_user_id,assign_id):
+    def wrap(request, sec_user_id, assign_id):
         print("user2_required")
         try:
             if not request.session['is_user']:
@@ -77,14 +78,14 @@ def user2_required(fun):
                 if not sec_user.user.user_id == request.session['user_id']:
                     print(sec_user.user.user_id + "," + request.session['user_id'])
                     return doredirect(request, 'sedb:user_login')
-                elif sec_user.role!="Instructor" and sec_user.role!="TA":
+                elif sec_user.role != "Instructor" and sec_user.role != "TA":
                     assign = Assignment.objects.get(assignment_id=assign_id)
                     if not assign.visibility:
                         print("cannot access this assignment")
                         return doredirect(request, 'sedb:user_login')
         except KeyError:
             return redirect('sedb:user_login')
-        return fun(request, sec_user_id,assign_id)
+        return fun(request, sec_user_id, assign_id)
 
     wrap.__doc__ = fun.__doc__
     wrap.__name__ = fun.__name__
@@ -113,7 +114,7 @@ def instructor_required(fun):
             else:
                 print(sec_user_id)
                 sec_user = SecUser.objects.get(id=sec_user_id)
-                if not sec_user.role=="Instructor" or not sec_user.user.user_id == request.session['user_id']:
+                if not sec_user.role == "Instructor" or not sec_user.user.user_id == request.session['user_id']:
                     print(sec_user.user.user_id + "," + request.session['user_id'])
                     return doredirect(request, 'sedb:user_login')
         except KeyError:
@@ -137,7 +138,7 @@ def instructor1_required(fun):
                 print(sec_user_id)
                 sec_user = SecUser.objects.get(id=sec_user_id)
                 print("yes " + sec_user.role)
-                if not sec_user.role=="Instructor" or not sec_user.user.user_id == request.session['user_id']:
+                if not sec_user.role == "Instructor" or not sec_user.user.user_id == request.session['user_id']:
                     print(sec_user.user.user_id + "," + request.session['user_id'])
                     return doredirect(request, 'sedb:user_login')
         except KeyError:
@@ -150,6 +151,7 @@ def instructor1_required(fun):
     wrap.__name__ = fun.__name__
     return wrap
 
+
 def student_required(fun):
     def wrap(request, sec_user_id):
         print("student")
@@ -160,7 +162,7 @@ def student_required(fun):
             else:
                 print(sec_user_id)
                 sec_user = SecUser.objects.get(id=sec_user_id)
-                if not sec_user.role=="Student" or not sec_user.user.user_id == request.session['user_id']:
+                if not sec_user.role == "Student" or not sec_user.user.user_id == request.session['user_id']:
                     print(sec_user.user.user_id + "," + request.session['user_id'])
                     return doredirect(request, 'sedb:user_login')
         except KeyError:
@@ -171,6 +173,7 @@ def student_required(fun):
     wrap.__doc__ = fun.__doc__
     wrap.__name__ = fun.__name__
     return wrap
+
 
 def student1_required(fun):
     def wrap(request, sec_user_id, assign_id):
@@ -183,7 +186,7 @@ def student1_required(fun):
                 print(sec_user_id)
                 sec_user = SecUser.objects.get(id=sec_user_id)
                 print("yes " + sec_user.role)
-                if not sec_user.role=="Student" or not sec_user.user.user_id == request.session['user_id']:
+                if not sec_user.role == "Student" or not sec_user.user.user_id == request.session['user_id']:
                     print(sec_user.user.user_id + "," + request.session['user_id'])
                     return doredirect(request, 'sedb:user_login')
                 assign = Assignment.objects.get(assignment_id=assign_id)
@@ -341,7 +344,7 @@ def edit_assign_home(request, sec_user_id, assign_id):
         print(description)
 
     return JsonResponse({
-        'assign_id': assignment_id
+        'r_id': assignment_id
     })
 
 
@@ -358,14 +361,15 @@ def get_assign_home(request, sec_user_id, assign_id):
     context = {'new_assign': False, 'assign': model_to_dict(assignment), 'deadline': model_to_dict(deadline)}
     return JsonResponse(context)
 
+
 @user1_required
 def get_assignments(request, sec_user_id):
     sec_user = SecUser.objects.get(id=sec_user_id);
-    if sec_user.role=="Instructor" or sec_user.role=="TA":
+    if sec_user.role == "Instructor" or sec_user.role == "TA":
         assign = Assignment.objects.filter(sec=sec_user.sec)
-    elif sec_user.role=="Student":
-        assign = Assignment.objects.filter(sec=sec_user.sec,visibility=True)
-    assignments = [{'id':a.assignment_id,'title':a.title} for a in assign]
+    elif sec_user.role == "Student":
+        assign = Assignment.objects.filter(sec=sec_user.sec, visibility=True)
+    assignments = [{'id': a.assignment_id, 'title': a.title} for a in assign]
     context = {'assignments': assignments}
     return JsonResponse(context, content_type="application/json")
 
@@ -453,10 +457,93 @@ def get_new_prob_no(request, sec_user_id, assign_id):
 @instructor2_required
 def get_assign_prob(request, sec_user_id, assign_id, prob_id):
     print("get_assign_prob called")
-    return HttpResponse()
+    if prob_id == '0':
+        return JsonResponse({
+            'new_prob': True
+        })
+    problem = Problem.objects.get(problem_id=prob_id)
+    resource = problem.resource_limit
+    return JsonResponse({
+        'new_prob': False,
+        'problem': model_to_dict(problem),
+        'resource': model_to_dict(resource)
+    })
+
+
+@instructor1_required
+def get_assign_all_prob(request, sec_user_id, assign_id):
+    print("all prob called")
+    assignment = Assignment.objects.get(assignment_id=assign_id)
+    problems = Problem.objects.filter(assignment=assignment)
+    prob_json = [{'problem': model_to_dict(problem),
+                  'resource': model_to_dict(problem.resource_limit)} for problem in problems]
+    return JsonResponse({
+        'problems': prob_json
+    })
 
 
 @instructor2_required
 def edit_assign_prob(request, sec_user_id, assign_id, prob_id):
     print("edit_assign_prob called")
-    return HttpResponse()
+    problem_id = 0
+    assignment = Assignment.objects.get(assignment_id=assign_id)
+
+    if request.method == "POST":
+        prob_num = request.POST['prob_num']
+        prob_title = request.POST['prob_title']
+        description = request.POST['description']
+        sol_visibility = (request.POST['sol_visibility'] == '1')
+        files_to_submit = request.POST['files_to_submit']
+        compile_cmd = request.POST['compile_cmd']
+        resources_spec = False;
+        try:
+            cpu_time = request.POST['cpu_time']
+            clock_time = request.POST['clock_time']
+            memory_limit = request.POST['memory_limit']
+            stack_limit = request.POST['stack_limit']
+            open_files = request.POST['open_files']
+            max_filesize = request.POST['max_file_size']
+
+            resources_spec = True
+        except KeyError:
+            pass
+
+        if prob_id == '0':
+            print("New problem")
+            if resources_spec:
+                resource = ResourceLimit(cpu_time=cpu_time, clock_time=clock_time, memory_limit=memory_limit,
+                                         stack_limit=stack_limit, open_files=open_files, max_filesize=max_filesize)
+                resource.save()
+            else:
+                resource = ResourceLimit.objects.get(resource_limit_id=1)
+            problem = Problem(problem_no=prob_num, title=prob_title, description=description,
+                              compile_cmd=compile_cmd, sol_visibility=sol_visibility, assignment=assignment,
+                              resource_limit=resource, num_testcases=0, files_to_submit=files_to_submit)
+            problem.save()
+            problem_id = problem.problem_id
+        else:
+            problem = Problem.objects.get(problem_id=prob_id)
+            resource = problem.resource_limit
+            if resources_spec:
+                resource.cpu_time = cpu_time
+                resource.clock_time = clock_time
+                resource.memory_limit = memory_limit
+                resource.stack_limit = stack_limit
+                resource.open_files = open_files
+                resource.max_filesize = max_filesize
+                resource.save()
+
+            problem.problem_no = prob_num
+            problem.title = prob_title
+            problem.description = description
+            problem.compile_cmd = compile_cmd
+            problem.sol_visibility = sol_visibility
+            problem.assignment = assignment
+            problem.resource_limit = resource
+            problem.files_to_submit = files_to_submit
+
+            problem.save()
+            problem_id = problem.problem_id
+    return JsonResponse({
+        'r_id': problem_id
+    })
