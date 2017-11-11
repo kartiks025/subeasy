@@ -115,6 +115,28 @@ def instructor1_required(fun):
     return wrap
 
 
+def instructor2_required(fun):
+    def wrap(request, sec_user_id, assign_id, prob_id):
+        try:
+            if not request.session['is_user']:
+                print(sec_user_id)
+                return doredirect(request, 'sedb:user_login')
+            else:
+                print(sec_user_id)
+                sec_user = SecUser.objects.get(id=sec_user_id)
+                if not sec_user.user.user_id == request.session['user_id']:
+                    print(sec_user.user.user_id + "," + request.session['user_id'])
+                    return doredirect(request, 'sedb:user_login')
+        except KeyError:
+            print("error in instructor_required")
+            return doredirect(request, 'sedb:user_login')
+        return fun(request, sec_user_id, assign_id, prob_id)
+
+    wrap.__doc__ = fun.__doc__
+    wrap.__name__ = fun.__name__
+    return wrap
+
+
 def send_verify_mail():
     fromaddr = "kartik_singhal@iitb.ac.in"
     toaddr = "kartiks025@gmail.com"
@@ -179,7 +201,7 @@ def send_verify_account_email(uid, email):
 @instructor1_required
 def edit_assign_home(request, sec_user_id, assign_id):
     print("edit_assign_home called")
-
+    assignment_id = 0
     if request.method == 'POST':
         assign_num = request.POST['assign_num']
         title = request.POST['assign_title']
@@ -202,6 +224,7 @@ def edit_assign_home(request, sec_user_id, assign_id):
                                     sec=section, num_problems=0, deadline=deadline)
 
             assignment.save()
+            assignment_id = assignment.assignment_id
         else:
             try:
                 assignment = Assignment.objects.get(assignment_id=assign_id)
@@ -215,6 +238,7 @@ def edit_assign_home(request, sec_user_id, assign_id):
                 assignment.description = description
                 assignment.deadline.save()
                 assignment.save()
+                assignment_id = assignment.assignment_id
             except ObjectDoesNotExist:
                 print("assignment doesn't exist")
                 # do something
@@ -230,7 +254,9 @@ def edit_assign_home(request, sec_user_id, assign_id):
         print(crib_deadline)
         print(description)
 
-    return HttpResponse()
+    return JsonResponse({
+        'assign_id': assignment_id
+    })
 
 
 @instructor1_required
@@ -246,28 +272,31 @@ def get_assign_home(request, sec_user_id, assign_id):
     context = {'new_assign': False, 'assign': model_to_dict(assignment), 'deadline': model_to_dict(deadline)}
     return JsonResponse(context)
 
+
 @instructor_required
 def get_assignments(request, sec_user_id):
     sec_user = SecUser.objects.get(id=sec_user_id);
     assign = Assignment.objects.filter(sec=sec_user.sec)
-    assignments = [{'id':a.assignment_id,'title':a.title} for a in assign]
+    assignments = [{'id': a.assignment_id, 'title': a.title} for a in assign]
     context = {'assignments': assignments}
     return JsonResponse(context, content_type="application/json")
+
 
 @instructor_required
 def get_instructors(request, sec_user_id):
     sec_user = SecUser.objects.get(id=sec_user_id);
     ins = SecUser.objects.filter(sec_id=sec_user.sec_id, role="Instructor")
-    instructor = [{'id':a.user.user_id,'name':a.user.name} for a in ins]
+    instructor = [{'id': a.user.user_id, 'name': a.user.name} for a in ins]
     print(instructor)
     context = {'instructor': instructor}
     return JsonResponse(context, content_type="application/json")
+
 
 @instructor_required
 def get_students(request, sec_user_id):
     sec_user = SecUser.objects.get(id=sec_user_id);
     stu = SecUser.objects.filter(sec_id=sec_user.sec_id, role="Student")
-    student = [{'id':a.user.user_id,'name':a.user.name} for a in stu]
+    student = [{'id': a.user.user_id, 'name': a.user.name} for a in stu]
 
     cursor = connection.cursor()
     cursor.execute(
@@ -275,14 +304,15 @@ def get_students(request, sec_user_id):
         [sec_user.sec_id])
     users = dictfetchall(cursor)
 
-    context = {'user': users, 'student':student }
+    context = {'user': users, 'student': student}
     return JsonResponse(context, content_type="application/json")
+
 
 @instructor_required
 def get_tas(request, sec_user_id):
     sec_user = SecUser.objects.get(id=sec_user_id);
     teach = SecUser.objects.filter(sec_id=sec_user.sec_id, role="TA")
-    ta = [{'id':a.user.user_id,'name':a.user.name} for a in teach]
+    ta = [{'id': a.user.user_id, 'name': a.user.name} for a in teach]
 
     cursor = connection.cursor()
     cursor.execute(
@@ -290,9 +320,8 @@ def get_tas(request, sec_user_id):
         [sec_user.sec_id])
     users = dictfetchall(cursor)
 
-    context = {'user': users, 'ta':ta}
+    context = {'user': users, 'ta': ta}
     return JsonResponse(context, content_type="application/json")
-
 
 
 def dictfetchall(cursor):
@@ -332,3 +361,14 @@ def get_new_prob_no(request, sec_user_id, assign_id):
         'problem_no': assignment.num_problems
     })
 
+
+@instructor2_required
+def get_assign_prob(request, sec_user_id, assign_id, prob_id):
+    print("get_assign_prob called")
+    return HttpResponse()
+
+
+@instructor2_required
+def edit_assign_prob(request, sec_user_id, assign_id, prob_id):
+    print("edit_assign_prob called")
+    return HttpResponse()
