@@ -149,7 +149,7 @@
                 </button>
 
                 <div class="container">
-                    <form class="form-horizontal" action="{% url 'sedb:edit_assign_prob' sec_user_id assign_id 0 %}" method="post">
+                    <form class="form-horizontal" action="{% url 'sedb:edit_assign_prob' sec_user_id assign_id 0 %}" method="post" enctype="multipart/form-datas">
 
                         <div class="form-group">
                             <label class="control-label col-xs-2" >Number:</label>
@@ -175,14 +175,16 @@
                         <div class="form-group">
                             <label class="control-label col-xs-2">Helper File:</label>
                             <div class="col-xs-6">
-                                <input type="file" accept=".tar.gz,.zip" class="form-control" name="helper_file">
+                                <input type="file" accept=".tar.gz,.zip,.pdf" class="form-control" name="helper_file">
+                                <a href="{% url 'sedb:download_problem_helper_file' sec_user_id assign_id 0 %}" name="helper_file">Download</a>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label class="control-label col-xs-2">Solution File:</label>
                             <div class="col-xs-6">
-                                <input type="file" accept=".tar.gz,.zip" class="form-control" name="solution_file">
+                                <input type="file" accept=".tar.gz,.zip,.pdf" class="form-control" name="solution_file">
+                                <a href="{% url 'sedb:download_problem_solution_file' sec_user_id assign_id 0%}" name="solution_file">Download</a>
                             </div>
                         </div>
 

@@ -384,6 +384,38 @@ def download_helper_file(request, sec_user_id, assign_id):
         assignment_id=assign_id).helper_file_name
     return response
 
+# @instructor2_required
+def download_problem_helper_file(request, sec_user_id, assign_id, prob_id):
+    contents = Problem.objects.get(problem_id=prob_id).helper_file
+    response = HttpResponse(contents)
+    response['Content-Disposition'] = 'attachment; filename=' + Problem.objects.get(
+        problem_id=prob_id).helper_file_name
+    return response
+
+# @instructor2_required
+def download_problem_solution_file(request, sec_user_id, assign_id, prob_id):
+    contents = Problem.objects.get(problem_id=prob_id).solution_file
+    response = HttpResponse(contents)
+    response['Content-Disposition'] = 'attachment; filename=' + Problem.objects.get(
+        problem_id=prob_id).solution_filename
+    return response
+
+# @instructor2_required
+def download_testcase_input_file(request, sec_user_id, assign_id, prob_id,testcase_id):
+    contents = Testcase.objects.get(id=testcase_id).infile
+    response = HttpResponse(contents)
+    response['Content-Disposition'] = 'attachment; filename=' + Testcase.objects.get(
+        id=testcase_id).infile_name
+    return response
+
+# @instructor2_required
+def download_testcase_output_file(request, sec_user_id, assign_id, prob_id,testcase_id):
+    contents = Testcase.objects.get(id=testcase_id).outfile
+    response = HttpResponse(contents)
+    response['Content-Disposition'] = 'attachment; filename=' + Testcase.objects.get(
+        id=testcase_id).outfile_name
+    return response
+
 
 @user1_required
 def get_assignments(request, sec_user_id):
@@ -533,6 +565,19 @@ def edit_assign_prob(request, sec_user_id, assign_id, prob_id):
 
         if prob_id == '0':
             print("New problem")
+            try:
+                helper_file = request.FILES['helper_file'].file.read()
+                helper_file_name = request.FILES['helper_file'].name
+            except Exception:
+                helper_file = None
+                helper_file_name = ""
+            try:
+                solution_file = request.FILES['solution_file'].file.read()
+                solution_file_name = request.FILES['solution_file'].name
+            except Exception:
+                solution_file = None
+                solution_file_name = ""
+
             if resources_spec:
                 resource = ResourceLimit(cpu_time=cpu_time, clock_time=clock_time, memory_limit=memory_limit,
                                          stack_limit=stack_limit, open_files=open_files, max_filesize=max_filesize)
@@ -541,7 +586,9 @@ def edit_assign_prob(request, sec_user_id, assign_id, prob_id):
                 resource = ResourceLimit.objects.get(resource_limit_id=1)
             problem = Problem(problem_no=prob_num, title=prob_title, description=description,
                               compile_cmd=compile_cmd, sol_visibility=sol_visibility, assignment=assignment,
-                              resource_limit=resource, num_testcases=0, files_to_submit=files_to_submit)
+                              resource_limit=resource, num_testcases=0, files_to_submit=files_to_submit,
+                              helper_file=helper_file,solution_file=solution_file,helper_file_name=helper_file_name,
+                              solution_filename=solution_file_name)
             problem.save()
             problem_id = problem.problem_id
         else:
@@ -572,6 +619,17 @@ def edit_assign_prob(request, sec_user_id, assign_id, prob_id):
             problem.resource_limit = resource
             problem.files_to_submit = files_to_submit
 
+            try:
+                problem.helper_file = request.FILES['helper_file'].file.read()
+                problem.helper_file_name = request.FILES['helper_file'].name
+            except Exception:
+                print("except")
+
+            try:
+                problem.solution_file = request.FILES['solution_file'].file.read()
+                problem.solution_filename = request.FILES['solution_file'].name
+            except Exception:
+                print("except")
             problem.save()
             problem_id = problem.problem_id
     return JsonResponse({
