@@ -16,13 +16,7 @@
             </li>
             <li>
                 <a href="#problemSubMenu" data-toggle="collapse" aria-expanded="false">Problems</a>
-                <ul class="collapse list-unstyled" id="problemSubMenu">
-                    <li id="add-button">
-                        <a href="javascript:addNewProblem('{% url 'sedb:get_new_prob_no' sec_user_id assign_id %}')">
-                            <span class="glyphicon glyphicon-plus"></span>
-                            Add New Problem
-                        </a>
-                    </li>
+                <ul class="collapse list-unstyled" id="problemSubMenu" data-loadUrl="{% url 'sedb:get_assign_all_prob' sec_user_id assign_id %}">
                 </ul>
             </li>
 
@@ -41,7 +35,7 @@
 </div>
 
 <div id="content" class="container-fluid">
-    <div class="panel panel-primary nav-content" id="problem-form">
+    <div class="panel panel-primary nav-content" id="details">
     
         <table class="table table-bordered">
         <tbody>
@@ -88,22 +82,15 @@
 
     </div>
 
-    <div class="panel panel-primary nav-content content hidden" id="problem-form">
-        <div class="panel-heading">
-            <center><h5>Problem</h5></center>
-        </div>
-        <div class="panel-body">
-            dnfdsunfnsf
-        </div>
-    </div>
-
-    <div id="submissions" class="nav-content hidden">
+    <div class="hidden" id="problem-form" data-loadUrl="{% url 'sedb:get_assign_prob' sec_user_id assign_id 0 %}">
         <center>
         <div class="title" name="prob_name" style="font-size: 30px">B. Divisibility of Differences</div>
         <br>
-        <div class="helper_file" style="font-size: 15px">Helper File : <span name="helper_file" display: inline> <a href="#">Download</a></span></div>
-        <div class="solution_file" style="font-size: 15px">Solution File : <span name="solution_file" display: inline> <a href="#">Download</a></span></div>
-        <div class="compile_cmd" style="font-size: 15px">Compilation Command : <span name="compile_cmd" display: inline><i> g++ file name</i></span></div>
+        <div class="helper_file" style="font-size: 15px">Helper File : <span name="helper_file" > <a href="#">Download</a></span></div>
+        <div class="solution_file" style="font-size: 15px">Solution File : <span name="solution_file"> <a href="#">Download</a></span></div>
+        <div class="compile_cmd" style="font-size: 15px">Compilation Command : <span name="compile_cmd" ><i> g++ file name</i></span></div>
+        <div class="files_to_submit" style="font-size: 15px">Files to Submit : <span name="files_to_submit" ><i> g++ file name</i></span></div>
+        
         <div class="cpu_time" style="font-size: 15px">cpu_time : <span name ="cpu_time"></span></div>
         <div class="clock_time" style="font-size: 15px">clock_time : <span name ="clock_time"></span></div>
         <div class="memory_limit" style="font-size: 15px">memory_limit : <span name ="memory_limit"></span></div>
@@ -131,6 +118,10 @@
 
             Help Denis to choose which letters he needs to capitalize (make large) in order to make the sequence of words lexicographically ordered, or determine that it is impossible.
         </div>
+    </div>
+
+    <div id="submissions" class="nav-content hidden">
+        
     </div>
 
     <div id="marksheet" class="nav-content hidden">
@@ -166,21 +157,97 @@
             if(status == "success"){
                 var obj = data.assign;
                 var deadline = data.deadline;
-                $("#assign_num").append(obj.assignment_no);
-                $("#title").append(obj.title);
+                $("#assign_num").text(obj.assignment_no);
+                $("#title").text(obj.title);
                 var d = new Date(obj.publish_time)
-                $("#pub_time").append(formatDate(obj.publish_time));
+                $("#pub_time").text(formatDate(obj.publish_time));
                 console.log(obj.publish_time);
-                $("#soft_deadline").append(formatDate(deadline.soft_deadline));
-                $("#hard_deadline").append(formatDate(deadline.hard_deadline));
-                $("#freeze_deadline").append(formatDate(deadline.freezing_deadline));
-                $("#crib_deadline").append(formatDate(obj.crib_deadline));
-                $("#description").append(obj.description);
+                $("#soft_deadline").text(formatDate(deadline.soft_deadline));
+                $("#hard_deadline").text(formatDate(deadline.hard_deadline));
+                $("#freeze_deadline").text(formatDate(deadline.freezing_deadline));
+                $("#crib_deadline").text(formatDate(obj.crib_deadline));
+                $("#description").text(obj.description);
+                loadProblems();
             }
             else{
                 console.log("Some Error Occurred");
             }
         });
+    }
+
+    function loadProblems(){
+        var url = $("#problemSubMenu").attr("data-loadUrl");
+        $.get(url,
+        function(data, status){
+            if(status == "success"){
+                $(".problems, .problems-link").remove();
+                console.log(data);
+                var ps = data.problems
+                for(var i in ps){
+                    var prob_obj = ps[i].problem;
+                    console.log(prob_obj.title);
+                    appendProb(prob_obj.problem_id);
+                    var prob_id =prob_obj.problem_id;
+                    updateProblem(prob_id, prob_obj, ps[i].resource);
+                    console.log("#prob"+prob_id)
+                    var s = $("#prob"+prob_id).attr('data-loadUrl').replace('0',prob_id);
+                    $("#prob"+prob_id).attr('data-loadUrl', s);
+                }
+            }
+            else{
+                console.log("Some Error Occurred");
+            }
+        });
+    }
+
+    function reloadProblem(elem){
+        var url = elem.attr('data-loadUrl');
+        alert(url);
+        $.get(url,
+        function(data, status){
+            if(status == "success"){
+                var prob_id = "#prob"+data.problem.problem_id;
+                console.log("hi "+data.problem.problem_id)
+                updateProblem(data.problem.problem_id, data.problem, data.resource);
+            }
+            else{
+                console.log("Some Error Occurred");
+            }
+        });
+    }
+
+
+    function appendProb(problem_id){
+        $('<li/>').append($('<a/>',{
+            id : "link"+problem_id,
+            href : "#prob"+problem_id,
+            "class" : "side-nav-link problems-link",
+            text : "Problem "+problem_id,
+            on : {
+                click : function(){
+                    SideAssignNavClick($(this));
+                }
+            }
+        })).appendTo($("#problemSubMenu"));
+        console.log($("#problem-form").attr('data-loadurl'));
+        console.log("appending");
+        $('<div/>',{
+            id: "prob"+problem_id,
+            "class" : "hidden",
+            html : $("#problem-form").html(),
+            "data-loadurl" : $("#problem-form").attr('data-loadurl')
+        }).appendTo($("#content"));
+
+    }
+
+    function updateProblem(problem_id, prob_obj, resource_obj){
+        $("#link"+problem_id).text("Problem "+prob_obj.problem_no);
+        var prob_id = '#prob' +problem_id;
+        $(prob_id+' div[name="prob_name"]').text(prob_obj.problem_no+". "+prob_obj.title);
+        $(prob_id+' div[name="description"]').text(prob_obj.description);
+        $(prob_id+' span[name="files_to_submit"]').text(prob_obj.files_to_submit);
+        $(prob_id+' span[name="compile_cmd"]').text(prob_obj.compile_cmd);
+        // $(prob_id+" input[sol_visibility][value="+prob_obj.sol_visibility+"]").attr('checked',true);
     }
 
     function formatDate(date){
@@ -202,19 +269,31 @@
             $('.collapse.in').toggleClass('in');
             $('a[aria-expanded=true]').attr('aria-expanded', 'false');
         });
+        $(".side-nav-link").click(function(){
+            SideAssignNavClick($(this));
+        });
     });
 
-    $(".side-nav-link").click(function(){
+    function SideAssignNavClick(elem){
         $("#list-nav .active").toggleClass("active");
         $(this).parent().toggleClass("active");
 
         var vis = $("#content :visible");
         vis.addClass('hidden');
 
-        var toShowDiv = $(this).attr("href");
+        var toShowDiv = elem.attr("href");
+        console.log(toShowDiv)
         $(toShowDiv).find("*").removeClass('hidden');
         $(toShowDiv).removeClass('hidden');
-    });
+        if (String(toShowDiv)==("#details")){
+            loadHome();
+        }
+        if (String(toShowDiv).indexOf("#prob")!== -1){
+            reloadProblem($(String(toShowDiv)));
+        }
+    }
+
+    
 
 </script>
 

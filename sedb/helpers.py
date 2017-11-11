@@ -476,7 +476,7 @@ def get_new_prob_no(request, sec_user_id, assign_id):
     })
 
 
-@instructor2_required
+# @instructor2_required
 def get_assign_prob(request, sec_user_id, assign_id, prob_id):
     print("get_assign_prob called")
     if prob_id == '0':
@@ -492,7 +492,7 @@ def get_assign_prob(request, sec_user_id, assign_id, prob_id):
     })
 
 
-@instructor1_required
+@user2_required
 def get_assign_all_prob(request, sec_user_id, assign_id):
     print("all prob called")
     assignment = Assignment.objects.get(assignment_id=assign_id)
