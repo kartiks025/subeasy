@@ -302,7 +302,6 @@ def edit_assign_home(request, sec_user_id, assign_id):
         crib_deadline = request.POST['crib_deadline']
         description = request.POST['description']
 
-
         section = SecUser.objects.get(id=sec_user_id).sec
         if assign_id == '0':
             print("New Assignment")
@@ -317,7 +316,8 @@ def edit_assign_home(request, sec_user_id, assign_id):
             deadline.save()
             assignment = Assignment(assignment_no=assign_num, title=title, description=description,
                                     publish_time=pub_time, visibility=(visibility == '1'), crib_deadline=crib_deadline,
-                                    sec=section, num_problems=0, deadline=deadline,helper_file=helper_file,helper_file_name=helper_file_name)
+                                    sec=section, num_problems=0, deadline=deadline, helper_file=helper_file,
+                                    helper_file_name=helper_file_name)
 
             assignment.save()
             assignment_id = assignment.assignment_id
@@ -380,7 +380,8 @@ def get_assign_home(request, sec_user_id, assign_id):
 def download_helper_file(request, sec_user_id, assign_id):
     contents = Assignment.objects.get(assignment_id=assign_id).helper_file
     response = HttpResponse(contents)
-    response['Content-Disposition'] = 'attachment; filename='+Assignment.objects.get(assignment_id=assign_id).helper_file_name
+    response['Content-Disposition'] = 'attachment; filename=' + Assignment.objects.get(
+        assignment_id=assign_id).helper_file_name
     return response
 
 
@@ -517,18 +518,18 @@ def edit_assign_prob(request, sec_user_id, assign_id, prob_id):
         sol_visibility = (request.POST['sol_visibility'] == '1')
         files_to_submit = request.POST['files_to_submit']
         compile_cmd = request.POST['compile_cmd']
-        resources_spec = False;
+        resources_spec = False
         try:
             cpu_time = request.POST['cpu_time']
             clock_time = request.POST['clock_time']
             memory_limit = request.POST['memory_limit']
             stack_limit = request.POST['stack_limit']
             open_files = request.POST['open_files']
-            max_filesize = request.POST['max_file_size']
+            max_filesize = request.POST['max_filesize']
 
             resources_spec = True
         except KeyError:
-            pass
+            print("keyError")
 
         if prob_id == '0':
             print("New problem")
@@ -546,14 +547,21 @@ def edit_assign_prob(request, sec_user_id, assign_id, prob_id):
         else:
             problem = Problem.objects.get(problem_id=prob_id)
             resource = problem.resource_limit
+            print(resource.resource_limit_id)
             if resources_spec:
-                resource.cpu_time = cpu_time
-                resource.clock_time = clock_time
-                resource.memory_limit = memory_limit
-                resource.stack_limit = stack_limit
-                resource.open_files = open_files
-                resource.max_filesize = max_filesize
-                resource.save()
+                print("changing resource")
+                if resource.resource_limit_id != 1:
+                    resource.cpu_time = cpu_time
+                    resource.clock_time = clock_time
+                    resource.memory_limit = memory_limit
+                    resource.stack_limit = stack_limit
+                    resource.open_files = open_files
+                    resource.max_filesize = max_filesize
+                    resource.save()
+                else:
+                    resource = ResourceLimit(cpu_time=cpu_time, clock_time=clock_time, memory_limit=memory_limit,
+                                             stack_limit=stack_limit, open_files=open_files, max_filesize=max_filesize)
+                    resource.save()
 
             problem.problem_no = prob_num
             problem.title = prob_title
