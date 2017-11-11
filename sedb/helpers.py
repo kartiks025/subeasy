@@ -299,15 +299,22 @@ def edit_assign_home(request, sec_user_id, assign_id):
         crib_deadline = request.POST['crib_deadline']
         description = request.POST['description']
 
+
         section = SecUser.objects.get(id=sec_user_id).sec
         if assign_id == '0':
             print("New Assignment")
+            try:
+                helper_file = request.FILES['helper_file'].file.read()
+                helper_file_name = request.FILES['helper_file'].name
+            except Exception:
+                helper_file = None
+                helper_file_name = ""
             deadline = Deadline(soft_deadline=soft_deadline, hard_deadline=hard_deadline,
                                 freezing_deadline=freeze_deadline)
             deadline.save()
             assignment = Assignment(assignment_no=assign_num, title=title, description=description,
                                     publish_time=pub_time, visibility=(visibility == '1'), crib_deadline=crib_deadline,
-                                    sec=section, num_problems=0, deadline=deadline)
+                                    sec=section, num_problems=0, deadline=deadline,helper_file=helper_file,helper_file_name=helper_file_name)
 
             assignment.save()
             assignment_id = assignment.assignment_id
@@ -322,6 +329,13 @@ def edit_assign_home(request, sec_user_id, assign_id):
                 assignment.deadline.hard_deadline = hard_deadline
                 assignment.deadline.freezing_deadline = freeze_deadline
                 assignment.description = description
+                try:
+                    print("try")
+                    assignment.helper_file = request.FILES['helper_file'].file.read()
+                    assignment.helper_file_name = request.FILES['helper_file'].name
+                    print("try1")
+                except Exception:
+                    print("except")
                 assignment.deadline.save()
                 assignment.save()
                 assignment_id = assignment.assignment_id
@@ -357,6 +371,13 @@ def get_assign_home(request, sec_user_id, assign_id):
     deadline = assignment.deadline
     context = {'new_assign': False, 'assign': model_to_dict(assignment), 'deadline': model_to_dict(deadline)}
     return JsonResponse(context)
+
+@user2_required
+def download_helper_file(request, sec_user_id, assign_id):
+    contents = Assignment.objects.get(assignment_id=assign_id).helper_file
+    response = HttpResponse(contents)
+    response['Content-Disposition'] = 'attachment; filename='+Assignment.objects.get(assignment_id=assign_id).helper_file_name
+    return response
 
 @user1_required
 def get_assignments(request, sec_user_id):

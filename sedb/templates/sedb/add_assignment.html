@@ -52,7 +52,7 @@
                 </button>
 
                 <div class="container">
-                    <form class="form-horizontal" id="form" action="{% url 'sedb:edit_assign_home' sec_user_id assign_id %}" method="post">
+                    <form class="form-horizontal" id="form" action="{% url 'sedb:edit_assign_home' sec_user_id assign_id %}" method="post" enctype="multipart/form-data">
 
                         <div class="form-group">
                             <label class="control-label col-xs-2" for="assign_num">Number:</label>
@@ -118,7 +118,8 @@
                         <div class="form-group">
                             <label class="control-label col-xs-2" for="helper_file">Helper File:</label>
                             <div class="col-xs-6">
-                                <input type="file" accept=".tar.gz,.zip" class="form-control" id="helper_file" name="helper_file">
+                                <input type="file" accept=".tar.gz,.zip,.pdf" class="form-control" id="helper_file" name="helper_file">
+                                <a href="{% url 'sedb:download_helper_file' sec_user_id assign_id %}">Download</a>
                             </div>
                         </div>
 

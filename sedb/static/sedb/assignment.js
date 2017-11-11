@@ -1,6 +1,5 @@
 function loadHome(){
     var url = $("#detailsForm").attr('data-loadUrl');
-    alert(url);
     $.get(url,
     function(data, status){
         if(status == "success"){
@@ -44,11 +43,16 @@ function EditButtonClick(elem){
     else{
         var frm = $(pid+" form");
         frm.validate();
+        var formData = new FormData(frm[0]);
+        console.log(frm.serialize());
+        console.log(formData);
         if(frm.valid()){
             $.ajax({
                 type: frm.attr('method'),
                 url: frm.attr('action'),
-                data: frm.serialize(),
+                data: formData,
+                contentType: false,
+                processData: false,
                 success: function (data) {
                     console.log('Submission was successful.');
                     console.log(data);
