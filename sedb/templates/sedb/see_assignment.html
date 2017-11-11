@@ -41,7 +41,7 @@
 </div>
 
 <div id="content" class="container-fluid">
-    <div class="panel panel-primary nav-content" id="details">
+    <div class="panel panel-primary nav-content" id="problem-form">
     
         <table class="table table-bordered">
         <tbody>
@@ -75,7 +75,7 @@
             </tr>
             <tr>
                 <td>Helper File</td>
-                <td id="helper_file"></td>
+                <td id="helper_file"><a href="{% url 'sedb:download_helper_file' sec_user_id assign_id %}">Download</a></td>
             </tr>
             <tr>
                 <td>Description</td>
@@ -88,14 +88,48 @@
 
     </div>
 
+    <div class="panel panel-primary nav-content content hidden" id="problem-form">
+        <div class="panel-heading">
+            <center><h5>Problem</h5></center>
+        </div>
+        <div class="panel-body">
+            dnfdsunfnsf
+        </div>
+    </div>
+
     <div id="submissions" class="nav-content hidden">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                Submissions
-            </div>
-            <div class="panel-body">
-                TBD
-            </div>
+        <center>
+        <div class="title" name="prob_name" style="font-size: 30px">B. Divisibility of Differences</div>
+        <br>
+        <div class="helper_file" style="font-size: 15px">Helper File : <span name="helper_file" display: inline> <a href="#">Download</a></span></div>
+        <div class="solution_file" style="font-size: 15px">Solution File : <span name="solution_file" display: inline> <a href="#">Download</a></span></div>
+        <div class="compile_cmd" style="font-size: 15px">Compilation Command : <span name="compile_cmd" display: inline><i> g++ file name</i></span></div>
+        <div class="cpu_time" style="font-size: 15px">cpu_time : <span name ="cpu_time"></span></div>
+        <div class="clock_time" style="font-size: 15px">clock_time : <span name ="clock_time"></span></div>
+        <div class="memory_limit" style="font-size: 15px">memory_limit : <span name ="memory_limit"></span></div>
+        <div class="stack_limit" style="font-size: 15px">stack_limit : <span name ="stack_limit"></span></div>
+        <div class="open_files" style="font-size: 15px">open_files : <span name ="open_files"></span></div>
+        <div class="max_filesize" style="font-size: 15px">max_filesize : <span name ="max_filesize"></span></div>
+        
+        </center>
+        <div class="description" name="description">
+        <br>
+            You all know that the Library of Bookland is the largest library in the world. There are dozens of thousands of books in the library.
+
+            Some long and uninteresting story was removed...
+
+            The alphabet of Bookland is so large that its letters are denoted by positive integers. Each letter can be small or large, the large version of a letter x is denoted by x'. BSCII encoding, which is used everywhere in Bookland, is made in that way so that large letters are presented in the order of the numbers they are denoted by, and small letters are presented in the order of the numbers they are denoted by, but all large letters are before all small letters. For example, the following conditions hold: 2 < 3, 2' < 3', 3' < 2.
+
+            <br><br>
+            A word x1, x2, ..., xa is not lexicographically greater than y1, y2, ..., yb if one of the two following conditions holds:
+
+            a ≤ b and x1 = y1, ..., xa = ya, i.e. the first word is the prefix of the second word;
+            there is a position 1 ≤ j ≤ min(a, b), such that x1 = y1, ..., xj - 1 = yj - 1 and xj < yj, i.e. at the first position where the words differ the first word has a smaller letter than the second word has.
+            For example, the word "3' 7 5" is before the word "2 4' 6" in lexicographical order. It is said that sequence of words is in lexicographical order if each word is not lexicographically greater than the next word in the sequence.
+
+            Denis has a sequence of words consisting of small letters only. He wants to change some letters to large (let's call this process a capitalization) in such a way that the sequence of words is in lexicographical order. However, he soon realized that for some reason he can't change a single letter in a single word. He only can choose a letter and change all of its occurrences in all words to large letters. He can perform this operation any number of times with arbitrary letters of Bookland's alphabet.
+
+            Help Denis to choose which letters he needs to capitalize (make large) in order to make the sequence of words lexicographically ordered, or determine that it is impossible.
         </div>
     </div>
 
@@ -134,17 +168,24 @@
                 var deadline = data.deadline;
                 $("#assign_num").append(obj.assignment_no);
                 $("#title").append(obj.title);
-                $("#pub_time").append(obj.publish_time);
-                $("#soft_deadline").append(deadline.soft_deadline);
-                $("#hard_deadline").append(deadline.hard_deadline);
-                $("#freeze_deadline").append(deadline.freezing_deadline);
-                $("#crib_deadline").append(obj.crib_deadline);
+                var d = new Date(obj.publish_time)
+                $("#pub_time").append(formatDate(obj.publish_time));
+                console.log(obj.publish_time);
+                $("#soft_deadline").append(formatDate(deadline.soft_deadline));
+                $("#hard_deadline").append(formatDate(deadline.hard_deadline));
+                $("#freeze_deadline").append(formatDate(deadline.freezing_deadline));
+                $("#crib_deadline").append(formatDate(obj.crib_deadline));
                 $("#description").append(obj.description);
             }
             else{
                 console.log("Some Error Occurred");
             }
         });
+    }
+
+    function formatDate(date){
+        var d = new Date(date)
+        return d;
     }
 
     $(document).ready(function(){
