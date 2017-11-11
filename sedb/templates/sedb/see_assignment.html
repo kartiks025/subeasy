@@ -1,0 +1,180 @@
+{% extends 'sedb/assignment_base.html' %}
+
+{% block content %}
+{% load staticfiles %}
+
+<div class="wrapper">
+    <!-- Sidebar Holder -->
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <h3>Assignment</h3>
+        </div>
+
+        <ul class="list-unstyled components" id="list-nav">
+            <li  class="active">
+                <a class="side-nav-link" href="#details">Details</a>
+            </li>
+            <li>
+                <a href="#problemSubMenu" data-toggle="collapse" aria-expanded="false">Problems</a>
+                <ul class="collapse list-unstyled" id="problemSubMenu">
+                    <li id="add-button">
+                        <a href="javascript:addNewProblem('{% url 'sedb:get_new_prob_no' sec_user_id assign_id %}')">
+                            <span class="glyphicon glyphicon-plus"></span>
+                            Add New Problem
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li>
+                <a class="side-nav-link" href="#submissions" class="submit-form ">Submissions</a>
+            </li>
+            <li>
+                <a class="side-nav-link" href="#marksheet" class="submit-form ">Marksheet</a>
+            </li>
+            <li>
+                <a class="side-nav-link" href="#announcement" class="submit-form ">Announcements</a>
+            </li>
+        </ul>
+
+    </nav>
+</div>
+
+<div id="content" class="container-fluid">
+    <div class="panel panel-primary nav-content" id="details">
+    
+        <table class="table table-bordered">
+        <tbody>
+            <tr>
+                <td>Number</td>
+                <td id="assign_num"></td>
+            </tr>
+            <tr>
+                <td>Title</td>
+                <td id="title"></td>
+            </tr>
+            <tr>
+                <td>Publish Time</td>
+                <td id="pub_time"></td>
+            </tr>
+            <tr>
+                <td>Soft Deadline</td>
+                <td id="soft_deadline"></td>
+            </tr>
+            <tr>
+                <td>Hard Deadline</td>
+                <td id="hard_deadline"></td>
+            </tr>
+            <tr>
+                <td>Freezing Deadline</td>
+                <td id="freeze_deadline"></td>
+            </tr>
+            <tr>
+                <td>Crib Deadline</td>
+                <td id="crib_deadline"></td>
+            </tr>
+            <tr>
+                <td>Helper File</td>
+                <td id="helper_file"></td>
+            </tr>
+            <tr>
+                <td>Description</td>
+                <td id="description"></td>
+            </tr>
+
+
+        </tbody>
+        </table>
+
+    </div>
+
+    <div id="submissions" class="nav-content hidden">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                Submissions
+            </div>
+            <div class="panel-body">
+                TBD
+            </div>
+        </div>
+    </div>
+
+    <div id="marksheet" class="nav-content hidden">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                Marksheet
+            </div>
+            <div class="panel-body">
+                TBD
+            </div>
+        </div>
+    </div>
+
+    <div id="announcement" class="nav-content hidden">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                Announcements
+            </div>
+            <div class="panel-body">
+                TBD
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+    function loadHome(){
+        $.get("{% url 'sedb:get_assign_home' sec_user_id assign_id %}",
+        function(data, status){
+            if(status == "success"){
+                var obj = data.assign;
+                var deadline = data.deadline;
+                $("#assign_num").append(obj.assignment_no);
+                $("#title").append(obj.title);
+                $("#pub_time").append(obj.publish_time);
+                $("#soft_deadline").append(deadline.soft_deadline);
+                $("#hard_deadline").append(deadline.hard_deadline);
+                $("#freeze_deadline").append(deadline.freezing_deadline);
+                $("#crib_deadline").append(obj.crib_deadline);
+                $("#description").append(obj.description);
+            }
+            else{
+                console.log("Some Error Occurred");
+            }
+        });
+    }
+
+    $(document).ready(function(){
+        $("input").attr('disabled',true);
+        $("textarea").attr('disabled',true);
+        loadHome();
+
+        $("#sidebar").mCustomScrollbar({
+            theme: "minimal"
+        });
+
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar, #content').toggleClass('active');
+            $('.collapse.in').toggleClass('in');
+            $('a[aria-expanded=true]').attr('aria-expanded', 'false');
+        });
+    });
+
+    $(".side-nav-link").click(function(){
+        $("#list-nav .active").toggleClass("active");
+        $(this).parent().toggleClass("active");
+
+        var vis = $("#content :visible");
+        vis.addClass('hidden');
+
+        var toShowDiv = $(this).attr("href");
+        $(toShowDiv).find("*").removeClass('hidden');
+        $(toShowDiv).removeClass('hidden');
+    });
+
+</script>
+
+{% endblock %}

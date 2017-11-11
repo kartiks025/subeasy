@@ -34,6 +34,8 @@ urlpatterns = [
         url(r'^assignment/(?P<assign_id>[0-9]+)/$', views.show_assignment, name='show_assignment'),
         url(r'^assignment/(?P<assign_id>[0-9]+)/get_assign_home/$', helpers.get_assign_home, name='get_assign_home'),
         url(r'^assignment/(?P<assign_id>[0-9]+)/get_new_prob_no/$', helpers.get_new_prob_no, name='get_new_prob_no'),
+
+        url(r'^assignments/(?P<assign_id>[0-9]+)/$', views.stu_assignment, name='stu_assignment'),
     ])),
 
 
@@ -47,5 +49,4 @@ urlpatterns = [
     url(r'^add_ex_student/(?P<sec_user_id>[0-9]+)/$', views.add_ex_student, name='add_ex_student'),
     url(r'^add_new_student/(?P<sec_user_id>[0-9]+)/$', views.add_new_student, name='add_new_student'),
 
-    # url(r'^assignments/(?P<sec_user_id>[0-9]+)/$', views.assignments, name='assignments'),
 ]

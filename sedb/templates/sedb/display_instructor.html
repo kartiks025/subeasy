@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-        <title>Collapsible sidebar using Bootstrap 3</title>
+        <title>{{section.course.name}}</title>
 
         <!-- Bootstrap CSS CDN -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -36,26 +36,18 @@
                     <h5>{{section.semester}} {{section.year}}</h5>
                 </div>
 
-                <ul class="list-unstyled components">
+                <ul class="list-unstyled components" id="list-nav">
                     <li class="active">
-                        <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false">Home</a>
-                        <ul class="collapse list-unstyled" id="homeSubmenu">
-                            <li><a href="#">Home 1</a></li>
-                            <li><a href="#">Home 2</a></li>
-                            <li><a href="#">Home 3</a></li>
-                        </ul>
+                        <a class="side-nav-link" href="#assignment_div">Assignments</a>                        
                     </li>
                     <li>
-                        <a href="#" id="assignment_tab">Assignments</a>                        
+                        <a class="side-nav-link" href="#instructor_div">Instructor</a>
                     </li>
                     <li>
-                        <a href="#" id="instructor_tab">Instructor</a>
+                        <a class="side-nav-link" href="#student_div">Student</a>
                     </li>
                     <li>
-                        <a href="#" id="student_tab">Student</a>
-                    </li>
-                    <li>
-                        <a href="#" id="ta_tab">Teaching Assistant</a>
+                        <a class="side-nav-link" href="#ta_div">Teaching Assistant</a>
                     </li>
                 </ul>
 
@@ -65,58 +57,38 @@
         {% block content %}
         {% endblock %}
 
-        <div id="assignment_div" class="show">
+        <div id="assignment_div">
             <div class="panel panel-default">
                 <div class="panel-heading"><center><h5> Assignments </h5></center></div>
                 <div class="panel-body">
                     <div id="assignment_list" sec_user_id={{sec_user_id}} class="list-group">
-                        {% if assignments %}
-                            {% for assign in assignments %}
-                                <a href="{% url 'sedb:show_assignment' sec_user_id=sec_user_id assign_id=assign.assignment_id %}" class="submit-form list-group-item">{{ assign.title }}</a>
-                            {% endfor %}
-                        {% endif %}
 
-
-
-                        <a href="{% url 'sedb:add_assignment' sec_user_id  %}" class="submit-form list-group-item">Add Assignment</a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="instructor_div" class="hide">
+        <div id="instructor_div" class="hidden">
 
-            {% if instructor %}
-                Instructors
-                <ul id="instructor_list">
-                    {% for i in instructor %}
-                          <li user_id="{{i.user_id}}">{{i.name}}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+            Instructors
+            <ul id="instructor_list">
+  
+            </ul>
         </div>
 
-        <div id="student_div" class="hide">
+        <div id="student_div" class="hidden">
 
-            {% if student %}
-                Students
-                <ul id="student_list">
-                    {% for i in student %}
-                          <li user_id="{{i.user_id}}">{{i.name}}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+            Students
+            <ul id="student_list">
+
+            </ul>
 
             <h3> Add existing user as student</h3>
             <form class="col l12" action="{% url 'sedb:add_ex_student' sec_user_id %}" method="post">{% csrf_token %}
                 <div class='row'>
                   <div class='input-field col l6'>
                     <select id="stu-user" multiple class="js-example-basic-multiple browser-default" style="width:300px height:50px" name="student" placeholder = "Select Student" required>
-                      {% if user %}
-                        {% for u in user %}
-                          <option value="{{u.user_id}}">{{u.user_id}} - {{u.name}}</option>
-                        {% endfor %}
-                      {% endif %}
+
                     </select>
                   </div>
                   <div class='input-field col l3 push-l2'><button class="btn btn-lg btn-primary" type="submit">Add Student</button></div>
@@ -138,25 +110,18 @@
 
         </div>
 
-        <div id="ta_div" class="hide">
+        <div id="ta_div" class="hidden">
 
-            {% if ta %}
-                Teaching Assistants
-                <ul id="ta_list">
-                    {% for i in ta %}
-                          <li user_id="{{i.user_id}}">{{i.name}}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+
+            Teaching Assistants
+            <ul id="ta_list">
+
+            </ul>
             <form class="col l12" action="{% url 'sedb:add_ta' sec_user_id %}" method="post">{% csrf_token %}
                 <div class='row'>
                   <div class='input-field col l6'>
                     <select id="ta_user" multiple class="js-example-basic-multiple browser-default" style="width:300px height:50px" name="ta" placeholder = "Select TA" required>
-                      {% if user %}
-                        {% for u in user %}
-                          <option value="{{u.user_id}}">{{u.user_id}} - {{u.name}}</option>
-                        {% endfor %}
-                      {% endif %}
+
                     </select>
                   </div>
                   <div class='input-field col l3 push-l2'><button class="btn btn-lg btn-primary" type="submit">Add TA</button></div>
@@ -182,67 +147,32 @@
                 $("#sidebar").mCustomScrollbar({
                     theme: "minimal"
                 });
-
+                loadAssign();
                 $('#sidebarCollapse').on('click', function () {
                     $('#sidebar, #content').toggleClass('active');
                     $('.collapse.in').toggleClass('in');
                     $('a[aria-expanded=true]').attr('aria-expanded', 'false');
                 });
-                $("#assignment_tab").on('click', function () {
-                    elementArray = document.getElementsByClassName("show");
-                    while (elementArray.length) {
-                        elementArray[0].className = "hide";
-                      }
-                    elementArray = document.getElementsByClassName("active");
-                    while (elementArray.length) {
-                        elementArray[0].className = "";
-                      }
-                    $("#assignment_div").toggleClass("show")
-                    $(this).parent().attr("class", "active");
-                    loadAssign();
-                });
 
-                $("#instructor_tab").on('click', function () {
-                    elementArray = document.getElementsByClassName("show");
-                    while (elementArray.length) {
-                        elementArray[0].className = "hide";
-                      }
-                      elementArray = document.getElementsByClassName("active");
-                    while (elementArray.length) {
-                        elementArray[0].className = "";
-                      }
-                    $("#instructor_div").toggleClass("show")
-                    $(this).parent().attr("class", "active");
-                    loadIns();
+                $(".side-nav-link").click(function(){
+                    $("#list-nav .active").toggleClass("active");
+                    $(this).parent().toggleClass("active");
 
-                });
+                    var vis = $("#content :visible");
+                    vis.addClass('hidden');
 
-                $("#student_tab").on('click', function () {
-                    elementArray = document.getElementsByClassName("show");
-                    while (elementArray.length) {
-                        elementArray[0].className = "hide";
-                      }
-                      elementArray = document.getElementsByClassName("active");
-                    while (elementArray.length) {
-                        elementArray[0].className = "";
-                      }
-                    $("#student_div").toggleClass("show")
-                    $(this).parent().attr("class", "active");
-                    loadStu();
-                });
-
-                $("#ta_tab").on('click', function () {
-                    elementArray = document.getElementsByClassName("show");
-                    while (elementArray.length) {
-                        elementArray[0].className = "hide";
-                      }
-                      elementArray = document.getElementsByClassName("active");
-                    while (elementArray.length) {
-                        elementArray[0].className = "";
-                      }
-                    $("#ta_div").toggleClass("show")
-                    $(this).parent().attr("class", "active");
-                    loadTA();
+                    var toShowDiv = $(this).attr("href");
+                    $(toShowDiv).find("*").removeClass('hidden');
+                    $(toShowDiv).removeClass('hidden');
+                    if (String(toShowDiv)==("#assignment_div")){
+                        loadAssign();
+                    } else if (String(toShowDiv)==("#instructor_div")){
+                        loadIns();
+                    } else if (String(toShowDiv)==("#student_div")){
+                        loadStu();
+                    } else if (String(toShowDiv)==("#ta_div")){
+                        loadTA();
+                    } 
                 });
 
                 $('.js-example-basic-multiple').select2();
@@ -253,15 +183,12 @@
                     if(status == "success"){
                         $("#assignment_list").empty()
                         var assign = data.assignments;
-                        console.log(assign);
                         for(var i = 0; i < assign.length; i++){
-                            console.log(assign[i]);
                             $("#assignment_list").append("<a href=\"/sedb/section/"+$("#assignment_list").attr("sec_user_id")+"/assignment/"+assign[i].id+"/\" class=\"submit-form list-group-item\">"+assign[i].title+"</a>");
                         }
                         $("#assignment_list").append("<a href=\"/sedb/add_assignment/"+$("#assignment_list").attr("sec_user_id")+"/\" class=\"submit-form list-group-item\">Add Assignment</a>");
                     }
                     else{
-                        console.log("Some Error Occurred");
                     }
                 });
             }
@@ -272,14 +199,11 @@
                     if(status == "success"){
                         $("#instructor_list").empty()
                         var ins = data.instructor
-                        console.log(ins);
                         for(var i = 0; i < ins.length; i++){
-                            console.log(ins[i])
                             $("#instructor_list").append("<li>"+ins[i].name+"</li>")
                         }
                     }
                     else{
-                        console.log("Some Error Occurred");
                     }
                 });
             }
@@ -289,20 +213,16 @@
                     if(status == "success"){
                         $("#student_list").empty()
                         var stu = data.student
-                        console.log(stu);
                         for(var i = 0; i < stu.length; i++){
-                            console.log(stu[i])
                             $("#student_list").append("<li>"+stu[i].name+"</li>")
                         }
                         $("#stu-user").empty()
                         var stu = data.user
                         for(var i = 0; i < stu.length; i++){
-                            console.log(stu[i])
                             $("#stu-user").append("<option value=\""+stu[i].user_id+"\">"+stu[i].user_id+" - "+stu[i].name+"</option>")
                         }
                     }
                     else{
-                        console.log("Some Error Occurred");
                     }
                 });
             }
@@ -312,20 +232,16 @@
                     if(status == "success"){
                         $("#ta_list").empty()
                         var ta = data.ta
-                        console.log(ta);
                         for(var i = 0; i < ta.length; i++){
-                            console.log(ta[i])
                             $("#ta_list").append("<li>"+ta[i].name+"</li>")
                         }
                         $("#ta_user").empty()
                         var ta = data.user
                         for(var i = 0; i < ta.length; i++){
-                            console.log(ta[i])
                             $("#ta_user").append("<option value=\""+ta[i].user_id+"\">"+ta[i].user_id+" - "+ta[i].name+"</option>")
                         }
                     }
                     else{
-                        console.log("Some Error Occurred");
                     }
                 });
             }

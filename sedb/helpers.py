@@ -30,9 +30,8 @@ def admin_required(fun):
 
 
 def user_required(fun):
-    print("user_required")
-
     def wrap(*args):
+        print("user_required")
         try:
             if not args[0].session['is_user']:
                 return redirect('sedb:user_login')
@@ -47,12 +46,45 @@ def user_required(fun):
 
 def user1_required(fun):
     def wrap(request, sec_user_id):
+        print("user1_required")
         try:
             if not request.session['is_user']:
                 return redirect('sedb:user_login')
+            else:
+                print(sec_user_id)
+                sec_user = SecUser.objects.get(id=sec_user_id)
+                if not sec_user.user.user_id == request.session['user_id']:
+                    print(sec_user.user.user_id + "," + request.session['user_id'])
+                    return doredirect(request, 'sedb:user_login')
         except KeyError:
             return redirect('sedb:user_login')
         return fun(request, sec_user_id)
+
+    wrap.__doc__ = fun.__doc__
+    wrap.__name__ = fun.__name__
+    return wrap
+
+def user2_required(fun):
+    def wrap(request, sec_user_id,assign_id):
+        print("user2_required")
+        try:
+            if not request.session['is_user']:
+                return redirect('sedb:user_login')
+            else:
+                print(sec_user_id)
+                sec_user = SecUser.objects.get(id=sec_user_id)
+                print(sec_user.role)
+                if not sec_user.user.user_id == request.session['user_id']:
+                    print(sec_user.user.user_id + "," + request.session['user_id'])
+                    return doredirect(request, 'sedb:user_login')
+                elif sec_user.role!="Instructor" and sec_user.role!="TA":
+                    assign = Assignment.objects.get(assignment_id=assign_id)
+                    if not assign.visibility:
+                        print("cannot access this assignment")
+                        return doredirect(request, 'sedb:user_login')
+        except KeyError:
+            return redirect('sedb:user_login')
+        return fun(request, sec_user_id,assign_id)
 
     wrap.__doc__ = fun.__doc__
     wrap.__name__ = fun.__name__
@@ -73,6 +105,7 @@ def doredirect(request, url):
 
 def instructor_required(fun):
     def wrap(request, sec_user_id):
+        print("instructor")
         try:
             if not request.session['is_user']:
                 print(sec_user_id)
@@ -80,7 +113,7 @@ def instructor_required(fun):
             else:
                 print(sec_user_id)
                 sec_user = SecUser.objects.get(id=sec_user_id)
-                if not sec_user.user.user_id == request.session['user_id']:
+                if not sec_user.role=="Instructor" or not sec_user.user.user_id == request.session['user_id']:
                     print(sec_user.user.user_id + "," + request.session['user_id'])
                     return doredirect(request, 'sedb:user_login')
         except KeyError:
@@ -95,6 +128,7 @@ def instructor_required(fun):
 
 def instructor1_required(fun):
     def wrap(request, sec_user_id, assign_id):
+        print("instructor1")
         try:
             if not request.session['is_user']:
                 print(sec_user_id)
@@ -102,12 +136,64 @@ def instructor1_required(fun):
             else:
                 print(sec_user_id)
                 sec_user = SecUser.objects.get(id=sec_user_id)
-                if not sec_user.user.user_id == request.session['user_id']:
+                print("yes " + sec_user.role)
+                if not sec_user.role=="Instructor" or not sec_user.user.user_id == request.session['user_id']:
                     print(sec_user.user.user_id + "," + request.session['user_id'])
                     return doredirect(request, 'sedb:user_login')
         except KeyError:
             print("error in instructor_required")
             return doredirect(request, 'sedb:user_login')
+        print(sec_user.role)
+        return fun(request, sec_user_id, assign_id)
+
+    wrap.__doc__ = fun.__doc__
+    wrap.__name__ = fun.__name__
+    return wrap
+
+def student_required(fun):
+    def wrap(request, sec_user_id):
+        print("student")
+        try:
+            if not request.session['is_user']:
+                print(sec_user_id)
+                return doredirect(request, 'sedb:user_login')
+            else:
+                print(sec_user_id)
+                sec_user = SecUser.objects.get(id=sec_user_id)
+                if not sec_user.role=="Student" or not sec_user.user.user_id == request.session['user_id']:
+                    print(sec_user.user.user_id + "," + request.session['user_id'])
+                    return doredirect(request, 'sedb:user_login')
+        except KeyError:
+            print("error in student_required")
+            return doredirect(request, 'sedb:user_login')
+        return fun(request, sec_user_id)
+
+    wrap.__doc__ = fun.__doc__
+    wrap.__name__ = fun.__name__
+    return wrap
+
+def student1_required(fun):
+    def wrap(request, sec_user_id, assign_id):
+        print("student1")
+        try:
+            if not request.session['is_user']:
+                print(sec_user_id)
+                return doredirect(request, 'sedb:user_login')
+            else:
+                print(sec_user_id)
+                sec_user = SecUser.objects.get(id=sec_user_id)
+                print("yes " + sec_user.role)
+                if not sec_user.role=="Student" or not sec_user.user.user_id == request.session['user_id']:
+                    print(sec_user.user.user_id + "," + request.session['user_id'])
+                    return doredirect(request, 'sedb:user_login')
+                assign = Assignment.objects.get(assignment_id=assign_id)
+                if not assign.visibility:
+                    print("cannot access this assignment")
+                    return doredirect(request, 'sedb:user_login')
+        except KeyError:
+            print("error in student_required")
+            return doredirect(request, 'sedb:user_login')
+        print(sec_user.role)
         return fun(request, sec_user_id, assign_id)
 
     wrap.__doc__ = fun.__doc__
@@ -233,7 +319,7 @@ def edit_assign_home(request, sec_user_id, assign_id):
     return HttpResponse()
 
 
-@instructor1_required
+@user2_required
 def get_assign_home(request, sec_user_id, assign_id):
     if assign_id == '0':
         return JsonResponse(
@@ -246,10 +332,13 @@ def get_assign_home(request, sec_user_id, assign_id):
     context = {'new_assign': False, 'assign': model_to_dict(assignment), 'deadline': model_to_dict(deadline)}
     return JsonResponse(context)
 
-@instructor_required
+@user1_required
 def get_assignments(request, sec_user_id):
     sec_user = SecUser.objects.get(id=sec_user_id);
-    assign = Assignment.objects.filter(sec=sec_user.sec)
+    if sec_user.role=="Instructor" or sec_user.role=="TA":
+        assign = Assignment.objects.filter(sec=sec_user.sec)
+    elif sec_user.role=="Student":
+        assign = Assignment.objects.filter(sec=sec_user.sec,visibility=True)
     assignments = [{'id':a.assignment_id,'title':a.title} for a in assign]
     context = {'assignments': assignments}
     return JsonResponse(context, content_type="application/json")

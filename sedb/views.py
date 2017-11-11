@@ -183,18 +183,41 @@ def display_section(request, sec_user_id):
     if sec_user.role == "Instructor":
         return display_instructor(request, sec_user_id)
     elif sec_user.role == "TA":
-        return display_ta(request, sec_user)
+        return display_ta(request, sec_user_id)
     elif sec_user.role == "Student":
-        return display_student(request, sec_user)
+        return display_student(request, sec_user_id)
     return render(request, 'sedb/display_section.html')
 
+@instructor_required
+def display_instructor(request, sec_user_id):
+    sec_user = SecUser.objects.get(id=sec_user_id);
+    assignments = Assignment.objects.filter(sec=sec_user.sec)
+
+    stu = SecUser.objects.filter(sec_id=sec_user.sec_id, role="Student")
+    student = [a.user for a in stu]
+
+    cursor = connection.cursor()
+    cursor.execute(
+        '''select user_id,name from "user" where user_id not in (select user_id from sec_user where sec_id=%s);''',
+        [sec_user.sec_id])
+    users = dictfetchall(cursor)
+
+    ins = SecUser.objects.filter(sec_id=sec_user.sec_id, role="Instructor")
+    instructor = [a.user for a in ins]
+
+    teach = SecUser.objects.filter(sec_id=sec_user.sec_id, role="TA")
+    ta = [a.user for a in teach]
+
+    context = {'section': sec_user.sec, 'sec_user_id': sec_user.id, 'assignments': assignments, 'instructor': instructor,'student': student,'ta': ta,'user':users}
+
+    return render(request, 'sedb/display_instructor.html', context)
 
 def display_ta(request, sec_user):
     return render(request, 'sedb/display_ta.html')
 
-
-def display_student(request, sec_user):
-    print("display_instructor")
+@student_required
+def display_student(request, sec_user_id):
+    sec_user = SecUser.objects.get(id=sec_user_id);
     assignments = Assignment.objects.filter(sec=sec_user.sec)
     context = {'section': sec_user.sec, 'sec_user_id': sec_user.id, 'assignments': assignments}
     return render(request, 'sedb/display_student.html', context)
@@ -232,8 +255,13 @@ def add_assignment(request, sec_user_id):
 
 @instructor1_required
 def show_assignment(request, sec_user_id, assign_id):
-    context = {'sec_user_id': sec_user_id, 'assign_id': assign_id, }
+    context = {'sec_user_id': sec_user_id, 'assign_id': assign_id}
     return render(request, 'sedb/add_assignment.html', context)
+
+@student1_required
+def stu_assignment(request, sec_user_id, assign_id):
+    context = {'sec_user_id': sec_user_id, 'assign_id': assign_id}
+    return render(request, 'sedb/see_assignment.html', context)
 
 
 def verify_account(request, uid):
@@ -356,78 +384,3 @@ def add_csv_student(request, sec_user_id):
             except Exception:
                 print("exists")
     return student_tab(request, sec_user_id)
-
-
-@instructor_required
-def display_instructor(request, sec_user_id):
-    sec_user = SecUser.objects.get(id=sec_user_id);
-    print(sec_user.id)
-    assignments = Assignment.objects.filter(sec=sec_user.sec)
-    [print(a.assignment_id) for a in assignments]
-
-    stu = SecUser.objects.filter(sec_id=sec_user.sec_id, role="Student")
-    student = [a.user for a in stu]
-
-    cursor = connection.cursor()
-    cursor.execute(
-        '''select user_id,name from "user" where user_id not in (select user_id from sec_user where sec_id=%s);''',
-        [sec_user.sec_id])
-    users = dictfetchall(cursor)
-
-    ins = SecUser.objects.filter(sec_id=sec_user.sec_id, role="Instructor")
-    instructor = [a.user for a in ins]
-
-    teach = SecUser.objects.filter(sec_id=sec_user.sec_id, role="TA")
-    ta = [a.user for a in teach]
-
-    context = {'section': sec_user.sec, 'sec_user_id': sec_user.id, 'assignments': assignments, 'instructor': instructor,'student': student,'ta': ta,'user':users}
-
-    return render(request, 'sedb/sidenavbar.html', context)
-
-
-# @instructor_required
-# def instructor_tab(request, sec_user_id):
-#     sec_user = SecUser.objects.get(id=sec_user_id);
-#     print(sec_user.id)
-#     ins = SecUser.objects.filter(sec_id=sec_user.sec_id, role="Instructor")
-#     instructor = [a.user for a in ins]
-#     context = {'section': sec_user.sec, 'sec_user_id': sec_user.id, 'instructor': instructor}
-#     return render(request, 'sedb/instructor_tab.html', context)
-
-
-# @instructor_required
-# def student_tab(request, sec_user_id):
-#     sec_user = SecUser.objects.get(id=sec_user_id);
-#     print(sec_user.id)
-#     stu = SecUser.objects.filter(sec_id=sec_user.sec_id, role="Student")
-#     student = [a.user for a in stu]
-
-#     cursor = connection.cursor()
-#     cursor.execute(
-#         '''select user_id,name from "user" where user_id not in (select user_id from sec_user where sec_id=%s);''',
-#         [sec_user.sec_id])
-#     users = dictfetchall(cursor)
-
-#     context = {'user': users, 'section': sec_user.sec, 'sec_user_id': sec_user.id, 'student': student}
-#     return render(request, 'sedb/student_tab.html', context)
-
-
-# @instructor_required
-# def ta_tab(request, sec_user_id):
-#     print("what")
-#     print("no" + sec_user_id)
-#     sec_user = SecUser.objects.get(id=sec_user_id);
-#     print(sec_user.id)
-#     teach = SecUser.objects.filter(sec_id=sec_user.sec_id, role="TA")
-#     ta = [a.user for a in teach]
-
-#     cursor = connection.cursor()
-#     cursor.execute(
-#         '''select user_id,name from "user" where user_id not in (select user_id from sec_user where sec_id=%s);''',
-#         [sec_user.sec_id])
-#     users = dictfetchall(cursor)
-
-#     context = {'user': users, 'section': sec_user.sec, 'sec_user_id': sec_user.id, 'ta': ta}
-#     return render(request, 'sedb/ta_tab.html', context)
-
-
