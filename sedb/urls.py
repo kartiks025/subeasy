@@ -30,10 +30,15 @@ urlpatterns = [
 
     url(r'^section/(?P<sec_user_id>[0-9]+)/', include([
         url(r'^$', views.display_section, name='display_section'),
-        url(r'^assignment/(?P<assign_id>[0-9]+)/edit_assign_home/$', helpers.edit_assign_home, name='edit_assign_home'),
-        url(r'^assignment/(?P<assign_id>[0-9]+)/$', views.show_assignment, name='show_assignment'),
-        url(r'^assignment/(?P<assign_id>[0-9]+)/get_assign_home/$', helpers.get_assign_home, name='get_assign_home'),
-        url(r'^assignment/(?P<assign_id>[0-9]+)/get_new_prob_no/$', helpers.get_new_prob_no, name='get_new_prob_no'),
+        
+        url(r'^assignment/(?P<assign_id>[0-9]+)/', include([
+            url(r'edit_assign_home/$', helpers.edit_assign_home, name='edit_assign_home'),
+            url(r'^$', views.show_assignment, name='show_assignment'),
+            url(r'^get_assign_home/$', helpers.get_assign_home, name='get_assign_home'),
+            url(r'^get_new_prob_no/$', helpers.get_new_prob_no, name='get_new_prob_no'),
+            url(r'^get_assign_prob/(?P<prob_id>[0-9]+)/$', helpers.get_assign_prob, name='get_assign_prob'),
+            url(r'^edit_assign_prob/(?P<prob_id>[0-9]+)/$', helpers.edit_assign_prob, name='edit_assign_prob'),
+        ])),
 
         url(r'^assignments/(?P<assign_id>[0-9]+)/$', views.stu_assignment, name='stu_assignment'),
     ])),
