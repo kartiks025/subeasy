@@ -28,18 +28,26 @@ function loadHome(){
     });
 }
 
-function updateProblem(prob_id, prob_obj, resource_obj){
+function updateProblem(problem_id, prob_obj, resource_obj){
+    $("#link"+problem_id).text("Problem "+prob_obj.problem_no);
+    var prob_id = "#prob" + problem_id;
     $(prob_id+" input[name=prob_num]").val(prob_obj.problem_no);
     $(prob_id+" input[name=prob_title]").val(prob_obj.title);
     $(prob_id+" textarea[name=description]").val(prob_obj.description);
     $(prob_id+" input[name=files_to_submit]").val(prob_obj.files_to_submit);
     $(prob_id+" input[name=compile_cmd]").val(prob_obj.compile_cmd);
     $(prob_id+" input[sol_visibility][value="+prob_obj.sol_visibility+"]").attr('checked',true);
+
+    $(prob_id+" input[name=cpu_time]").val(resource_obj.cpu_time);
+    $(prob_id+" input[name=clock_time]").val(resource_obj.clock_time);
+    $(prob_id+" input[name=memory_limit]").val(resource_obj.memory_limit);
+    $(prob_id+" input[name=stack_limit]").val(resource_obj.stack_limit);
+    $(prob_id+" input[name=open_files]").val(resource_obj.open_files);
+    $(prob_id+" input[name=max_filesize]").val(resource_obj.max_filesize);
 }
 
 function loadProblems(){
     var url = $("#problemSubMenu").attr("data-loadUrl");
-    alert(url);
     $.get(url,
     function(data, status){
         if(status == "success"){
@@ -49,9 +57,10 @@ function loadProblems(){
             for(var i in ps){
                 var prob_obj = ps[i].problem;
                 console.log(prob_obj.title);
-                appendProb(prob_obj.problem_no);
-                var prob_id = "#prob"+prob_obj.problem_no;
-                updateProblem(prob_id, prob_obj, ps[i].resource);
+                appendProb(prob_obj.problem_id);
+                var prob_id = "#prob"+prob_obj.problem_id;
+                updateProblem(prob_obj.problem_id, prob_obj, ps[i].resource);
+
                 var s = $(prob_id+" .loadUrl").attr('data-loadUrl').replace('0',prob_obj.problem_id);
                 $(prob_id+" .loadUrl").attr('data-loadUrl', s);
                 s = $(prob_id+" form").attr('action').replace('0',prob_obj.problem_id);
@@ -66,11 +75,10 @@ function loadProblems(){
 
 function reloadProblem(elem){
     var url = elem.parent().parent().attr('data-loadUrl');
-    alert(url);
     $.get(url,
     function(data, status){
         if(status == "success"){
-            var prob_id = "#"+data.problem.problem_no;
+            var prob_id = data.problem.problem_id;
             updateProblem(prob_id, data.problem, data.resource);
         }
         else{
@@ -140,13 +148,21 @@ function EditButtonClick(elem){
 }
 
 function SideNavClick(elem){
+    var toShowDiv = elem.attr("href");
+    if(elem.hasClass("problems-link")){
+        console.log("problems-link clicked");
+        reloadProblem($(toShowDiv+" form"));
+    }
+    else if(elem.attr('id') == "link-details"){
+        loadHome();
+    }
+
     $("#list-nav .active").toggleClass("active");
     $(this).parent().toggleClass("active");
 
     var vis = $("#content :visible");
     vis.addClass('hidden');
 
-    var toShowDiv = elem.attr("href");
     $(toShowDiv).find("*").removeClass('hidden');
     $(toShowDiv).removeClass('hidden');
 }
@@ -165,12 +181,12 @@ function appendProb(problem_no){
         }
     })).insertBefore($("#add-button"));
 
-    var vis = $("#content :visible");
-    vis.addClass('hidden');
+//    var vis = $("#content :visible");
+//    vis.addClass('hidden');
 
     $('<div/>',{
         id: "prob"+problem_no,
-        "class" : "panel panel-primary nav-content problems",
+        "class" : "panel panel-primary nav-content problems hidden",
         html : $("#problem-form").html()
     }).appendTo($("#content"));
 
@@ -178,8 +194,8 @@ function appendProb(problem_no){
         EditButtonClick($(this));
     });
 
-    $("#list-nav .active").toggleClass("active");
-    $("#link"+problem_no).parent().toggleClass("active");
+//    $("#list-nav .active").toggleClass("active");
+//    $("#link"+problem_no).parent().toggleClass("active");
 }
 
 function addNewProblem(url){
