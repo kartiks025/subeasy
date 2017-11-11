@@ -16,7 +16,7 @@
             </li>
             <li>
                 <a href="#problemSubMenu" data-toggle="collapse" aria-expanded="false">Problems</a>
-                <ul class="collapse list-unstyled" id="problemSubMenu">
+                <ul class="collapse list-unstyled" id="problemSubMenu" data-loadUrl="{% url 'sedb:get_assign_all_prob' sec_user_id assign_id %}">
                     <li id="add-button">
                         <a href="javascript:addNewProblem('{% url 'sedb:get_new_prob_no' sec_user_id assign_id %}')">
                             <span class="glyphicon glyphicon-plus"></span>
@@ -143,7 +143,7 @@
             <center><h5>Problem</h5></center>
         </div>
         <div class="panel-body">
-            <div data-loadUrl="{% url 'sedb:get_assign_prob' sec_user_id assign_id 0 %}">
+            <div class="loadUrl" data-loadUrl="{% url 'sedb:get_assign_prob' sec_user_id assign_id 0 %}">
                 <button type="button" class="edit-btn btn btn-default btn-sm pull-right">
                     <span class="glyphicon glyphicon-pencil"></span>
                 </button>
@@ -201,7 +201,7 @@
                         <div class="form-group">
                             <label class="control-label col-xs-2">Files to submit:</label>
                             <div class="col-xs-6">
-                                <input type="text" class="form-control" placeholder="FileNames separated by commas" name="files_to_submit" required>
+                                <input type="text" class="form-control" placeholder="FileNames separated by commas" name="files_to_submit">
                             </div>
                         </div>
 
@@ -209,6 +209,49 @@
                             <label class="control-label col-xs-2">Compilation Command:</label>
                             <div class="col-xs-6">
                                 <input type="text" class="form-control" placeholder="Compilation command" name="compile_cmd" required>
+                            </div>
+                        </div>
+
+                        <h3>Resource Limits:</h3>
+                        <div class="form-group">
+                            <label class="control-label col-xs-2">CPU Time:</label>
+                            <div class="col-xs-6">
+                                <input type="number" min="1" class="form-control" value="1" name="cpu_time" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-xs-2">CPU Time:</label>
+                            <div class="col-xs-6">
+                                <input type="number" min="1" class="form-control" value="1" name="clock_time" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-xs-2">CPU Time:</label>
+                            <div class="col-xs-6">
+                                <input type="number" min="1" class="form-control" value="16384" name="memory_limit" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-xs-2">CPU Time:</label>
+                            <div class="col-xs-6">
+                                <input type="number" min="1" class="form-control" value="8192" name="stack_limit" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-xs-2">CPU Time:</label>
+                            <div class="col-xs-6">
+                                <input type="number" min="1" class="form-control" value="1" name="open_files" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-xs-2">CPU Time:</label>
+                            <div class="col-xs-6">
+                                <input type="number" min="1" class="form-control" value="1024" name="max_filesize" required>
                             </div>
                         </div>
 

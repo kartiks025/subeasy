@@ -222,6 +222,7 @@ class Problem(models.Model):
     assignment = models.ForeignKey(Assignment, models.DO_NOTHING)
     resource_limit = models.ForeignKey('ResourceLimit', models.DO_NOTHING)
     num_testcases = models.IntegerField()
+    files_to_submit = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -341,7 +342,7 @@ class VerifyAccount(models.Model):
     name = models.CharField(max_length=50, blank=True, null=True)
     email = models.CharField(max_length=50)
     password = models.CharField(max_length=64)
-    
+
     class Meta:
         managed = False
         db_table = 'verify_account'
