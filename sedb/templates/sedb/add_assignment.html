@@ -184,7 +184,7 @@
                             <label class="control-label col-xs-2">Solution File:</label>
                             <div class="col-xs-6">
                                 <input type="file" accept=".tar.gz,.zip,.pdf" class="form-control" name="solution_file">
-                                <a href="{% url 'sedb:download_problem_solution_file' sec_user_id assign_id 0%}" name="solution_file">Download</a>
+                                <a href="{% url 'sedb:download_problem_solution_file' sec_user_id assign_id 0 %}" name="solution_file">Download</a>
                             </div>
                         </div>
 
@@ -213,6 +213,15 @@
                                 <input type="text" class="form-control" placeholder="Compilation command" name="compile_cmd" required>
                             </div>
                         </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-xs-2">Testcase File:</label>
+                            <div class="col-xs-6">
+                                <input type="file" accept=".tar.gz,.zip,.pdf" class="form-control" name="testcase_file">
+                                <a href="{% url 'sedb:download_testcase_file' sec_user_id assign_id 0 %}" name="test_file">Download</a>
+                            </div>
+                        </div>
+
 
                         <h3>Resource Limits:</h3>
                         <div class="form-group">
