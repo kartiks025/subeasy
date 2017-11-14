@@ -91,6 +91,8 @@
 
         <div class="solution_file" style="font-size: 15px">Solution File : <span name="solution_file"> <a href="{% url 'sedb:download_problem_solution_file' sec_user_id assign_id 0 %}" name="solution_file">Download</a></span></div>
 
+        <div class="all_testcases" style="font-size: 15px">All Testcases : <span name="all_testcases"> <a href="{% url 'sedb:download_testcase_file' sec_user_id assign_id 0 %}" name="all_testcases">Download</a></span></div>
+
 
         <div class="compile_cmd" style="font-size: 15px">Compilation Command : <span name="compile_cmd" ><i> g++ file name</i></span></div>
         <div class="files_to_submit" style="font-size: 15px">Files to Submit : <span name="files_to_submit" ><i> g++ file name</i></span></div>
@@ -227,6 +229,11 @@
                     s = x.lastIndexOf("0");
                     s = x.substr(0,s)+prob_obj.problem_id+x.substr(s+1,x.length-s-1);
                     $("#prob"+prob_id+" a[name=solution_file]").attr('href',s)
+
+                    x = $("#prob"+prob_id+" a[name=all_testcases]").attr('href')
+                    s = x.lastIndexOf("0");
+                    s = x.substr(0,s)+prob_obj.problem_id+x.substr(s+1,x.length-s-1);
+                    $("#prob"+prob_id+" a[name=all_testcases]").attr('href',s)
                 }
             }
             else{
@@ -289,12 +296,17 @@
         $(prob_id+ ' span[name ="stack_limit"]').text(resource_obj.stack_limit + " kB");
         $(prob_id+ ' span[name ="open_files"]').text(resource_obj.open_files);
         $(prob_id+ ' span[name ="max_filesize"]').text(resource_obj.max_filesize + " kB");
+        var link = $("#prob"+problem_id).attr('data-loadUrl');
+        console.log(link)
+        link = link.replace("get_assign_prob","problem");
+        console.log(link)
+        s = link.lastIndexOf("0");
+        s = link.substr(0,s)+prob_obj.problem_id+link.substr(s+1,link.length-s-1);
         var content = ""
         for(var i in testcases){
-            content += "<tr><td>"+testcases[i].num+"</td><td>"+1+"</td><td>"+1+"</td><td>"+testcases[i].marks+"</td></tr>"
+            content += "<tr><td>"+testcases[i].num+"</td><td><a href=\""+link+"download_testcase_input_file/"+testcases[i].num+"/\">Input File</a></td><td><a href=\""+link+"download_testcase_output_file/"+testcases[i].num+"/\">Output File</a></td><td>"+testcases[i].marks+"</td></tr>"
         }
         $(prob_id+ ' tbody[name ="testcases"]').html(content);
-
         // $(prob_id+" input[sol_visibility][value="+prob_obj.sol_visibility+"]").attr('checked',true);
     }
 

@@ -14,6 +14,8 @@ from django.db import connection
 
 from .models import *
 
+from io import BytesIO
+
 
 def admin_required(fun):
     def wrap(request):
@@ -405,28 +407,37 @@ def download_problem_solution_file(request, sec_user_id, assign_id, prob_id):
 
 # @instructor2_required
 def download_testcase_file(request, sec_user_id, assign_id, prob_id):
-    contents = Problem.objects.get(problem_id=prob_id).solution_file
-    response = HttpResponse(contents)
-    response['Content-Disposition'] = 'attachment; filename=' + Problem.objects.get(
-        problem_id=prob_id).solution_filename
+    out = BytesIO()
+    tar = tarfile.open(mode="w:gz",fileobj=out)
+    all_testcases = Testcase.objects.filter(problem_id=prob_id)
+    for t in all_testcases:
+        info = tarfile.TarInfo(name=t.infile_name)
+        info.size = len(t.infile)
+        tar.addfile(tarinfo=info,fileobj=BytesIO(t.infile))
+        info = tarfile.TarInfo(name=t.outfile_name)
+        info.size = len(t.outfile)
+        tar.addfile(tarinfo=info,fileobj=BytesIO(t.outfile))
+    tar.close()
+    response = HttpResponse(out.getvalue())
+    response['Content-Disposition'] = 'attachment; filename=' + "problem"+prob_id+"_testcases.tar.gz"
     return response
 
 
 # @instructor2_required
-def download_testcase_input_file(request, sec_user_id, assign_id, prob_id, testcase_id):
-    contents = Testcase.objects.get(id=testcase_id).infile
+def download_testcase_input_file(request, sec_user_id, assign_id, prob_id, testcase_no):
+    contents = Testcase.objects.get(testcase_no=testcase_no,problem_id=prob_id).infile
     response = HttpResponse(contents)
     response['Content-Disposition'] = 'attachment; filename=' + Testcase.objects.get(
-        id=testcase_id).infile_name
+        testcase_no=testcase_no,problem_id=prob_id).infile_name
     return response
 
 
 # @instructor2_required
-def download_testcase_output_file(request, sec_user_id, assign_id, prob_id, testcase_id):
-    contents = Testcase.objects.get(id=testcase_id).outfile
+def download_testcase_output_file(request, sec_user_id, assign_id, prob_id, testcase_no):
+    contents = Testcase.objects.get(testcase_no=testcase_no,problem_id=prob_id).outfile
     response = HttpResponse(contents)
     response['Content-Disposition'] = 'attachment; filename=' + Testcase.objects.get(
-        id=testcase_id).outfile_name
+        testcase_no=testcase_no,problem_id=prob_id).outfile_name
     return response
 
 

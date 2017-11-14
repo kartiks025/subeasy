@@ -31,6 +31,7 @@ urlpatterns = [
     url(r'^section/(?P<sec_user_id>[0-9]+)/', include([
         url(r'^$', views.display_section, name='display_section'),
 
+        #instructor
         url(r'^assignment/(?P<assign_id>[0-9]+)/', include([
             url(r'edit_assign_home/$', helpers.edit_assign_home, name='edit_assign_home'),
             url(r'^$', views.show_assignment, name='show_assignment'),
@@ -43,8 +44,13 @@ urlpatterns = [
             url(r'^download_problem_helper_file/(?P<prob_id>[0-9]+)/$', helpers.download_problem_helper_file, name='download_problem_helper_file'),
             url(r'^download_problem_solution_file/(?P<prob_id>[0-9]+)/$', helpers.download_problem_solution_file, name='download_problem_solution_file'),
             url(r'^download_testcase_file/(?P<prob_id>[0-9]+)/$', helpers.download_testcase_file, name='download_testcase_file'),
+            url(r'^problem/(?P<prob_id>[0-9]+)/', include([
+                url(r'^download_testcase_input_file/(?P<testcase_no>[0-9]+)/$', helpers.download_testcase_input_file, name='download_testcase_input_file'),
+                url(r'^download_testcase_output_file/(?P<testcase_no>[0-9]+)/$', helpers.download_testcase_output_file, name='download_testcase_output_file'),
+            ])),
         ])),
 
+        #student
         url(r'^assignments/(?P<assign_id>[0-9]+)/', include([
             url(r'^$', views.stu_assignment, name='stu_assignment'),
             url(r'^download/$', helpers.download_helper_file, name='download_helper_file'),
