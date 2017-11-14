@@ -54,6 +54,8 @@ urlpatterns = [
         url(r'^assignments/(?P<assign_id>[0-9]+)/', include([
             url(r'^$', views.stu_assignment, name='stu_assignment'),
             url(r'^download/$', helpers.download_helper_file, name='download_helper_file'),
+            url(r'^submit_problem/(?P<prob_id>[0-9]+)/$', helpers.submit_problem, name='submit_problem'),
+            url(r'^download_your_submission/(?P<prob_id>[0-9]+)/$', helpers.download_your_submission, name='download_your_submission'),
         ])),
     ])),
 

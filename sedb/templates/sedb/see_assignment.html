@@ -145,6 +145,14 @@
             </table>
 
         </div>
+        <div>
+            <form class="form-horizontal" action="{% url 'sedb:submit_problem' sec_user_id assign_id 0 %}" name="submit_form" method="post" enctype="multipart/form-datas">
+                <input type="file" accept=".tar.gz,.zip" class="form-control" name="submission_file">
+                <button type="button" class="upload-btn btn btn-default">Upload your Submission</button>
+                <button type="button" class="evaluate-btn btn btn-default">Upload your Submission</button>
+            </form>
+            <a href="{% url 'sedb:download_your_submission' sec_user_id assign_id 0 %}" name="download_submission">Download</a>
+        </div>
     </div>
 
     <div id="submissions" class="nav-content hidden">
@@ -234,6 +242,16 @@
                     s = x.lastIndexOf("0");
                     s = x.substr(0,s)+prob_obj.problem_id+x.substr(s+1,x.length-s-1);
                     $("#prob"+prob_id+" a[name=all_testcases]").attr('href',s)
+
+                    x = $("#prob"+prob_id+" a[name=download_submission]").attr('href')
+                    s = x.lastIndexOf("0");
+                    s = x.substr(0,s)+prob_obj.problem_id+x.substr(s+1,x.length-s-1);
+                    $("#prob"+prob_id+" a[name=download_submission]").attr('href',s)
+
+                    x = $("#prob"+prob_id+" form[name=submit_form]").attr('action')
+                    s = x.lastIndexOf("0");
+                    s = x.substr(0,s)+prob_obj.problem_id+x.substr(s+1,x.length-s-1);
+                    $("#prob"+prob_id+" form[name=submit_form]").attr('action',s)
                 }
             }
             else{
@@ -280,6 +298,13 @@
             "data-loadurl" : $("#problem-form").attr('data-loadurl')
         }).appendTo($("#content"));
 
+        $("#prob"+problem_id+" .submit-btn").on("click", function(){
+            SubmitButton($(this));
+        });
+
+        $("#prob"+problem_id+" .evaluate-btn").on("click", function(){
+            EvaluateButton($(this));
+        });
     }
 
     function updateProblem(problem_id, prob_obj, resource_obj,testcases){
@@ -316,8 +341,6 @@
     }
 
     $(document).ready(function(){
-        $("input").attr('disabled',true);
-        $("textarea").attr('disabled',true);
         loadHome();
 
         $("#sidebar").mCustomScrollbar({

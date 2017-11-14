@@ -441,6 +441,15 @@ def download_testcase_output_file(request, sec_user_id, assign_id, prob_id, test
     return response
 
 
+# @instructor2_required
+def download_your_submission(request, sec_user_id, assign_id, prob_id):
+    final = UserSubmissions.objects.get(user_id=request.session['user_id'],problem_id=prob_id).final_submission_no
+    contents = Submission.objects.get(user_id=request.session['user_id'],problem_id=prob_id,sub_no=final)
+    response = HttpResponse(contents.sub_file)
+    response['Content-Disposition'] = 'attachment; filename=' + contents.sub_file_name
+    return response
+
+
 @user1_required
 def get_assignments(request, sec_user_id):
     sec_user = SecUser.objects.get(id=sec_user_id);
@@ -715,3 +724,7 @@ def edit_assign_prob(request, sec_user_id, assign_id, prob_id):
     return JsonResponse({
         'r_id': problem_id
     })
+
+
+def submit_problem(request, sec_user_id, assign_id, prob_id):
+    return
