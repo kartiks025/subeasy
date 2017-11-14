@@ -103,15 +103,15 @@
         <div class="max_filesize" style="font-size: 15px">max_filesize : <span name ="max_filesize"></span></div>
         
         </center>
-        <div class="description" name="description">
         <br>
+        <div class="description" name="description" style="white-space: pre-wrap;">
+        
             You all know that the Library of Bookland is the largest library in the world. There are dozens of thousands of books in the library.
 
             Some long and uninteresting story was removed...
 
             The alphabet of Bookland is so large that its letters are denoted by positive integers. Each letter can be small or large, the large version of a letter x is denoted by x'. BSCII encoding, which is used everywhere in Bookland, is made in that way so that large letters are presented in the order of the numbers they are denoted by, and small letters are presented in the order of the numbers they are denoted by, but all large letters are before all small letters. For example, the following conditions hold: 2 < 3, 2' < 3', 3' < 2.
 
-            <br><br>
             A word x1, x2, ..., xa is not lexicographically greater than y1, y2, ..., yb if one of the two following conditions holds:
 
             a ≤ b and x1 = y1, ..., xa = ya, i.e. the first word is the prefix of the second word;
@@ -210,10 +210,9 @@
                 var ps = data.problems
                 for(var i in ps){
                     var prob_obj = ps[i].problem;
-                    console.log(prob_obj.title);
                     appendProb(prob_obj.problem_id);
                     var prob_id =prob_obj.problem_id;
-                    updateProblem(prob_id, prob_obj, ps[i].resource);
+                    updateProblem(prob_id, prob_obj, ps[i].resource,ps[i].testcases);
                     console.log("#prob"+prob_id)
                     var s = $("#prob"+prob_id).attr('data-loadUrl').replace('0',prob_id);
                     $("#prob"+prob_id).attr('data-loadUrl', s);
@@ -244,7 +243,7 @@
             if(status == "success"){
                 var prob_id = "#prob"+data.problem.problem_id;
                 console.log("hi "+data.problem.problem_id)
-                updateProblem(data.problem.problem_id, data.problem, data.resource);
+                updateProblem(data.problem.problem_id, data.problem, data.resource,data.testcases);
             }
             else{
                 console.log("Some Error Occurred");
@@ -276,7 +275,7 @@
 
     }
 
-    function updateProblem(problem_id, prob_obj, resource_obj){
+    function updateProblem(problem_id, prob_obj, resource_obj,testcases){
         $("#link"+problem_id).text("Problem "+prob_obj.problem_no);
         var prob_id = '#prob' +problem_id;
         console.log(resource_obj);
@@ -290,6 +289,12 @@
         $(prob_id+ ' span[name ="stack_limit"]').text(resource_obj.stack_limit + " kB");
         $(prob_id+ ' span[name ="open_files"]').text(resource_obj.open_files);
         $(prob_id+ ' span[name ="max_filesize"]').text(resource_obj.max_filesize + " kB");
+        var content = ""
+        for(var i in testcases){
+            content += "<tr><td>"+testcases[i].num+"</td><td>"+1+"</td><td>"+1+"</td><td>"+testcases[i].marks+"</td></tr>"
+        }
+        $(prob_id+ ' tbody[name ="testcases"]').html(content);
+
         // $(prob_id+" input[sol_visibility][value="+prob_obj.sol_visibility+"]").attr('checked',true);
     }
 

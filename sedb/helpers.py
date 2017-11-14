@@ -518,10 +518,14 @@ def get_assign_prob(request, sec_user_id, assign_id, prob_id):
         })
     problem = Problem.objects.get(problem_id=prob_id)
     resource = problem.resource_limit
+    test = Testcase.objects.filter(problem_id=prob_id)
+    testcases = [{'id': a.id, 'num': a.testcase_no, 'marks':a.marks,'visibility':a.visibility} for a in test]
+    print (testcases);
     return JsonResponse({
         'new_prob': False,
         'problem': model_to_dict(problem),
-        'resource': model_to_dict(resource)
+        'resource': model_to_dict(resource),
+        'testcases': testcases
     })
 
 
@@ -530,8 +534,13 @@ def get_assign_all_prob(request, sec_user_id, assign_id):
     print("all prob called")
     assignment = Assignment.objects.get(assignment_id=assign_id)
     problems = Problem.objects.filter(assignment=assignment)
-    prob_json = [{'problem': model_to_dict(problem),
-                  'resource': model_to_dict(problem.resource_limit)} for problem in problems]
+    # testcases = Testcase.objects.filter()
+    prob_json = []
+    for problem in problems:
+        test = Testcase.objects.filter(problem_id=problem.problem_id)
+        testcases = [{'id': a.id, 'num': a.testcase_no, 'marks':a.marks,'visibility':a.visibility} for a in test]
+        prob_json.append({'problem': model_to_dict(problem),'resource': model_to_dict(problem.resource_limit),'testcases': testcases})
+    print(prob_json)
     return JsonResponse({
         'problems': prob_json
     })
