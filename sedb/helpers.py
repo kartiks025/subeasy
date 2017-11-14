@@ -1,4 +1,4 @@
-import smtplib
+import tarfile, smtplib
 import pytz
 from django.http import HttpResponse, JsonResponse
 from django.core.exceptions import *
@@ -384,6 +384,7 @@ def download_helper_file(request, sec_user_id, assign_id):
         assignment_id=assign_id).helper_file_name
     return response
 
+
 # @instructor2_required
 def download_problem_helper_file(request, sec_user_id, assign_id, prob_id):
     contents = Problem.objects.get(problem_id=prob_id).helper_file
@@ -391,6 +392,7 @@ def download_problem_helper_file(request, sec_user_id, assign_id, prob_id):
     response['Content-Disposition'] = 'attachment; filename=' + Problem.objects.get(
         problem_id=prob_id).helper_file_name
     return response
+
 
 # @instructor2_required
 def download_problem_solution_file(request, sec_user_id, assign_id, prob_id):
@@ -400,16 +402,27 @@ def download_problem_solution_file(request, sec_user_id, assign_id, prob_id):
         problem_id=prob_id).solution_filename
     return response
 
+
 # @instructor2_required
-def download_testcase_input_file(request, sec_user_id, assign_id, prob_id,testcase_id):
+def download_testcase_file(request, sec_user_id, assign_id, prob_id):
+    contents = Problem.objects.get(problem_id=prob_id).solution_file
+    response = HttpResponse(contents)
+    response['Content-Disposition'] = 'attachment; filename=' + Problem.objects.get(
+        problem_id=prob_id).solution_filename
+    return response
+
+
+# @instructor2_required
+def download_testcase_input_file(request, sec_user_id, assign_id, prob_id, testcase_id):
     contents = Testcase.objects.get(id=testcase_id).infile
     response = HttpResponse(contents)
     response['Content-Disposition'] = 'attachment; filename=' + Testcase.objects.get(
         id=testcase_id).infile_name
     return response
 
+
 # @instructor2_required
-def download_testcase_output_file(request, sec_user_id, assign_id, prob_id,testcase_id):
+def download_testcase_output_file(request, sec_user_id, assign_id, prob_id, testcase_id):
     contents = Testcase.objects.get(id=testcase_id).outfile
     response = HttpResponse(contents)
     response['Content-Disposition'] = 'attachment; filename=' + Testcase.objects.get(
@@ -551,6 +564,7 @@ def edit_assign_prob(request, sec_user_id, assign_id, prob_id):
         files_to_submit = request.POST['files_to_submit']
         compile_cmd = request.POST['compile_cmd']
         resources_spec = False
+
         try:
             cpu_time = request.POST['cpu_time']
             clock_time = request.POST['clock_time']
@@ -587,7 +601,7 @@ def edit_assign_prob(request, sec_user_id, assign_id, prob_id):
             problem = Problem(problem_no=prob_num, title=prob_title, description=description,
                               compile_cmd=compile_cmd, sol_visibility=sol_visibility, assignment=assignment,
                               resource_limit=resource, num_testcases=0, files_to_submit=files_to_submit,
-                              helper_file=helper_file,solution_file=solution_file,helper_file_name=helper_file_name,
+                              helper_file=helper_file, solution_file=solution_file, helper_file_name=helper_file_name,
                               solution_filename=solution_file_name)
             problem.save()
             problem_id = problem.problem_id
@@ -632,6 +646,20 @@ def edit_assign_prob(request, sec_user_id, assign_id, prob_id):
                 print("except")
             problem.save()
             problem_id = problem.problem_id
+
+        try:
+            print("testcase file")
+            testcase_file = tarfile.open(fileobj=request.FILES['testcase_file'])
+            print(type(testcase_file))
+
+            for member in testcase_file.getmembers():
+                print(member.name)
+                if member.isfile():
+                    pass
+            testcase_file.close()
+        except:
+            print("Exception")
+
     return JsonResponse({
         'r_id': problem_id
     })

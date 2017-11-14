@@ -42,6 +42,7 @@ urlpatterns = [
             url(r'^download/$', helpers.download_helper_file, name='download_helper_file'),
             url(r'^download_problem_helper_file/(?P<prob_id>[0-9]+)/$', helpers.download_problem_helper_file, name='download_problem_helper_file'),
             url(r'^download_problem_solution_file/(?P<prob_id>[0-9]+)/$', helpers.download_problem_solution_file, name='download_problem_solution_file'),
+            url(r'^download_testcase_file/(?P<prob_id>[0-9]+)/$', helpers.download_testcase_file, name='download_testcase_file'),
         ])),
 
         url(r'^assignments/(?P<assign_id>[0-9]+)/', include([
