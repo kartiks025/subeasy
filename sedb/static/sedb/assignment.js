@@ -61,23 +61,19 @@ function loadProblems(){
                 var prob_id = "#prob"+prob_obj.problem_id;
                 updateProblem(prob_obj.problem_id, prob_obj, ps[i].resource);
 
-                var s = $(prob_id+" .loadUrl").attr('data-loadUrl').replace('0',prob_obj.problem_id);
+                var s = $(prob_id+" .loadUrl").attr('data-loadUrl').replace('/0/','/'+prob_obj.problem_id+'/');
                 $(prob_id+" .loadUrl").attr('data-loadUrl', s);
-                s = $(prob_id+" form").attr('action').replace('0',prob_obj.problem_id);
+                s = $(prob_id+" form").attr('action').replace('/0/','/'+prob_obj.problem_id+'/');
                 $(prob_id+" form").attr('action', s);
                 // s = $(prob_id+" a[name=helper_file]").attr('href').replace('0',prob_obj.problem_id);
                 // $(prob_id+" a[name=helper_file]").attr('href',s)
                 
                 // new algo of replacing 0
-                x = $(prob_id+" a[name=helper_file]").attr('href')
-                s = x.lastIndexOf("0");
-                s = x.substr(0,s)+prob_obj.problem_id+x.substr(s+1,x.length-s-1);
-                $(prob_id+" a[name=helper_file]").attr('href',s)
+                x = $(prob_id+" a[name=helper_file]").attr('href').replace('/0/','/'+prob_obj.problem_id+'/');
+                $(prob_id+" a[name=helper_file]").attr('href',x);
 
-                x = $(prob_id+" a[name=solution_file]").attr('href')
-                s = x.lastIndexOf("0");
-                s = x.substr(0,s)+prob_obj.problem_id+x.substr(s+1,x.length-s-1);
-                $(prob_id+" a[name=solution_file]").attr('href',s)
+                x = $(prob_id+" a[name=solution_file]").attr('href').replace('/0/','/'+prob_obj.problem_id+'/');
+                $(prob_id+" a[name=solution_file]").attr('href',x);
             }
         }
         else{
@@ -141,6 +137,7 @@ function EditButtonClick(elem){
                             loadHome();
                         }
                         else{
+
                             reloadProblem(elem);
                         }
                     }
