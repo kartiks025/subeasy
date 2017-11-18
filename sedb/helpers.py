@@ -727,4 +727,32 @@ def edit_assign_prob(request, sec_user_id, assign_id, prob_id):
 
 
 def submit_problem(request, sec_user_id, assign_id, prob_id):
-    return
+    try:
+        sub_file = request.FILES['submission_file'].file.read()
+        sub_file_name = request.FILES['submission_file'].name
+
+        if UserSubmissions.objects.filter(user_id=request.session['user_id'],problem_id=prob_id).exists():
+            print("yes")
+            x = UserSubmissions.objects.get(user_id=request.session['user_id'],problem_id=prob_id)
+            x.num_submissions = x.num_submissions + 1
+            s = Submission(user_id=request.session['user_id'],problem_id=prob_id,sub_no=x.num_submissions,sub_file=sub_file,sub_file_name=sub_file_name)
+            x.final_submission_no=x.num_submissions
+            s.save()
+            x.save()
+        else:
+            print("no")
+            x = UserSubmissions(user_id=request.session['user_id'],problem_id=prob_id,num_submissions=1,final_submission_no=1)
+            x.save()
+            s = Submission(user_id=request.session['user_id'],problem_id=prob_id,sub_no=x.num_submissions,sub_file=sub_file,sub_file_name=sub_file_name)
+            s.save()
+            print("done")
+        return JsonResponse({
+            'success': True
+        })
+    except :
+        pass
+        return JsonResponse({
+            'success': False
+        })
+
+    
