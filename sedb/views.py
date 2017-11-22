@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from .models import *
 from .helpers import *
+from .utils import *
+from .restricted_helpers import *
 from django.http import JsonResponse
 from django.db import connection
 from django.core.exceptions import *
@@ -384,3 +386,7 @@ def add_csv_student(request, sec_user_id):
             except Exception:
                 print("exists")
     return student_tab(request, sec_user_id)
+
+
+def submission(request, sec_user_id,assign_id):
+    return render(request, 'sedb/submission.html')

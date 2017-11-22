@@ -1,6 +1,6 @@
 from django.conf.urls import url, include
 
-from . import views, helpers
+from . import views, helpers, utils, restricted_helpers
 
 app_name = 'sedb'
 
@@ -33,13 +33,13 @@ urlpatterns = [
 
         #instructor
         url(r'^assignment/(?P<assign_id>[0-9]+)/', include([
-            url(r'edit_assign_home/$', helpers.edit_assign_home, name='edit_assign_home'),
+            url(r'edit_assign_home/$', restricted_helpers.edit_assign_home, name='edit_assign_home'),
             url(r'^$', views.show_assignment, name='show_assignment'),
             url(r'^get_assign_home/$', helpers.get_assign_home, name='get_assign_home'),
             url(r'^get_assign_all_prob/$', helpers.get_assign_all_prob, name='get_assign_all_prob'),
-            url(r'^get_new_prob_no/$', helpers.get_new_prob_no, name='get_new_prob_no'),
+            url(r'^get_new_prob_no/$', restricted_helpers.get_new_prob_no, name='get_new_prob_no'),
             url(r'^get_assign_prob/(?P<prob_id>[0-9]+)/$', helpers.get_assign_prob, name='get_assign_prob'),
-            url(r'^edit_assign_prob/(?P<prob_id>[0-9]+)/$', helpers.edit_assign_prob, name='edit_assign_prob'),
+            url(r'^edit_assign_prob/(?P<prob_id>[0-9]+)/$', restricted_helpers.edit_assign_prob, name='edit_assign_prob'),
             url(r'^download/$', helpers.download_helper_file, name='download_helper_file'),
             url(r'^download_problem_helper_file/(?P<prob_id>[0-9]+)/$', helpers.download_problem_helper_file, name='download_problem_helper_file'),
             url(r'^download_problem_solution_file/(?P<prob_id>[0-9]+)/$', helpers.download_problem_solution_file, name='download_problem_solution_file'),
@@ -52,9 +52,11 @@ urlpatterns = [
 
         #student
         url(r'^assignments/(?P<assign_id>[0-9]+)/', include([
+            url(r'^submission/$', views.submission, name='submission'),
             url(r'^$', views.stu_assignment, name='stu_assignment'),
             url(r'^download/$', helpers.download_helper_file, name='download_helper_file'),
             url(r'^submit_problem/(?P<prob_id>[0-9]+)/$', helpers.submit_problem, name='submit_problem'),
+            url(r'^evaluate_problem/(?P<prob_id>[0-9]+)/$', helpers.evaluate_problem, name='evaluate_problem'),
             url(r'^download_your_submission/(?P<prob_id>[0-9]+)/$', helpers.download_your_submission, name='download_your_submission'),
         ])),
     ])),
@@ -62,8 +64,8 @@ urlpatterns = [
 
     url(r'^get_assignments/(?P<sec_user_id>[0-9]+)/$', helpers.get_assignments, name='get_assignments'),
     url(r'^get_instructors/(?P<sec_user_id>[0-9]+)/$', helpers.get_instructors, name='get_instructors'),
-    url(r'^get_students/(?P<sec_user_id>[0-9]+)/$', helpers.get_students, name='get_students'),
-    url(r'^get_tas/(?P<sec_user_id>[0-9]+)/$', helpers.get_tas, name='get_tas'),
+    url(r'^get_students/(?P<sec_user_id>[0-9]+)/$', restricted_helpers.get_students, name='get_students'),
+    url(r'^get_tas/(?P<sec_user_id>[0-9]+)/$', restricted_helpers.get_tas, name='get_tas'),
 
     url(r'^add_csv_student/(?P<sec_user_id>[0-9]+)/$', views.add_csv_student, name='add_csv_student'),
     url(r'^add_ta/(?P<sec_user_id>[0-9]+)/$', views.add_ta, name='add_ta'),

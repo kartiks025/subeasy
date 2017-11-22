@@ -21,7 +21,7 @@
             </li>
 
             <li>
-                <a class="side-nav-link" href="#submissions" class="submit-form ">Submissions</a>
+                <a class="side-nav-link" href="#submission" class="submit-form ">Submissions</a>
             </li>
             <li>
                 <a class="side-nav-link" href="#marksheet" class="submit-form ">Marksheet</a>
@@ -152,7 +152,7 @@
                 <button type="submit" class="upload-btn btn btn-default">Upload your Submission</button>
             </form>
 
-            <form class="form-horizontal" action="" name="evaluate_form" method="post" enctype="multipart/form-data">
+            <form class="form-horizontal" action="{% url 'sedb:evaluate_problem' sec_user_id assign_id 0 %}" name="evaluate_form" method="post" enctype="multipart/form-data">
                 <button type="button" class="evaluate-btn btn btn-default">Evaluate</button>
             </form>
 
@@ -160,7 +160,7 @@
         </div>
     </div>
 
-    <div id="submissions" class="nav-content hidden">
+    <div id="submission" class="nav-content hidden">
         
     </div>
 

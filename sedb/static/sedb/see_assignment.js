@@ -64,6 +64,11 @@ function loadProblems(){
                 s = x.lastIndexOf("0");
                 s = x.substr(0,s)+prob_obj.problem_id+x.substr(s+1,x.length-s-1);
                 $("#prob"+prob_id+" form[name=submit_form]").attr('action',s)
+
+                x = $("#prob"+prob_id+" form[name=evaluate_form]").attr('action')
+                s = x.lastIndexOf("0");
+                s = x.substr(0,s)+prob_obj.problem_id+x.substr(s+1,x.length-s-1);
+                $("#prob"+prob_id+" form[name=evaluate_form]").attr('action',s)
             }
         }
         else{
@@ -163,12 +168,18 @@ function SideAssignNavClick(elem){
     console.log(toShowDiv)
     $(toShowDiv).find("*").removeClass('hidden');
     $(toShowDiv).removeClass('hidden');
+    if (String(toShowDiv)==("#submission")){
+        console.log("yes")
+        // window.history.pushState({"html":"","pageTitle":"Submission"},"", "submission/");
+        $('#submission').load('submission #container');
+    }   
     if (String(toShowDiv)==("#details")){
         loadHome();
     }
     if (String(toShowDiv).indexOf("#prob")!== -1){
         reloadProblem($(String(toShowDiv)));
     }
+
 }
 
 function UploadButtonClick(elem){
