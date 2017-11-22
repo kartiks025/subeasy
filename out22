@@ -1,0 +1,16 @@
+User kartik added. User ID: 1
+User aniket added. User ID: 2
+User ravi added. User ID: 3
+User mansi added. User ID: 4
+UserID 2 tweeted Hello
+UserID 3 tweeted World;
+UserID 4 tweeted Yes!
+UserID 5 does not exist
+UserID 1 has started following UserID 4
+UserID 1 has started following UserID 2
+UserID 2 tweeted Yes
+2 1 Hello
+4 3 Yes!
+2 4 Yes
+UserID 0 does not exist
+UserID 5 does not exist

@@ -1,0 +1,43 @@
+au aniket
+au kartik
+au ravi
+au mansi
+at 2 Hello
+at 3 World;
+at 3 hmmmmmmm
+at 2 What?
+at 1 Hey!
+at 1 I-am-king
+at 2 I-am-kingslayer
+at 4 Beware
+at 0 Yes!
+at 6 What?
+fu 1 2
+fu 1 3
+pft 1
+uu 1 3
+pft 1
+uu 1 2
+pft 1
+au akash
+at 5 king
+at 5 queen
+fu 5 1
+fu 1 5
+pft 5
+pft 1
+at 2 Yes
+fu 3 2
+fu 3 1
+fu 2 4
+fu 4 1
+fu 5 3
+pft 1
+pft 2
+pft 3
+pft 4
+pft 5
+fu 1 2
+pft -1
+pft 6
+exit

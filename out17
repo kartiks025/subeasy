@@ -1,0 +1,8 @@
+User kartik added. User ID: 1
+User aniket added. User ID: 2
+User ravi added. User ID: 3
+User mansi added. User ID: 4
+UserID 2 tweeted Hello
+UserID 3 tweeted World;
+UserID 1 replied What? to tweet World; and has TweetID 3
+UserID 2 replied Hey! to tweet Hello and has TweetID 4

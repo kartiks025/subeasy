@@ -1,0 +1,13 @@
+au kartik
+au aniket
+au ravi
+au mansi
+at 2 Hello
+at 3 World;
+at 4 What?
+fu 1 4
+fu 1 2
+at 2 Yes
+pft 1
+pft 2
+exit

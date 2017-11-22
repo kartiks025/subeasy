@@ -152,8 +152,8 @@
                 <button type="submit" class="upload-btn btn btn-default">Upload your Submission</button>
             </form>
 
-            <form class="form-horizontal" action="{% url 'sedb:evaluate_problem' sec_user_id assign_id 0 %}" name="evaluate_form" method="post" enctype="multipart/form-data">
-                <button type="button" class="evaluate-btn btn btn-default">Evaluate</button>
+            <form class="form-horizontal" action="{% url 'sedb:evaluate_problem' sec_user_id assign_id 0 %}" name="evaluate_form" method="post" enctype="multipart/form-data">{% csrf_token %}
+                <button type="submit" class="evaluate-btn btn btn-default">Evaluate</button>
             </form>
 
             <a href="{% url 'sedb:download_your_submission' sec_user_id assign_id 0 %}" name="download_submission">Download</a>

@@ -18,6 +18,7 @@ from io import BytesIO
 
 from .utils import *
 from .restricted_helpers import *
+from .runner import *
 
 @user2_required
 def get_assign_home(request, sec_user_id, assign_id):
@@ -198,18 +199,32 @@ def submit_problem(request, sec_user_id, assign_id, prob_id):
         })
 
 def evaluate_problem(request, sec_user_id, assign_id, prob_id):
-    try:
-        if UserSubmissions.objects.filter(user_id=request.session['user_id'],problem_id=prob_id).exists():
-            x = UserSubmissions.objects.get(user_id=request.session['user_id'],problem_id=prob_id).final_submission_no
-            final = UserSubmissions.objects.get(user_id=request.session['user_id'],problem_id=prob_id).final_submission_no
-            contents = Submission.objects.get(user_id=request.session['user_id'],problem_id=prob_id,sub_no=final)
-        return JsonResponse({
-            'success': True
-        })
-    except :
-        pass
-        return JsonResponse({
-            'success': False,
-            'message' : "except"
-        })
+    # try:
+    if UserSubmissions.objects.filter(user_id=request.session['user_id'],problem_id=prob_id).exists():
+        x = UserSubmissions.objects.get(user_id=request.session['user_id'],problem_id=prob_id).final_submission_no
+        final = UserSubmissions.objects.get(user_id=request.session['user_id'],problem_id=prob_id).final_submission_no
+        contents = Submission.objects.get(user_id=request.session['user_id'],problem_id=prob_id,sub_no=final)
+        problem = Problem.objects.get(problem_id=prob_id)
+        compile_cmd = problem.compile_cmd
+        print(contents.sub_file)
+        with open(problem.files_to_submit, "wb") as codeFile:
+            codeFile.write(contents.sub_file)
+        compile(compile_cmd)
+        testcases = Testcase.objects.filter(problem=problem)
+        for t in testcases:
+            with open(t.infile_name, "wb") as inFile:
+                inFile.write(t.infile)
+            with open(t.outfile_name, "wb") as outFile:
+                outFile.write(t.outfile)
+            print(t.infile_name)
+            run("./a.out",t.infile_name,t.outfile_name)
+    return JsonResponse({
+        'success': True
+    })
+    # except :
+    #     pass
+    #     return JsonResponse({
+    #         'success': False,
+    #         'message' : "except"
+    #     })
     
