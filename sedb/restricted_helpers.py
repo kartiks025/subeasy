@@ -17,6 +17,7 @@ from .models import *
 from io import BytesIO
 from .utils import *
 
+
 @instructor1_required
 def edit_assign_home(request, sec_user_id, assign_id):
     print("edit_assign_home called")
@@ -91,6 +92,7 @@ def edit_assign_home(request, sec_user_id, assign_id):
         'r_id': assignment_id
     })
 
+
 @instructor_required
 def get_students(request, sec_user_id):
     sec_user = SecUser.objects.get(id=sec_user_id);
@@ -122,6 +124,7 @@ def get_tas(request, sec_user_id):
     context = {'user': users, 'ta': ta}
     return JsonResponse(context, content_type="application/json")
 
+
 @instructor1_required
 def get_new_prob_no(request, sec_user_id, assign_id):
     assignment = Assignment.objects.get(assignment_id=assign_id)
@@ -130,6 +133,7 @@ def get_new_prob_no(request, sec_user_id, assign_id):
     return JsonResponse({
         'problem_no': assignment.num_problems
     })
+
 
 @instructor2_required
 def edit_assign_prob(request, sec_user_id, assign_id, prob_id):
@@ -228,7 +232,7 @@ def edit_assign_prob(request, sec_user_id, assign_id, prob_id):
             problem.save()
             problem_id = problem.problem_id
 
-        # try:
+            # try:
             print("testcase file")
             testcase_file = tarfile.open(fileobj=request.FILES['testcase_file'])
             print(type(testcase_file))
@@ -266,7 +270,6 @@ def edit_assign_prob(request, sec_user_id, assign_id, prob_id):
             print()
             print()
 
-
             print(type(in_file_dict))
             for key, val in in_file_dict.items():
                 print(key)
@@ -283,8 +286,8 @@ def edit_assign_prob(request, sec_user_id, assign_id, prob_id):
                 except:
                     pass
             testcase_file.close()
-        # except:
-        #     print("Exception")
+            # except:
+            #     print("Exception")
 
     return JsonResponse({
         'r_id': problem_id

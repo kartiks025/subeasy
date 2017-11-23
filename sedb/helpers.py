@@ -19,6 +19,8 @@ from io import BytesIO
 from .utils import *
 from .restricted_helpers import *
 from .runner import *
+from io import StringIO
+
 
 @user2_required
 def get_assign_home(request, sec_user_id, assign_id):
@@ -64,43 +66,43 @@ def download_problem_solution_file(request, sec_user_id, assign_id, prob_id):
 # @instructor2_required
 def download_testcase_file(request, sec_user_id, assign_id, prob_id):
     out = BytesIO()
-    tar = tarfile.open(mode="w:gz",fileobj=out)
+    tar = tarfile.open(mode="w:gz", fileobj=out)
     all_testcases = Testcase.objects.filter(problem_id=prob_id)
     for t in all_testcases:
         info = tarfile.TarInfo(name=t.infile_name)
         info.size = len(t.infile)
-        tar.addfile(tarinfo=info,fileobj=BytesIO(t.infile))
+        tar.addfile(tarinfo=info, fileobj=BytesIO(t.infile))
         info = tarfile.TarInfo(name=t.outfile_name)
         info.size = len(t.outfile)
-        tar.addfile(tarinfo=info,fileobj=BytesIO(t.outfile))
+        tar.addfile(tarinfo=info, fileobj=BytesIO(t.outfile))
     tar.close()
     response = HttpResponse(out.getvalue())
-    response['Content-Disposition'] = 'attachment; filename=' + "problem"+prob_id+"_testcases.tar.gz"
+    response['Content-Disposition'] = 'attachment; filename=' + "problem" + prob_id + "_testcases.tar.gz"
     return response
 
 
 # @instructor2_required
 def download_testcase_input_file(request, sec_user_id, assign_id, prob_id, testcase_no):
-    contents = Testcase.objects.get(testcase_no=testcase_no,problem_id=prob_id).infile
+    contents = Testcase.objects.get(testcase_no=testcase_no, problem_id=prob_id).infile
     response = HttpResponse(contents)
     response['Content-Disposition'] = 'attachment; filename=' + Testcase.objects.get(
-        testcase_no=testcase_no,problem_id=prob_id).infile_name
+        testcase_no=testcase_no, problem_id=prob_id).infile_name
     return response
 
 
 # @instructor2_required
 def download_testcase_output_file(request, sec_user_id, assign_id, prob_id, testcase_no):
-    contents = Testcase.objects.get(testcase_no=testcase_no,problem_id=prob_id).outfile
+    contents = Testcase.objects.get(testcase_no=testcase_no, problem_id=prob_id).outfile
     response = HttpResponse(contents)
     response['Content-Disposition'] = 'attachment; filename=' + Testcase.objects.get(
-        testcase_no=testcase_no,problem_id=prob_id).outfile_name
+        testcase_no=testcase_no, problem_id=prob_id).outfile_name
     return response
 
 
 # @instructor2_required
 def download_your_submission(request, sec_user_id, assign_id, prob_id):
-    final = UserSubmissions.objects.get(user_id=request.session['user_id'],problem_id=prob_id).final_submission_no
-    contents = Submission.objects.get(user_id=request.session['user_id'],problem_id=prob_id,sub_no=final)
+    final = UserSubmissions.objects.get(user_id=request.session['user_id'], problem_id=prob_id).final_submission_no
+    contents = Submission.objects.get(user_id=request.session['user_id'], problem_id=prob_id, sub_no=final)
     response = HttpResponse(contents.sub_file)
     response['Content-Disposition'] = 'attachment; filename=' + contents.sub_file_name
     return response
@@ -126,9 +128,6 @@ def get_instructors(request, sec_user_id):
     print(instructor)
     context = {'instructor': instructor}
     return JsonResponse(context, content_type="application/json")
-
-
-
 
 
 # @instructor2_required
@@ -174,71 +173,79 @@ def submit_problem(request, sec_user_id, assign_id, prob_id):
         sub_file = request.FILES['submission_file'].file.read()
         sub_file_name = request.FILES['submission_file'].name
 
-        if UserSubmissions.objects.filter(user_id=request.session['user_id'],problem_id=prob_id).exists():
+        if UserSubmissions.objects.filter(user_id=request.session['user_id'], problem_id=prob_id).exists():
             print("yes")
-            x = UserSubmissions.objects.get(user_id=request.session['user_id'],problem_id=prob_id)
+            x = UserSubmissions.objects.get(user_id=request.session['user_id'], problem_id=prob_id)
             x.num_submissions = x.num_submissions + 1
-            s = Submission(user_id=request.session['user_id'],problem_id=prob_id,sub_no=x.num_submissions,sub_file=sub_file,sub_file_name=sub_file_name)
-            x.final_submission_no=x.num_submissions
+            s = Submission(user_id=request.session['user_id'], problem_id=prob_id, sub_no=x.num_submissions,
+                           sub_file=sub_file, sub_file_name=sub_file_name)
+            x.final_submission_no = x.num_submissions
             s.save()
             x.save()
         else:
             print("no")
-            x = UserSubmissions(user_id=request.session['user_id'],problem_id=prob_id,num_submissions=1,final_submission_no=1)
+            x = UserSubmissions(user_id=request.session['user_id'], problem_id=prob_id, num_submissions=1,
+                                final_submission_no=1)
             x.save()
-            s = Submission(user_id=request.session['user_id'],problem_id=prob_id,sub_no=x.num_submissions,sub_file=sub_file,sub_file_name=sub_file_name)
+            s = Submission(user_id=request.session['user_id'], problem_id=prob_id, sub_no=x.num_submissions,
+                           sub_file=sub_file, sub_file_name=sub_file_name)
             s.save()
             print("done")
         return JsonResponse({
             'success': True
         })
-    except :
+    except:
         pass
         return JsonResponse({
             'success': False
         })
 
+
 def evaluate_problem(request, sec_user_id, assign_id, prob_id):
     # try:
-    if UserSubmissions.objects.filter(user_id=request.session['user_id'],problem_id=prob_id).exists():
-        final = UserSubmissions.objects.get(user_id=request.session['user_id'],problem_id=prob_id).final_submission_no
-        contents = Submission.objects.get(user_id=request.session['user_id'],problem_id=prob_id,sub_no=final)
+    if UserSubmissions.objects.filter(user_id=request.session['user_id'], problem_id=prob_id).exists():
+        final = UserSubmissions.objects.get(user_id=request.session['user_id'], problem_id=prob_id).final_submission_no
+        contents = Submission.objects.get(user_id=request.session['user_id'], problem_id=prob_id, sub_no=final)
         problem = Problem.objects.get(problem_id=prob_id)
         compile_cmd = problem.compile_cmd
         # print(contents.sub_file)
         with open(problem.files_to_submit, "wb") as codeFile:
             codeFile.write(contents.sub_file)
-        json=[]
-        if not compile(compile_cmd):    
+        json = []
+        if not compile(compile_cmd):
             testcases = Testcase.objects.filter(problem=problem)
             for t in testcases:
                 with open(t.infile_name, "wb") as inFile:
                     inFile.write(t.infile)
                 with open(t.outfile_name, "wb") as outFile:
                     outFile.write(t.outfile)
-                (out,err) = run("./a.out",t.infile_name,t.outfile_name)
+                fin = StringIO()
+                fin.write(BytesIO(t.infile))
+                fout = StringIO()
+                fout.write(BytesIO(t.outfile))
+                (out, err) = run("./a.out", fin, fout)
                 if err == 0:
                     marks = t.marks
                 else:
                     marks = 0
-                json.append({"testcase_num":t.testcase_no,"visibility":t.visibility,"marks":marks,"out":out,"error":err})
+                json.append({"testcase_num": t.testcase_no, "visibility": t.visibility, "marks": marks, "out": out,
+                             "error": err})
             print(json)
         else:
             return JsonResponse({
                 'success': True,
-                'message' : "Compilation Error",
-                'testcases' : json
+                'message': "Compilation Error",
+                'testcases': json
             })
         return JsonResponse({
-                'success': True,
-                'message' : "Compiled Successfully",
-                'testcases' : json
-            })
-        
-    # except :
-    #     pass
-    #     return JsonResponse({
-    #         'success': False,
-    #         'message' : "except"
-    #     })
-    
+            'success': True,
+            'message': "Compiled Successfully",
+            'testcases': json
+        })
+
+        # except :
+        #     pass
+        #     return JsonResponse({
+        #         'success': False,
+        #         'message' : "except"
+        #     })
