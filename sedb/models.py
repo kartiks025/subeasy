@@ -278,12 +278,26 @@ class Section(models.Model):
         db_table = 'section'
 
 
+class SubTest(models.Model):
+    testcase = models.ForeignKey('Testcase', models.DO_NOTHING)
+    id = models.BigAutoField(primary_key=True)
+    marks = models.IntegerField()
+    output = models.BinaryField(blank=True, null=True)
+    sub = models.ForeignKey('Submission', models.DO_NOTHING)
+    error = models.CharField(max_length=10, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'sub_test'
+        unique_together = (('sub', 'testcase'),)
+
+
 class Submission(models.Model):
     user = models.ForeignKey('User', models.DO_NOTHING)
     problem = models.ForeignKey(Problem, models.DO_NOTHING)
     sub_no = models.IntegerField()
-    marks_auto = models.IntegerField()
-    marks_inst = models.IntegerField()
+    marks_auto = models.IntegerField(blank=True, null=True)
+    marks_inst = models.IntegerField(blank=True, null=True)
     sub_file_name = models.CharField(max_length=50)
     sub_file = models.BinaryField()
     id = models.BigAutoField(primary_key=True)

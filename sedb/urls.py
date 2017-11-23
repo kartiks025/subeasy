@@ -58,8 +58,12 @@ urlpatterns = [
             url(r'^submit_problem/(?P<prob_id>[0-9]+)/$', helpers.submit_problem, name='submit_problem'),
             url(r'^evaluate_problem/(?P<prob_id>[0-9]+)/$', helpers.evaluate_problem, name='evaluate_problem'),
             url(r'^download_your_submission/(?P<prob_id>[0-9]+)/$', helpers.download_your_submission, name='download_your_submission'),
+            url(r'^get_user_assign_prob/(?P<prob_id>[0-9]+)/$', helpers.get_user_assign_prob, name='get_user_assign_prob'),
+
         ])),
     ])),
+
+    url(r'^output_compare/(?P<sub_test_id>[0-9]+)/$', views.output_compare, name='output_compare'),
 
 
     url(r'^get_assignments/(?P<sec_user_id>[0-9]+)/$', helpers.get_assignments, name='get_assignments'),

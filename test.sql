@@ -172,6 +172,19 @@ CREATE TABLE submission
   FOREIGN KEY (user_id) REFERENCES "user"(user_id)
 );
 
+CREATE TABLE sub_test
+(
+  testcase_id bigint NOT NULL,
+  id bigserial NOT NULL,
+  marks int NOT NULL,
+  output bytea,
+  sub_id bigint NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE (sub_id, testcase_id),
+  FOREIGN KEY (sub_id) REFERENCES submission(id),
+  FOREIGN KEY (testcase_id) REFERENCES testcase(id)
+);
+
 CREATE TABLE user_submissions
 (
   user_id varchar(50) NOT NULL,

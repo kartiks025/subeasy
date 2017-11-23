@@ -151,6 +151,28 @@ def get_assign_prob(request, sec_user_id, assign_id, prob_id):
         'testcases': testcases
     })
 
+# @instructor2_required
+def get_user_assign_prob(request, sec_user_id, assign_id, prob_id):
+    problem = Problem.objects.get(problem_id=prob_id)
+    resource = problem.resource_limit
+    test = Testcase.objects.filter(problem_id=prob_id)
+    final = UserSubmissions.objects.get(user_id=request.session['user_id'], problem_id=prob_id).final_submission_no
+    contents = Submission.objects.get(user_id=request.session['user_id'], problem_id=prob_id, sub_no=final)
+
+    cursor = connection.cursor()
+    cursor.execute(
+        '''select * from (select id,testcase_no,marks,visibility,infile_name,outfile_name from testcase where problem_id=%s) test left outer join (select testcase_id,id,marks as user_marks,error from sub_test where sub_id=%s) sub on sub.testcase_id=test.id;''',
+        [prob_id, contents.id])
+    testcases = dictfetchall(cursor)
+
+    # testcases = [{'id': a.id, 'num': a.testcase_no, 'marks': a.marks, 'visibility': a.visibility} for a in test]
+    print(testcases)
+    return JsonResponse({
+        'new_prob': False,
+        'problem': model_to_dict(problem),
+        'resource': model_to_dict(resource),
+        'testcases': testcases
+    })
 
 @user2_required
 def get_assign_all_prob(request, sec_user_id, assign_id):
@@ -229,23 +251,32 @@ def evaluate_problem(request, sec_user_id, assign_id, prob_id):
             testcases = Testcase.objects.filter(problem=problem)
             for t in testcases:
                 (out, err) = run("./a.out", work_dir, t.infile, t.outfile, problem.resource_limit)
+                print()
+                print(out)
+                print()
                 if err == 0:
                     marks = t.marks
                 else:
                     marks = 0
-                json.append({"testcase_num": t.testcase_no, "visibility": t.visibility, "marks": marks, "out": out,
-                             "error": err})
-            print(json)
+                s,created = SubTest.objects.update_or_create(testcase = t,sub=contents,defaults={'marks':marks,'error':err,'output':out.encode('UTF-8')})
+                s.save()
+            cursor = connection.cursor()
+            cursor.execute(
+                '''select * from (select id,testcase_no,marks,visibility,infile_name,outfile_name from testcase where problem_id=%s) test left outer join (select testcase_id,id as sub_test_id,marks as user_marks,error from sub_test where sub_id=%s) sub on sub.testcase_id=test.id;''',
+                [prob_id, contents.id])
+            json = dictfetchall(cursor)
         else:
             return JsonResponse({
                 'success': True,
                 'message': "Compilation Error",
-                'testcases': json
+                'testcases': json,
+                'problem_id': prob_id
             })
         return JsonResponse({
             'success': True,
             'message': "Compiled Successfully",
-            'testcases': json
+            'testcases': json,
+            'problem_id': prob_id
         })
 
         # except :

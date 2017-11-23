@@ -390,3 +390,7 @@ def add_csv_student(request, sec_user_id):
 
 def submission(request, sec_user_id,assign_id):
     return render(request, 'sedb/submission.html')
+
+def output_compare(request, sub_test_id):
+    s=SubTest.objects.get(id=sub_test_id)
+    return render(request, 'sedb/output_compare.html', {'output': bytes(s.output).decode('UTF-8'), 'testcase': bytes(s.testcase.outfile).decode('UTF-8')})

@@ -7,7 +7,7 @@
     <!-- Sidebar Holder -->
     <nav id="sidebar">
         <div class="sidebar-header">
-            <h3>Assignment</h3>
+            <h3 id="yes">Assignment</h3>
         </div>
 
         <ul class="list-unstyled components" id="list-nav">
@@ -82,7 +82,7 @@
 
     </div>
 
-    <div class="hidden" id="problem-form" data-loadUrl="{% url 'sedb:get_assign_prob' sec_user_id assign_id 0 %}">
+    <div class="hidden problem" id="problem-form" data-loadUrl="{% url 'sedb:get_user_assign_prob' sec_user_id assign_id 0 %}">
         <center>
         <div class="title" name="prob_name" style="font-size: 30px">B. Divisibility of Differences</div>
         <br>
@@ -134,7 +134,10 @@
                     <th> # </th>
                     <th> Input File </th>
                     <th> Output File </th>
-                    <th> Marks </th>
+                    <th> Max Marks </th>
+                    <th> Your Marks </th>
+                    <th> Status </th>
+                    <th> Your Output  </th>
                 </tr>
             </thead>
             <tbody name="testcases">
@@ -148,13 +151,14 @@
         <div>
 
             <form class="form-horizontal" action="{% url 'sedb:submit_problem' sec_user_id assign_id 0 %}" name="submit_form" method="post" enctype="multipart/form-data">{% csrf_token %}
-                <input type="file" accept=".tar.gz,.zip" class="form-control" name="submission_file">
-                <button type="submit" class="upload-btn btn btn-default">Upload your Submission</button>
+                <input type="file" accept=".tar.gz,.zip,.cpp" class="form-control" name="submission_file">
+                <button type="button" class="upload-btn btn btn-default">Upload your Submission</button>
             </form>
 
             <form class="form-horizontal" action="{% url 'sedb:evaluate_problem' sec_user_id assign_id 0 %}" name="evaluate_form" method="post" enctype="multipart/form-data">{% csrf_token %}
-                <button type="submit" class="evaluate-btn btn btn-default">Evaluate</button>
+                <button type="button" class="evaluate-btn btn btn-default">Evaluate</button>
             </form>
+
 
             <a href="{% url 'sedb:download_your_submission' sec_user_id assign_id 0 %}" name="download_submission">Download</a>
         </div>
@@ -208,14 +212,15 @@
         $(".side-nav-link").click(function(){
             SideAssignNavClick($(this));
         });
-        // $(".upload-btn").click(function(){
-        //     UploadButtonClick($(this));
-        // });
-        $(".evaluate-btn").click(function(){
-            EvaluateButtonClick($(this));
+        
+        $("#content").on('click', '.evaluate-btn',function (){
+            EvaluateButtonClick($(this),"{% static 'sedb/ajax-loader.gif' %}");
         });
-    });
-    
+        $("#content").on('click', '.upload-btn',function (){
+            console.log("yes");
+            UploadButtonClick($(this));
+        });
+    });    
 
 </script>
 

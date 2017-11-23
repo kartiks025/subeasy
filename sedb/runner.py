@@ -22,13 +22,15 @@ def compile(cmd, work_dir):
 def run(cmd, work_dir, inpView, outView, res):
     PIPE = subprocess.PIPE
     clist = cmd.split()
+    print(clist)
+    print(work_dir)
     p = subprocess.Popen(clist, stdin=PIPE, stdout=PIPE, stderr=PIPE,
                          preexec_fn=(lambda: setlimits(res)), cwd=work_dir)
     out, err = p.communicate(input=inpView)
-    print(p.returncode)
+    print(p.returncode,out)
     if p.returncode < 0:
         return out.decode('UTF-8'), signal.Signals(-1 * p.returncode).name
     if out == outView.tobytes():
-        return out.decode('UTF-8'), ""
+        return out.decode('UTF-8'), 0
     else:
-        return out.decode('UTF-8'), "different output"
+        return out.decode('UTF-8'), -1

@@ -110,18 +110,10 @@ function appendProb(problem_id){
     console.log("appending");
     $('<div/>',{
         id: "prob"+problem_id,
-        "class" : "hidden",
+        "class" : "hidden problem",
         html : $("#problem-form").html(),
         "data-loadurl" : $("#problem-form").attr('data-loadurl')
     }).appendTo($("#content"));
-
-    $("#prob"+problem_id+" .submit-btn").on("click", function(){
-        SubmitButton($(this));
-    });
-
-    $("#prob"+problem_id+" .evaluate-btn").on("click", function(){
-        EvaluateButton($(this));
-    });
 }
 
 function updateProblem(problem_id, prob_obj, resource_obj,testcases){
@@ -140,13 +132,35 @@ function updateProblem(problem_id, prob_obj, resource_obj,testcases){
     $(prob_id+ ' span[name ="max_filesize"]').text(resource_obj.max_filesize + " kB");
     var link = $("#prob"+problem_id).attr('data-loadUrl');
     console.log(link)
-    link = link.replace("get_assign_prob","problem");
+    link = link.replace("get_user_assign_prob","problem");
+    link = link.replace("assignments","assignment");
     console.log(link)
     s = link.lastIndexOf("0");
     s = link.substr(0,s)+prob_obj.problem_id+link.substr(s+1,link.length-s-1);
     var content = ""
     for(var i in testcases){
-        content += "<tr><td>"+testcases[i].num+"</td><td><a href=\""+link+"download_testcase_input_file/"+testcases[i].num+"/\">Input File</a></td><td><a href=\""+link+"download_testcase_output_file/"+testcases[i].num+"/\">Output File</a></td><td>"+testcases[i].marks+"</td></tr>"
+        // content += "<tr><td>"+testcases[i].testcase_no+"</td><td><a href=\""+link+"download_testcase_input_file/"+testcases[i].testcase_no+"/\">"+testcases[i].infile_name+"</a></td><td><a href=\""+link+"download_testcase_output_file/"+testcases[i].testcase_no+"/\">"+testcases[i].outfile_name+"</a></td><td>"+testcases[i].marks+"</td></tr>"
+        content += "<tr><td>"+testcases[i].testcase_no+"</td><td><a href=\""+link+"download_testcase_input_file/"+testcases[i].testcase_no+"/\">"+testcases[i].infile_name+"</a></td><td><a href=\""+link+"download_testcase_output_file/"+testcases[i].testcase_no+"/\">"+testcases[i].outfile_name+"</a></td><td>"+testcases[i].marks+"</td><td>"+testcases[i].user_marks+"</td><td>"+testcases[i].error+"</td><td><a target=\"_blank\" href=\"/sedb/output_compare/"+testcases[i].id+"/\">Check Output</a></td></tr>"
+    }
+    $(prob_id+ ' tbody[name ="testcases"]').html(content);
+    // $(prob_id+" input[sol_visibility][value="+prob_obj.sol_visibility+"]").attr('checked',true);
+}
+
+function updateTestcases(problem_id,testcases){
+    var prob_id = '#prob' +problem_id;
+    var link = $("#prob"+problem_id).attr('data-loadUrl');
+    console.log(link)
+    link = link.replace("get_user_assign_prob","problem");
+    link = link.replace("assignments","assignment");
+    console.log(link)
+    s = link.lastIndexOf("0");
+    s = link.substr(0,s)+problem_id+link.substr(s+1,link.length-s-1);
+    var content = ""
+    for(var i in testcases){
+        console.log(testcases[i].id)
+        console.log(testcases[i].testcase_id)
+        // content += "<tr><td>"+testcases[i].testcase_no+"</td><td><a href=\""+link+"download_testcase_input_file/"+testcases[i].testcase_no+"/\">"+testcases[i].infile_name+"</a></td><td><a href=\""+link+"download_testcase_output_file/"+testcases[i].testcase_no+"/\">"+testcases[i].outfile_name+"</a></td><td>"+testcases[i].marks+"</td></tr>"
+        content += "<tr><td>"+testcases[i].testcase_no+"</td><td><a href=\""+link+"download_testcase_input_file/"+testcases[i].testcase_no+"/\">"+testcases[i].infile_name+"</a></td><td><a href=\""+link+"download_testcase_output_file/"+testcases[i].testcase_no+"/\">"+testcases[i].outfile_name+"</a></td><td>"+testcases[i].marks+"</td><td>"+testcases[i].user_marks+"</td><td>"+testcases[i].error+"</td><td><a target=\"_blank\" href=\"/sedb/output_compare/"+testcases[i].id+"/\">Check Output</a></td></tr>"
     }
     $(prob_id+ ' tbody[name ="testcases"]').html(content);
     // $(prob_id+" input[sol_visibility][value="+prob_obj.sol_visibility+"]").attr('checked',true);
@@ -183,12 +197,7 @@ function SideAssignNavClick(elem){
 }
 
 function UploadButtonClick(elem){
-    var pid = "#"+elem.parent().parent().parent().attr('id');
-    var rval = $(pid+" input").prop('disabled');
-
-    var elem = elem.find("> span");
-
-    var frm = $(pid+" form");
+    var frm = elem.parent()
     frm.validate();
     var formData = new FormData(frm[0]);
     console.log(frm.serialize());
@@ -203,34 +212,88 @@ function UploadButtonClick(elem){
             success: function (data) {
                 console.log('Submission was successful.');
                 console.log(data);
-
-                frm.attr('action',frm.attr('action').replace('0',data.r_id));
-                var div = frm.parent().parent();
-                div.attr('data-loadUrl',div.attr('data-loadUrl').replace('0',data.r_id));
-
-                if(data.to_redirect){
-                    window.location.href=data.url;
+                if(data.success){
+                    // $("<p style=\"color: green\">Submitted Successfully<p>").insertAfter(elem);
+                    (function (el) {
+                        setTimeout(function () {
+                            el.remove()
+                        }, 2000);
+                    }($("<p style=\"color: green\">Submitted Successfully<p>").insertAfter(elem)));
                 }
                 else{
-                    if(pid=="#details"){
-                        loadHome();
-                    }
-                    else{
-
-                        reloadProblem(elem);
-                    }
+                    // $("<p style=\"color: red\">Submission error. Please check your file.y<p>").insertAfter(elem)
+                    (function (el) {
+                        setTimeout(function () {
+                            el.remove()
+                        }, 2000);
+                    }($("<p style=\"color: red\">Submission error. Please check your file</p>").insertAfter(elem)));
                 }
+                frm.trigger("reset");
             },
             error: function (data) {
                 console.log('An error occurred.');
                 console.log(data);
+                (function (el) {
+                    setTimeout(function () {
+                        el.remove()
+                    }, 2000);
+                }($("<p style=\"color: red\">Submission error. Please check your file</p>").insertAfter(elem)));
+                frm.trigger("reset");
             },
         });
+    }
+}
 
-        elem.removeClass('glyphicon-ok');
-        elem.addClass('glyphicon-pencil');
-
-        $(pid+" input").attr('disabled',!rval);
-        $(pid+" textarea").attr('disabled',!rval);
+function EvaluateButtonClick(elem,img){
+    var frm = elem.parent()
+    frm.validate();
+    var formData = new FormData(frm[0]);
+    console.log(frm.serialize());
+    console.log(formData);
+    console.log(frm.attr('action'));
+    $("<img id=\"gif\" src=\""+img+"\" >").insertAfter(elem)
+    if(frm.valid()){
+        $.ajax({
+            type: frm.attr('method'),
+            url: frm.attr('action'),
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                console.log('Submission was successful.');
+                console.log(data);
+                $("#gif").remove();
+                if(data.success){
+                    // $("<p style=\"color: green\">"+data.testcases+"<p>").insertAfter(elem);
+                    (function (el) {
+                        setTimeout(function () {
+                            el.remove()
+                        }, 2000);
+                    }($("<p style=\"color: green\">"+"See Results Above"+"<p>").insertAfter(elem)));
+                    if(data.message!="Compilation Error")
+                        updateTestcases(data.problem_id,data.testcases);
+                }
+                else{
+                    // $("<p style=\"color: red\">Evaluation error. Please evaluate again.<p>").insertAfter(elem);
+                    (function (el) {
+                        setTimeout(function () {
+                            el.remove()
+                        }, 2000);
+                    }($("<p style=\"color: red\">Evaluation error. Please evaluate again.<p>").insertAfter(elem)));
+                }
+                frm.trigger("reset");
+            },
+            error: function (data) {
+                $("#gif").remove();
+                console.log('An error occurred.');
+                console.log(data);
+                (function (el) {
+                    setTimeout(function () {
+                        el.remove()
+                    }, 2000);
+                }($("<p style=\"color: red\">Evaluation error. Please evaluate again.<p>").insertAfter(elem)));
+                frm.trigger("reset");
+            },
+        });
     }
 }
