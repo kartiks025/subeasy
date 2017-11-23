@@ -203,27 +203,30 @@ def submit_problem(request, sec_user_id, assign_id, prob_id):
 
 def evaluate_problem(request, sec_user_id, assign_id, prob_id):
     # try:
+    print("evaluate_problem called")
     if UserSubmissions.objects.filter(user_id=request.session['user_id'], problem_id=prob_id).exists():
         final = UserSubmissions.objects.get(user_id=request.session['user_id'], problem_id=prob_id).final_submission_no
         contents = Submission.objects.get(user_id=request.session['user_id'], problem_id=prob_id, sub_no=final)
         problem = Problem.objects.get(problem_id=prob_id)
         compile_cmd = problem.compile_cmd
         # print(contents.sub_file)
-        with open(problem.files_to_submit, "wb") as codeFile:
+        print("database fetched")
+
+        work_dir = 'sedb/submissions/assign'+assign_id+'/prob'+prob_id+'/sec_user'+sec_user_id
+        if not os.path.exists(work_dir):
+            os.makedirs(work_dir)
+
+        with open(work_dir+'/'+problem.files_to_submit, "wb") as codeFile:
             codeFile.write(contents.sub_file)
+
+        print("directory created")
+
         json = []
-        if not compile(compile_cmd):
+        if not compile(compile_cmd, work_dir):
+            print("compiled")
             testcases = Testcase.objects.filter(problem=problem)
             for t in testcases:
-                with open(t.infile_name, "wb") as inFile:
-                    inFile.write(t.infile)
-                with open(t.outfile_name, "wb") as outFile:
-                    outFile.write(t.outfile)
-                fin = StringIO()
-                fin.write(BytesIO(t.infile))
-                fout = StringIO()
-                fout.write(BytesIO(t.outfile))
-                (out, err) = run("./a.out", fin, fout)
+                (out, err) = run("./a.out", work_dir, t.infile, t.outfile)
                 if err == 0:
                     marks = t.marks
                 else:
