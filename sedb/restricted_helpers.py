@@ -232,62 +232,62 @@ def edit_assign_prob(request, sec_user_id, assign_id, prob_id):
             problem.save()
             problem_id = problem.problem_id
 
-            # try:
-            print("testcase file")
-            testcase_file = tarfile.open(fileobj=request.FILES['testcase_file'])
-            print(type(testcase_file))
+            try:
+                print("testcase file")
+                testcase_file = tarfile.open(fileobj=request.FILES['testcase_file'])
+                print(type(testcase_file))
 
-            in_pat = re.compile('in.*?([0-9]+)')
-            out_pat = re.compile('out.*?([0-9]+)')
+                in_pat = re.compile('in.*?([0-9]+)')
+                out_pat = re.compile('out.*?([0-9]+)')
 
-            in_file_dict = {}
-            out_file_dict = {}
-            for member in testcase_file.getmembers():
-                print(member.name)
-                if member.isfile():
-                    mem_name = member.name.split('/')[-1]
-                    in_lst = in_pat.findall(mem_name)
-                    if len(in_lst) > 0:
-                        in_file_dict[int(in_lst[-1])] = member
-                    else:
-                        out_list = out_pat.findall(mem_name)
-                        if len(out_list) > 0:
-                            out_file_dict[int(out_list[-1])] = member
+                in_file_dict = {}
+                out_file_dict = {}
+                for member in testcase_file.getmembers():
+                    print(member.name)
+                    if member.isfile():
+                        mem_name = member.name.split('/')[-1]
+                        in_lst = in_pat.findall(mem_name)
+                        if len(in_lst) > 0:
+                            in_file_dict[int(in_lst[-1])] = member
+                        else:
+                            out_list = out_pat.findall(mem_name)
+                            if len(out_list) > 0:
+                                out_file_dict[int(out_list[-1])] = member
 
-            Testcase.objects.filter(problem_id=problem_id).delete()
-            print()
-            print()
-            print()
-            print()
-            print("testcases")
-            print()
-            print(in_file_dict)
-            print(out_file_dict)
-            print()
+                Testcase.objects.filter(problem_id=problem_id).delete()
+                print()
+                print()
+                print()
+                print()
+                print("testcases")
+                print()
+                print(in_file_dict)
+                print(out_file_dict)
+                print()
 
-            print()
-            print()
-            print()
-            print()
+                print()
+                print()
+                print()
+                print()
 
-            print(type(in_file_dict))
-            for key, val in in_file_dict.items():
-                print(key)
-                try:
-                    out_member = out_file_dict[key]
-                    if problem is not None:
-                        testcase = Testcase(problem=problem, testcase_no=key,
-                                            marks=1, visibility=False,
-                                            infile_name=val.name.split('/')[-1],
-                                            infile=testcase_file.extractfile(val).read(),
-                                            outfile_name=out_member.name.split('/')[-1],
-                                            outfile=testcase_file.extractfile(out_member).read())
-                        testcase.save()
-                except:
-                    pass
-            testcase_file.close()
-            # except:
-            #     print("Exception")
+                print(type(in_file_dict))
+                for key, val in in_file_dict.items():
+                    print(key)
+                    try:
+                        out_member = out_file_dict[key]
+                        if problem is not None:
+                            testcase = Testcase(problem=problem, testcase_no=key,
+                                                marks=1, visibility=False,
+                                                infile_name=val.name.split('/')[-1],
+                                                infile=testcase_file.extractfile(val).read(),
+                                                outfile_name=out_member.name.split('/')[-1],
+                                                outfile=testcase_file.extractfile(out_member).read())
+                            testcase.save()
+                    except:
+                        pass
+                testcase_file.close()
+            except:
+                print("Exception")
 
     return JsonResponse({
         'r_id': problem_id

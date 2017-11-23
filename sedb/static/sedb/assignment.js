@@ -28,7 +28,7 @@ function loadHome(){
     });
 }
 
-function updateProblem(problem_id, prob_obj, resource_obj){
+function updateProblem(problem_id, prob_obj, resource_obj,testcase_obj){
     $("#link"+problem_id).text("Problem "+prob_obj.problem_no);
     var prob_id = "#prob" + problem_id;
     $(prob_id+" input[name=prob_num]").val(prob_obj.problem_no);
@@ -44,9 +44,49 @@ function updateProblem(problem_id, prob_obj, resource_obj){
     $(prob_id+" input[name=stack_limit]").val(resource_obj.stack_limit);
     $(prob_id+" input[name=open_files]").val(resource_obj.open_files);
     $(prob_id+" input[name=max_filesize]").val(resource_obj.max_filesize);
+
+    var link = $(prob_id+" div[class=loadUrl]").attr('data-loadurl');
+    link = link.replace("get_assign_prob","problem");
+    console.log(link)
+
+    $(prob_id+ ' tbody[name ="testcase_info"]').html("");
+
+    for(var i in testcase_obj){
+        var tr = '<tr S/>';
+        $(tr).append($('<td/>').append(
+           testcase_obj[i].num        
+        ).append($('<input/>',{
+            "name" : "testcase_id",
+            "type" : "hidden",
+            value : testcase_obj[i].id
+
+        }))).append($('<td/>').append($('<a/>',{
+            href : link+"download_testcase_input_file/"+testcase_obj[i].num +"/",
+            text : testcase_obj[i].infile_name
+            
+        }))).append($('<td/>').append($('<a/>',{
+            href : link+"download_testcase_output_file/"+testcase_obj[i].num +"/",
+            text : testcase_obj[i].outfile_name
+            
+        }))).append($('<td/>').append($('<input/>',{
+            // "name" : "visible",
+            "type" : "checkbox",
+            "checked" : testcase_obj[i].visibility
+        }))).append($('<td/>').append($('<input/>',{
+            // "name" : "marks",
+            "type" : "number",
+            value : testcase_obj[i].marks
+        }))).appendTo($(prob_id+' tbody[name ="testcase_info"]'));
+        
+        
+    }
+    // console.log(testcase_obj);
+    // console.log("Find Testcase object above");
 }
 
 function loadProblems(){
+    // console.log("loadProblemsCalled");
+
     var url = $("#problemSubMenu").attr("data-loadUrl");
     $.get(url,
     function(data, status){
@@ -59,7 +99,7 @@ function loadProblems(){
                 console.log(prob_obj.title);
                 appendProb(prob_obj.problem_id);
                 var prob_id = "#prob"+prob_obj.problem_id;
-                updateProblem(prob_obj.problem_id, prob_obj, ps[i].resource);
+                updateProblem(prob_obj.problem_id, prob_obj, ps[i].resource, ps[i].testcases);
 
                 var s = $(prob_id+" .loadUrl").attr('data-loadUrl').replace('/0/','/'+prob_obj.problem_id+'/');
                 $(prob_id+" .loadUrl").attr('data-loadUrl', s);
@@ -83,12 +123,14 @@ function loadProblems(){
 }
 
 function reloadProblem(elem){
+    // console.log("reloadProblemsCalled");
+
     var url = elem.parent().parent().attr('data-loadUrl');
     $.get(url,
     function(data, status){
         if(status == "success"){
             var prob_id = data.problem.problem_id;
-            updateProblem(prob_id, data.problem, data.resource);
+            updateProblem(prob_id, data.problem, data.resource, data.testcases);
         }
         else{
             console.log("Some Error Occurred");
@@ -97,6 +139,7 @@ function reloadProblem(elem){
 }
 
 function EditButtonClick(elem){
+    // console.log("editButtonCalled");
     var pid = "#"+elem.parent().parent().parent().attr('id');
     var rval = $(pid+" input").prop('disabled');
 
@@ -112,6 +155,27 @@ function EditButtonClick(elem){
         var frm = $(pid+" form");
         frm.validate();
         var formData = new FormData(frm[0]);
+
+        var tbId = pid+ ' tbody[name ="testcase_info"]';
+        jsonObj = [];
+        var row = 0;
+        $(tbId).find('tr').each(function(){
+            item ={};
+
+            var $tds = $(this).find('td');
+
+            item["testcase_id"] = $tds.eq(0).children("input").attr("value");
+            item["visibility"] = $tds.eq(3).children("input").attr("checked");
+            item["marks"] = $tds.eq(4).children("input").attr("value");
+
+
+            jsonObj.push(item);
+        });
+
+        console.log(jsonObj);
+        console.log(JSON.stringify(jsonObj));
+        // formData.append("testcases", )
+
         console.log(frm.serialize());
         console.log(formData);
         if(frm.valid()){
@@ -137,7 +201,7 @@ function EditButtonClick(elem){
                             loadHome();
                         }
                         else{
-
+                            // console.log("reloadProblemCalled1");
                             reloadProblem(elem);
                         }
                     }
