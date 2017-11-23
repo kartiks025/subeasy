@@ -1,4 +1,6 @@
 import tarfile, smtplib, re
+
+import os
 import pytz
 from django.http import HttpResponse, JsonResponse
 from django.core.exceptions import *
@@ -226,7 +228,7 @@ def evaluate_problem(request, sec_user_id, assign_id, prob_id):
             print("compiled")
             testcases = Testcase.objects.filter(problem=problem)
             for t in testcases:
-                (out, err) = run("./a.out", work_dir, t.infile, t.outfile)
+                (out, err) = run("./a.out", work_dir, t.infile, t.outfile, problem.resource_limit)
                 if err == 0:
                     marks = t.marks
                 else:
