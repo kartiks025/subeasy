@@ -201,26 +201,40 @@ def submit_problem(request, sec_user_id, assign_id, prob_id):
 def evaluate_problem(request, sec_user_id, assign_id, prob_id):
     # try:
     if UserSubmissions.objects.filter(user_id=request.session['user_id'],problem_id=prob_id).exists():
-        x = UserSubmissions.objects.get(user_id=request.session['user_id'],problem_id=prob_id).final_submission_no
         final = UserSubmissions.objects.get(user_id=request.session['user_id'],problem_id=prob_id).final_submission_no
         contents = Submission.objects.get(user_id=request.session['user_id'],problem_id=prob_id,sub_no=final)
         problem = Problem.objects.get(problem_id=prob_id)
         compile_cmd = problem.compile_cmd
-        print(contents.sub_file)
+        # print(contents.sub_file)
         with open(problem.files_to_submit, "wb") as codeFile:
             codeFile.write(contents.sub_file)
-        compile(compile_cmd)
-        testcases = Testcase.objects.filter(problem=problem)
-        for t in testcases:
-            with open(t.infile_name, "wb") as inFile:
-                inFile.write(t.infile)
-            with open(t.outfile_name, "wb") as outFile:
-                outFile.write(t.outfile)
-            print(t.infile_name)
-            run("./a.out",t.infile_name,t.outfile_name)
-    return JsonResponse({
-        'success': True
-    })
+        json=[]
+        if not compile(compile_cmd):    
+            testcases = Testcase.objects.filter(problem=problem)
+            for t in testcases:
+                with open(t.infile_name, "wb") as inFile:
+                    inFile.write(t.infile)
+                with open(t.outfile_name, "wb") as outFile:
+                    outFile.write(t.outfile)
+                (out,err) = run("./a.out",t.infile_name,t.outfile_name)
+                if err == 0:
+                    marks = t.marks
+                else:
+                    marks = 0
+                json.append({"testcase_num":t.testcase_no,"visibility":t.visibility,"marks":marks,"out":out,"error":err})
+            print(json)
+        else:
+            return JsonResponse({
+                'success': True,
+                'message' : "Compilation Error",
+                'testcases' : json
+            })
+        return JsonResponse({
+                'success': True,
+                'message' : "Compiled Successfully",
+                'testcases' : json
+            })
+        
     # except :
     #     pass
     #     return JsonResponse({
