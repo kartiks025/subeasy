@@ -164,9 +164,13 @@ function loadAllSubmissions(){
             var problems = data.problems;
 
             var head_content = "";
-            head_content += "<tr><th>#</th><th>User ID</th><th>Name</th>";
+            head_content += "<tr><th rowspan=\"2\">#</th><th rowspan=\"2\">User ID</th><th rowspan=\"2\">Name</th>";
             for(var i in problems){
-                head_content += "<th>Problem" + problems[i].problem_no + "</th>";
+                head_content += "<th colspan=\"2\">Problem" + problems[i].problem_no + "</th>";
+            }
+            head_content += "</tr><tr>";
+            for(var i in problems){
+                head_content += "<th>Marks</th><th>SubFile</th>";
             }
             head_content += "</tr>";
             $("#submissions thead[name=submission-thead]").html(head_content);
@@ -179,13 +183,16 @@ function loadAllSubmissions(){
 
                 var this_submission = submission_obj[u].submissions;
                 console.log(this_submission);
-                for(s in this_submission){
 
+                for(s in this_submission){
                     if(this_submission[s].sub_id != null){
+                        body_content += "<td>" + this_submission[s].marks +"</td>";
                         body_content += "<td><a href=\""+"/sedb/download_submission/"+this_submission[s].sub_id+"/\">"+this_submission[s].sub_file_name+"</a></td>";
                     }
-                    else
-                        body_content += "<td>No submission yet</td>"; 
+                    else{
+                        body_content += "<td>0</td>";
+                        body_content += "<td>No submission yet</td>";
+                    } 
                 }
                 body_content += "</tr>";
             }
