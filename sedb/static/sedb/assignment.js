@@ -71,11 +71,13 @@ function updateProblem(problem_id, prob_obj, resource_obj,testcase_obj){
         }))).append($('<td/>').append($('<input/>',{
             "name" : "visibility",
             "type" : "checkbox",
-            "checked" : testcase_obj[i].visibility
+            "checked" : testcase_obj[i].visibility,
+            disabled : true
         }))).append($('<td/>').append($('<input/>',{
             "name" : "marks",
             "type" : "number",
-            value : testcase_obj[i].marks
+            value : testcase_obj[i].marks,
+            disabled : true
         }))).appendTo($(prob_id+' tbody[name ="testcase_info"]'));
         
         
@@ -142,6 +144,49 @@ function reloadProblem(elem){
     });
 }
 
+
+function loadAllSubmissions(){
+    var url = $("#submissions").attr('data-loadUrl');
+
+    console.log(url);
+    $.get(url,
+    function(data, status){
+        if(status == "success"){
+            console.log(data);
+            var submission_obj = data.submissions;
+            var problems = data.problems;
+
+            var head_content = "";
+            head_content += "<tr><th>#</th><th>User ID</th><th>Name</th>";
+            for(var i in problems){
+                head_content += "<th>Problem" + problems[i].problem_no + "</th>";
+            }
+            head_content += "</tr>";
+            $("#submissions thead[name=submission-thead]").html(head_content);
+
+            var body_content = "";
+            for(var u in submission_obj){
+
+                var serial_no = parseInt(u)+1;
+                body_content += "<tr><td>"+ serial_no + "</td><td>" + submission_obj[u].user_id + "</td><td>" + submission_obj[u].name + "</td>";  
+
+                var this_submission = submission_obj[u].submissions;
+                console.log(this_submission);
+                for(s in this_submission){
+
+                    if(this_submission[s].sub_id != null){
+                        body_content += "<td><a href=\""+"/sedb/download_submission/"+this_submission[s].sub_id+"/\">"+this_submission[s].sub_file_name+"</a></td>";
+                    }
+                    else
+                        body_content += "<td>No submission yet</td>"; 
+                }
+                body_content += "</tr>";
+            }
+            $("#submissions tbody[name=submission-tbody]").html(body_content);
+        }
+    });
+}
+
 function EditButtonClick(elem){
     // console.log("editButtonCalled");
     var pid = "#"+elem.parent().parent().parent().attr('id');
@@ -164,28 +209,31 @@ function EditButtonClick(elem){
         var tbId = pid+ ' tbody[name ="testcase_info"]';
 
         jsonObj = [];
-        $(tbId).find('tr').each(function(){
-            
-            item ={};
+        console.log(pid);
+        if(pid.startsWith("#prob")){
+            $(tbId).find('tr').each(function(){
 
-            item["visibility"] = "off";
-            var tableData = $(this).find('input');
-            var tableArr =tableData.serializeArray();
-            $(tableArr).each(function(i, field){
-                 item[field.name] = field.value;
+                item ={};
+
+                item["visibility"] = "off";
+                var tableData = $(this).find('input');
+                var tableArr =tableData.serializeArray();
+                $(tableArr).each(function(i, field){
+                     item[field.name] = field.value;
+                });
+
+                // var $tds = $(this).find('td');
+                // item["testcase_id"] = $tds.eq(0).children("input").attr("value");
+                // item["visibility"] = $tds.eq(3).children("input").attr("checked");
+                // item["marks"] = $tds.eq(4).children("input").attr("value");
+
+                jsonObj.push(item);
             });
 
-            // var $tds = $(this).find('td');
-            // item["testcase_id"] = $tds.eq(0).children("input").attr("value");
-            // item["visibility"] = $tds.eq(3).children("input").attr("checked");
-            // item["marks"] = $tds.eq(4).children("input").attr("value");
-
-            jsonObj.push(item);
-        });
-
-        console.log(jsonObj);
-        console.log(JSON.stringify(jsonObj));
-        formData.append("testcases",JSON.stringify(jsonObj));
+            console.log(jsonObj);
+            console.log(JSON.stringify(jsonObj));
+            formData.append("testcases",JSON.stringify(jsonObj));
+        }
         // console.log(formData);
 
         if(frm.valid()){

@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^add_assignment/(?P<sec_user_id>[0-9]+)/$', views.add_assignment, name='add_assignment'),
     url(r'^admin_logout/$', views.admin_logout, name='admin_logout'),
     url(r'^user_logout/$', views.user_logout, name='user_logout'),
+    url(r'^download_submission/(?P<sub_id>[0-9]+)/$', helpers.download_submission, name='download_submission'),
     
 
     url(r'^section/(?P<sec_user_id>[0-9]+)/', include([
@@ -33,7 +34,7 @@ urlpatterns = [
 
         #instructor
         url(r'^assignment/(?P<assign_id>[0-9]+)/', include([
-            url(r'edit_assign_home/$', restricted_helpers.edit_assign_home, name='edit_assign_home'),
+            url(r'^edit_assign_home/$', restricted_helpers.edit_assign_home, name='edit_assign_home'),
             url(r'^$', views.show_assignment, name='show_assignment'),
             url(r'^get_assign_home/$', helpers.get_assign_home, name='get_assign_home'),
             url(r'^get_assign_all_prob/$', helpers.get_assign_all_prob, name='get_assign_all_prob'),
@@ -48,6 +49,7 @@ urlpatterns = [
                 url(r'^download_testcase_input_file/(?P<testcase_no>[0-9]+)/$', helpers.download_testcase_input_file, name='download_testcase_input_file'),
                 url(r'^download_testcase_output_file/(?P<testcase_no>[0-9]+)/$', helpers.download_testcase_output_file, name='download_testcase_output_file'),
             ])),
+            url(r'^get_all_submissions/$',helpers.get_all_submissions, name='get_all_submissions'),
         ])),
 
         #student
