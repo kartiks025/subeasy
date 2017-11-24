@@ -71,11 +71,13 @@ function updateProblem(problem_id, prob_obj, resource_obj,testcase_obj){
         }))).append($('<td/>').append($('<input/>',{
             "name" : "visibility",
             "type" : "checkbox",
-            "checked" : testcase_obj[i].visibility
+            "checked" : testcase_obj[i].visibility,
+            disabled : true
         }))).append($('<td/>').append($('<input/>',{
             "name" : "marks",
             "type" : "number",
-            value : testcase_obj[i].marks
+            value : testcase_obj[i].marks,
+            disabled : true
         }))).appendTo($(prob_id+' tbody[name ="testcase_info"]'));
         
         
@@ -160,28 +162,31 @@ function EditButtonClick(elem){
         var tbId = pid+ ' tbody[name ="testcase_info"]';
 
         jsonObj = [];
-        $(tbId).find('tr').each(function(){
-            
-            item ={};
+        console.log(pid);
+        if(pid.startsWith("#prob")){
+            $(tbId).find('tr').each(function(){
 
-            item["visibility"] = "off";
-            var tableData = $(this).find('input');
-            var tableArr =tableData.serializeArray();
-            $(tableArr).each(function(i, field){
-                 item[field.name] = field.value;
+                item ={};
+
+                item["visibility"] = "off";
+                var tableData = $(this).find('input');
+                var tableArr =tableData.serializeArray();
+                $(tableArr).each(function(i, field){
+                     item[field.name] = field.value;
+                });
+
+                // var $tds = $(this).find('td');
+                // item["testcase_id"] = $tds.eq(0).children("input").attr("value");
+                // item["visibility"] = $tds.eq(3).children("input").attr("checked");
+                // item["marks"] = $tds.eq(4).children("input").attr("value");
+
+                jsonObj.push(item);
             });
 
-            // var $tds = $(this).find('td');
-            // item["testcase_id"] = $tds.eq(0).children("input").attr("value");
-            // item["visibility"] = $tds.eq(3).children("input").attr("checked");
-            // item["marks"] = $tds.eq(4).children("input").attr("value");
-
-            jsonObj.push(item);
-        });
-
-        console.log(jsonObj);
-        console.log(JSON.stringify(jsonObj));
-        formData.append("testcases",JSON.stringify(jsonObj));
+            console.log(jsonObj);
+            console.log(JSON.stringify(jsonObj));
+            formData.append("testcases",JSON.stringify(jsonObj));
+        }
         // console.log(formData);
 
         if(frm.valid()){
