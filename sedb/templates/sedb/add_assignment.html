@@ -36,7 +36,9 @@
                 <a class="side-nav-link" href="#announcement" class="submit-form ">Announcements</a>
             </li>
         </ul>
-
+        <a href="{% url 'sedb:user_home' %}"><i class="fa fa-arrow-left fa-4x" aria-hidden="true" style="position: fixed;left:20px; bottom:0; "></i></a>
+        <a href="{% url 'sedb:user_home' %}"><i class="fa fa-home fa-4x" aria-hidden="true" style="position: fixed;left:95px; bottom:0; "></i></a>
+        <a href="{% url 'sedb:user_logout' %}"><i class="fa fa-sign-out fa-4x" aria-hidden="true" style="position: fixed;left:170px; bottom:0; "></i></a>
     </nav>
 </div>
 
@@ -294,6 +296,7 @@
     </div>
 
     <div id="submissions" data-loadUrl="{% url 'sedb:get_all_submissions' sec_user_id assign_id %}" class="nav-content hidden">
+        <button id="evaluate_all_button" type="button" name="{% url 'sedb:evaluate_all' sec_user_id assign_id %}" class="btn btn-default">Evaluate All</button>
         <div class="panel panel-primary">
             <div class="panel-heading">
                 Submissions
@@ -370,6 +373,10 @@
 
     $(".side-nav-link").click(function(){
         SideNavClick($(this));
+    });
+
+    $("#evaluate_all_button").click(function(){
+        evaluateAll("{% static 'sedb/ajax-loader.gif' %}");
     });
 
 </script>

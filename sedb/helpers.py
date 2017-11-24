@@ -411,6 +411,69 @@ def evaluate_problem(request, sec_user_id, assign_id, prob_id):
             'message' : "No file submitted"
         })
 
+@instructor1_required
+def evaluate_all(request,sec_user_id,assign_id):
+    cursor = connection.cursor()
+    cursor.execute('''select user_id,name from "user" where user_id in (select user_id from sec_user where sec_id in (select sec_id from sec_user where id=%s) and role='Student')''',[sec_user_id])
+    userArr = dictfetchall(cursor)
+
+    cursor = connection.cursor()
+    cursor.execute('''select problem_id from problem where assignment_id=%s order by problem_no''',[assign_id])
+    problemArr = dictfetchall(cursor)
+
+    sec_id = SecUser.objects.get(id=sec_user_id).sec_id
+
+    for user in userArr:
+        for prob in problemArr:
+            try:
+                print("evaluate_problem called")
+                prob_id = prob['problem_id']
+                if UserSubmissions.objects.filter(user_id=user['user_id'], problem_id=prob_id).exists():
+                    final = UserSubmissions.objects.get(user_id=user['user_id'], problem_id=prob_id).final_submission_no
+                    contents = Submission.objects.get(user_id=user['user_id'], problem_id=prob_id, sub_no=final)
+                    problem = Problem.objects.get(problem_id=prob_id)
+                    compile_cmd = problem.compile_cmd
+                    # print(contents.sub_file)
+                    print("database fetched")
+                    sec_user_id = SecUser.objects.get(user_id=user['user_id'],sec_id=sec_id).id
+
+                    work_dir = 'sedb/submissions/assign'+assign_id+'/prob'+str(prob_id)+'/sec_user'+str(sec_user_id)
+                    if not os.path.exists(work_dir):
+                        os.makedirs(work_dir)
+
+                    with open(work_dir+'/'+problem.files_to_submit, "wb") as codeFile:
+                        codeFile.write(contents.sub_file)
+
+                    print("directory created")
+
+                    json = []
+                    hidden = []
+                    print(work_dir)
+                    print(compile_cmd)
+                    total_marks = 0
+                    if not compile(compile_cmd, work_dir):
+                        print("compiled")
+                        testcases = Testcase.objects.filter(problem=problem)
+                        
+                        for t in testcases:
+                            (out, err) = run("./a.out", work_dir, t.infile, t.outfile, problem.resource_limit)
+                            if err == 0:
+                                marks = t.marks
+                                total_marks = total_marks + marks
+                            else:
+                                marks = 0
+                            s,created = SubTest.objects.update_or_create(testcase = t,sub=contents,defaults={'marks':marks,'error':err,'output':out.encode('UTF-8')})
+                            s.save()
+                    contents.marks_auto = total_marks
+                    contents.save()
+            except :
+                print(traceback.format_exc())
+    return JsonResponse({
+                'success': False,
+                'message': 'Cannot submit beyond time'
+            })
+
+
 @user_required
 def download_submission(request,sub_id):
     contents = Submission.objects.get(id=sub_id)

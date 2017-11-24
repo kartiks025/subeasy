@@ -28,6 +28,21 @@ function loadHome(){
     });
 }
 
+function evaluateAll(img){
+    var url = $("#evaluate_all_button").attr('name');
+    $("<img id=\"gif\" src=\""+img+"\" >").insertAfter($("#evaluate_all_button"))
+    $.get(url,
+    function(data, status){
+        $("#gif").remove();
+        if(status == "success"){
+            loadAllSubmissions()
+        }
+        else{
+            console.log("Some Error Occurred");
+        }
+    });
+}
+
 function updateProblem(problem_id, prob_obj, resource_obj,testcase_obj){
     $("#link"+problem_id).text("Problem "+prob_obj.problem_no);
     var prob_id = "#prob" + problem_id;
