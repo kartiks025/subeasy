@@ -6,9 +6,8 @@ function loadHome(url){
             var deadline = data.deadline;
             $("#assign_num").text(obj.assignment_no);
             $("#title").text(obj.title);
-            var d = new Date(obj.publish_time)
+            $("#helper_file").text(obj.helper_file_name);
             $("#pub_time").text(formatDate(obj.publish_time));
-            console.log(obj.publish_time);
             $("#soft_deadline").text(formatDate(deadline.soft_deadline));
             $("#hard_deadline").text(formatDate(deadline.hard_deadline));
             $("#freeze_deadline").text(formatDate(deadline.freezing_deadline));
@@ -34,7 +33,7 @@ function loadProblems(){
                 var prob_obj = ps[i].problem;
                 appendProb(prob_obj.problem_id);
                 var prob_id =prob_obj.problem_id;
-                updateProblem(prob_id, prob_obj, ps[i].resource,ps[i].testcase,ps[i].hidden);
+                updateProblem(prob_id, prob_obj, ps[i].resource,ps[i].testcase,ps[i].hidden,ps[i].sol_visibility);
                 console.log("#prob"+prob_id)
                 var s = $("#prob"+prob_id).attr('data-loadUrl').replace('0',prob_id);
                 $("#prob"+prob_id).attr('data-loadUrl', s);
@@ -85,7 +84,7 @@ function reloadProblem(elem){
         if(status == "success"){
             var prob_id = "#prob"+data.problem.problem_id;
             console.log("hi "+data.problem.problem_id)
-            updateProblem(data.problem.problem_id, data.problem, data.resource,data.testcases,data.hidden);
+            updateProblem(data.problem.problem_id, data.problem, data.resource,data.testcases,data.hidden, data.sol_visibility);
         }
         else{
             console.log("Some Error Occurred");
@@ -116,7 +115,7 @@ function appendProb(problem_id){
     }).appendTo($("#content"));
 }
 
-function updateProblem(problem_id, prob_obj, resource_obj,testcases,hidden){
+function updateProblem(problem_id, prob_obj, resource_obj,testcases,hidden,sol_visibility){
     $("#link"+problem_id).text("Problem "+prob_obj.problem_no);
     var prob_id = '#prob' +problem_id;
     console.log(resource_obj);
@@ -130,6 +129,13 @@ function updateProblem(problem_id, prob_obj, resource_obj,testcases,hidden){
     $(prob_id+ ' span[name ="stack_limit"]').text(resource_obj.stack_limit + " kB");
     $(prob_id+ ' span[name ="open_files"]').text(resource_obj.open_files);
     $(prob_id+ ' span[name ="max_filesize"]').text(resource_obj.max_filesize + " kB");
+    $(prob_id+ ' span[name ="max_filesize"]').text(resource_obj.max_filesize + " kB");
+    console.log(sol_visibility)
+    if(!sol_visibility){
+        console.log("yfsfjdfnjf");
+        $(prob_id+ ' div[class ="solution_file"]').hide();
+    }
+
     var link = $("#prob"+problem_id).attr('data-loadUrl');
     console.log(link)
     link = link.replace("get_user_assign_prob","problem");

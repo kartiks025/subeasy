@@ -263,7 +263,7 @@ def show_assignment(request, sec_user_id, assign_id):
     context = {'sec_user_id': sec_user_id, 'assign_id': assign_id}
     return render(request, 'sedb/add_assignment.html', context)
 
-@student1_required
+@student1_required #checking done
 def stu_assignment(request, sec_user_id, assign_id):
     context = {'sec_user_id': sec_user_id, 'assign_id': assign_id}
     return render(request, 'sedb/see_assignment.html', context)

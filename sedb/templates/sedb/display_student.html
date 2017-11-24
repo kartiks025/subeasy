@@ -16,7 +16,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css" rel="stylesheet" />
         <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
-        
+
         <style>
              .hide{
              display:none;
@@ -140,7 +140,12 @@
                         $("#assignment_list").empty()
                         var assign = data.assignments;
                         for(var i = 0; i < assign.length; i++){
-                            $("#assignment_list").append("<a href=\"/sedb/section/"+$("#assignment_list").attr("sec_user_id")+"/assignments/"+assign[i].id+"/\" class=\"submit-form list-group-item\">"+assign[i].title+"</a>");
+                            if(assign[i].active){
+                                $("#assignment_list").append("<a style=\"background:\"href=\"/sedb/section/"+$("#assignment_list").attr("sec_user_id")+"/assignments/"+assign[i].id+"/\" class=\"submit-form list-group-item\">"+assign[i].title+"</a>");
+                            }
+                            else{
+                                $("#assignment_list").append("<a style=\"background: #f2dede\"href=\"/sedb/section/"+$("#assignment_list").attr("sec_user_id")+"/assignments/"+assign[i].id+"/\" class=\"submit-form list-group-item\">"+assign[i].title+"</a>");
+                            }
                         }
                     }
                     else{
