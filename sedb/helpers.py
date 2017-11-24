@@ -13,6 +13,7 @@ from bcrypt import hashpw, gensalt
 from django.shortcuts import redirect, reverse
 from django.core import serializers
 from django.db import connection
+from collections import namedtuple
 
 from .models import *
 
@@ -156,22 +157,34 @@ def get_user_assign_prob(request, sec_user_id, assign_id, prob_id):
     problem = Problem.objects.get(problem_id=prob_id)
     resource = problem.resource_limit
     test = Testcase.objects.filter(problem_id=prob_id)
-    final = UserSubmissions.objects.get(user_id=request.session['user_id'], problem_id=prob_id).final_submission_no
-    contents = Submission.objects.get(user_id=request.session['user_id'], problem_id=prob_id, sub_no=final)
-
+    try:
+        final = UserSubmissions.objects.get(user_id=request.session['user_id'], problem_id=prob_id).final_submission_no
+        contents = Submission.objects.get(user_id=request.session['user_id'], problem_id=prob_id, sub_no=final)
+    except:
+        c = namedtuple('c', 'id')
+        contents = c(id=0)
+    print(contents)
+    print(contents.id)
     cursor = connection.cursor()
     cursor.execute(
-        '''select * from (select id,testcase_no,marks,visibility,infile_name,outfile_name from testcase where problem_id=%s) test left outer join (select testcase_id,id,marks as user_marks,error from sub_test where sub_id=%s) sub on sub.testcase_id=test.id;''',
+        '''select * from (select id,testcase_no,marks,visibility,infile_name,outfile_name from testcase where problem_id=%s and visibility=true) test left outer join (select testcase_id,id,marks as user_marks,error from sub_test where sub_id=%s) sub on sub.testcase_id=test.id;''',
         [prob_id, contents.id])
     testcases = dictfetchall(cursor)
 
+    cursor = connection.cursor()
+    cursor.execute(
+        '''select testcase_no,marks,user_marks from (select id,testcase_no,marks from testcase where problem_id=%s and visibility=false) test left outer join (select testcase_id,marks as user_marks from sub_test where sub_id=%s) sub on sub.testcase_id=test.id''',
+        [prob_id, contents.id])
+    hidden = dictfetchall(cursor)
     # testcases = [{'id': a.id, 'num': a.testcase_no, 'marks': a.marks, 'visibility': a.visibility} for a in test]
-    print(testcases)
+    # print(testcases)
+    print(hidden)
     return JsonResponse({
         'new_prob': False,
         'problem': model_to_dict(problem),
         'resource': model_to_dict(resource),
-        'testcases': testcases
+        'testcases': testcases,
+        'hidden' : hidden
     })
 
 @user2_required
@@ -226,62 +239,70 @@ def submit_problem(request, sec_user_id, assign_id, prob_id):
 
 
 def evaluate_problem(request, sec_user_id, assign_id, prob_id):
-    # try:
-    print("evaluate_problem called")
-    if UserSubmissions.objects.filter(user_id=request.session['user_id'], problem_id=prob_id).exists():
-        final = UserSubmissions.objects.get(user_id=request.session['user_id'], problem_id=prob_id).final_submission_no
-        contents = Submission.objects.get(user_id=request.session['user_id'], problem_id=prob_id, sub_no=final)
-        problem = Problem.objects.get(problem_id=prob_id)
-        compile_cmd = problem.compile_cmd
-        # print(contents.sub_file)
-        print("database fetched")
+    try:
+        print("evaluate_problem called")
+        if UserSubmissions.objects.filter(user_id=request.session['user_id'], problem_id=prob_id).exists():
+            final = UserSubmissions.objects.get(user_id=request.session['user_id'], problem_id=prob_id).final_submission_no
+            contents = Submission.objects.get(user_id=request.session['user_id'], problem_id=prob_id, sub_no=final)
+            problem = Problem.objects.get(problem_id=prob_id)
+            compile_cmd = problem.compile_cmd
+            # print(contents.sub_file)
+            print("database fetched")
 
-        work_dir = 'sedb/submissions/assign'+assign_id+'/prob'+prob_id+'/sec_user'+sec_user_id
-        if not os.path.exists(work_dir):
-            os.makedirs(work_dir)
+            work_dir = 'sedb/submissions/assign'+assign_id+'/prob'+prob_id+'/sec_user'+sec_user_id
+            if not os.path.exists(work_dir):
+                os.makedirs(work_dir)
 
-        with open(work_dir+'/'+problem.files_to_submit, "wb") as codeFile:
-            codeFile.write(contents.sub_file)
+            with open(work_dir+'/'+problem.files_to_submit, "wb") as codeFile:
+                codeFile.write(contents.sub_file)
 
-        print("directory created")
+            print("directory created")
 
-        json = []
-        if not compile(compile_cmd, work_dir):
-            print("compiled")
-            testcases = Testcase.objects.filter(problem=problem)
-            for t in testcases:
-                (out, err) = run("./a.out", work_dir, t.infile, t.outfile, problem.resource_limit)
-                print()
-                print(out)
-                print()
-                if err == 0:
-                    marks = t.marks
-                else:
-                    marks = 0
-                s,created = SubTest.objects.update_or_create(testcase = t,sub=contents,defaults={'marks':marks,'error':err,'output':out.encode('UTF-8')})
-                s.save()
+            json = []
+            hidden = []
+            print(work_dir)
+            print(compile_cmd)
+            if not compile(compile_cmd, work_dir):
+                print("compiled")
+                testcases = Testcase.objects.filter(problem=problem)
+                for t in testcases:
+                    (out, err) = run("./a.out", work_dir, t.infile, t.outfile, problem.resource_limit)
+                    # print()
+                    # print(out)
+                    # print()
+                    if err == 0:
+                        marks = t.marks
+                    else:
+                        marks = 0
+                    s,created = SubTest.objects.update_or_create(testcase = t,sub=contents,defaults={'marks':marks,'error':err,'output':out.encode('UTF-8')})
+                    s.save()
+                message = "Compiled Successfully"
+            else:
+                message = "Compilation Error"
             cursor = connection.cursor()
             cursor.execute(
-                '''select * from (select id,testcase_no,marks,visibility,infile_name,outfile_name from testcase where problem_id=%s) test left outer join (select testcase_id,id as sub_test_id,marks as user_marks,error from sub_test where sub_id=%s) sub on sub.testcase_id=test.id;''',
+                '''select * from (select id,testcase_no,marks,visibility,infile_name,outfile_name from testcase where problem_id=%s and visibility=true) test left outer join (select testcase_id,id,marks as user_marks,error from sub_test where sub_id=%s) sub on sub.testcase_id=test.id;''',
                 [prob_id, contents.id])
             json = dictfetchall(cursor)
-        else:
+
+            cursor = connection.cursor()
+            cursor.execute(
+                '''select testcase_no,marks,user_marks from (select id,testcase_no,marks from testcase where problem_id=%s and visibility=false) test left outer join (select testcase_id,marks as user_marks from sub_test where sub_id=%s) sub on sub.testcase_id=test.id''',
+                [prob_id, contents.id])
+            hidden = dictfetchall(cursor)
+            # testcases = [{'id': a.id, 'num': a.testcase_no, 'marks': a.marks, 'visibility': a.visibility} for a in test]
+            # print(testcases)
             return JsonResponse({
                 'success': True,
-                'message': "Compilation Error",
+                'message': message,
                 'testcases': json,
+                'hidden' : hidden,
                 'problem_id': prob_id
             })
-        return JsonResponse({
-            'success': True,
-            'message': "Compiled Successfully",
-            'testcases': json,
-            'problem_id': prob_id
-        })
 
-        # except :
-        #     pass
-        #     return JsonResponse({
-        #         'success': False,
-        #         'message' : "except"
-        #     })
+    except :
+        pass
+        return JsonResponse({
+            'success': False,
+            'message' : "No file submitted"
+        })

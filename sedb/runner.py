@@ -16,18 +16,19 @@ def compile(cmd, work_dir):
     clist = cmd.split()
     p = subprocess.Popen(clist, stdout=PIPE, stderr=PIPE, cwd=work_dir)
     out, err = p.communicate()
+    print(out,err)
     return p.returncode
 
 
 def run(cmd, work_dir, inpView, outView, res):
     PIPE = subprocess.PIPE
     clist = cmd.split()
-    print(clist)
-    print(work_dir)
+    # print(clist)
+    # print(work_dir)
     p = subprocess.Popen(clist, stdin=PIPE, stdout=PIPE, stderr=PIPE,
                          preexec_fn=(lambda: setlimits(res)), cwd=work_dir)
     out, err = p.communicate(input=inpView)
-    print(p.returncode,out)
+    # print(p.returncode,out)
     if p.returncode < 0:
         return out.decode('UTF-8'), signal.Signals(-1 * p.returncode).name
     if out == outView.tobytes():

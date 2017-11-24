@@ -94,8 +94,8 @@
         <div class="all_testcases" style="font-size: 15px">All Testcases : <span name="all_testcases"> <a href="{% url 'sedb:download_testcase_file' sec_user_id assign_id 0 %}" name="all_testcases">Download</a></span></div>
 
 
-        <div class="compile_cmd" style="font-size: 15px">Compilation Command : <span name="compile_cmd" ><i> g++ file name</i></span></div>
-        <div class="files_to_submit" style="font-size: 15px">Files to Submit : <span name="files_to_submit" ><i> g++ file name</i></span></div>
+        <div class="compile_cmd" style="font-size: 15px">Compilation Command : <span name="compile_cmd" ><i></i></span></div>
+        <div class="files_to_submit" style="font-size: 15px">Files to Submit : <span name="files_to_submit" ><i></i></span></div>
         
         <div class="cpu_time" style="font-size: 15px">cpu_time : <span name ="cpu_time"></span></div>
         <div class="clock_time" style="font-size: 15px">clock_time : <span name ="clock_time"></span></div>
@@ -108,26 +108,27 @@
         <br>
         <div class="description" name="description" style="white-space: pre-wrap;">
         
-            You all know that the Library of Bookland is the largest library in the world. There are dozens of thousands of books in the library.
+        </div>
+        <div>
 
-            Some long and uninteresting story was removed...
+            <form class="form-horizontal" action="{% url 'sedb:submit_problem' sec_user_id assign_id 0 %}" name="submit_form" method="post" enctype="multipart/form-data">{% csrf_token %}
+                <input type="file" accept=".tar.gz,.zip,.cpp" class="form-control" name="submission_file">
+                <button type="button" class="upload-btn btn btn-default">Upload your Submission</button>
+            </form>
 
-            The alphabet of Bookland is so large that its letters are denoted by positive integers. Each letter can be small or large, the large version of a letter x is denoted by x'. BSCII encoding, which is used everywhere in Bookland, is made in that way so that large letters are presented in the order of the numbers they are denoted by, and small letters are presented in the order of the numbers they are denoted by, but all large letters are before all small letters. For example, the following conditions hold: 2 < 3, 2' < 3', 3' < 2.
+            <form class="form-horizontal" action="{% url 'sedb:evaluate_problem' sec_user_id assign_id 0 %}" name="evaluate_form" method="post" enctype="multipart/form-data">{% csrf_token %}
+                <button type="button" class="evaluate-btn btn btn-default">Evaluate</button>
+            </form>
 
-            A word x1, x2, ..., xa is not lexicographically greater than y1, y2, ..., yb if one of the two following conditions holds:
 
-            a ≤ b and x1 = y1, ..., xa = ya, i.e. the first word is the prefix of the second word;
-            there is a position 1 ≤ j ≤ min(a, b), such that x1 = y1, ..., xj - 1 = yj - 1 and xj < yj, i.e. at the first position where the words differ the first word has a smaller letter than the second word has.
-            For example, the word "3' 7 5" is before the word "2 4' 6" in lexicographical order. It is said that sequence of words is in lexicographical order if each word is not lexicographically greater than the next word in the sequence.
-
-            Denis has a sequence of words consisting of small letters only. He wants to change some letters to large (let's call this process a capitalization) in such a way that the sequence of words is in lexicographical order. However, he soon realized that for some reason he can't change a single letter in a single word. He only can choose a letter and change all of its occurrences in all words to large letters. He can perform this operation any number of times with arbitrary letters of Bookland's alphabet.
-
-            Help Denis to choose which letters he needs to capitalize (make large) in order to make the sequence of words lexicographically ordered, or determine that it is impossible.
+            <a href="{% url 'sedb:download_your_submission' sec_user_id assign_id 0 %}" name="download_submission">Download</a>
         </div>
         <!-- Testcasses Table -->
 
-        <div class="panel panel-primary nav-content" id="details">
-        
+        <div class="panel panel-primary nav-content">
+            <div class="panel-heading">
+                <center><h5>Visible Testcases</h5></center>
+            </div>
             <table class="table table-bordered">
             <thead>
                 <tr>
@@ -148,19 +149,25 @@
             </table>
 
         </div>
-        <div>
+        <div class="panel panel-primary nav-content">
+            <div class="panel-heading">
+                <center><h5>Hidden Testcases</h5></center>
+            </div>
+            <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th> # </th>
+                    <th> Max Marks </th>
+                    <th> Your Marks </th>
+                </tr>
+            </thead>
+            <tbody name="hidden">
+                <tr>
+                    
+                </tr>
+            </tbody>
+            </table>
 
-            <form class="form-horizontal" action="{% url 'sedb:submit_problem' sec_user_id assign_id 0 %}" name="submit_form" method="post" enctype="multipart/form-data">{% csrf_token %}
-                <input type="file" accept=".tar.gz,.zip,.cpp" class="form-control" name="submission_file">
-                <button type="button" class="upload-btn btn btn-default">Upload your Submission</button>
-            </form>
-
-            <form class="form-horizontal" action="{% url 'sedb:evaluate_problem' sec_user_id assign_id 0 %}" name="evaluate_form" method="post" enctype="multipart/form-data">{% csrf_token %}
-                <button type="button" class="evaluate-btn btn btn-default">Evaluate</button>
-            </form>
-
-
-            <a href="{% url 'sedb:download_your_submission' sec_user_id assign_id 0 %}" name="download_submission">Download</a>
         </div>
     </div>
 
@@ -218,7 +225,7 @@
         });
         $("#content").on('click', '.upload-btn',function (){
             console.log("yes");
-            UploadButtonClick($(this));
+            UploadButtonClick($(this),"{% static 'sedb/ajax-loader.gif' %}");
         });
     });    
 
