@@ -27,7 +27,7 @@
             </li>
 
             <li>
-                <a class="side-nav-link" href="#submissions" class="submit-form ">Submissions</a>
+                <a class="side-nav-link" id="tab-submissions" href="#submissions" class="submit-form ">Submissions</a>
             </li>
             <li>
                 <a class="side-nav-link" href="#marksheet" class="submit-form ">Marksheet</a>
@@ -293,13 +293,20 @@
         </div>
     </div>
 
-    <div id="submissions" class="nav-content hidden">
+    <div id="submissions" data-loadUrl="{% url 'sedb:get_all_submissions' sec_user_id assign_id %}" class="nav-content hidden">
         <div class="panel panel-primary">
             <div class="panel-heading">
                 Submissions
             </div>
             <div class="panel-body">
-                TBD
+                <table class="table table-bordered" >
+                    <thead name="submission-thead">
+                        
+                    </thead>
+                    <tbody name="submission-tbody">
+                        
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -351,6 +358,10 @@
 
     $("#tab-home").click(function(){
         loadHome();
+    });
+
+    $("#tab-submissions").click(function(){
+        loadAllSubmissions();
     });
 
     $(".edit-btn").click(function(){
