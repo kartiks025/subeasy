@@ -114,12 +114,12 @@ function loadProblems(){
                 x = $(prob_id+" a[name=helper_file]").attr('href');
                 s = x.lastIndexOf("0");
                 s = x.substr(0,s)+prob_obj.problem_id+x.substr(s+1,x.length-s-1);
-                $("#prob"+prob_id+" a[name=helper_file]").attr('href',s)
+                $(prob_id+" a[name=helper_file]").attr('href',s)
 
                 x = $(prob_id+" a[name=solution_file]").attr('href')
                 s = x.lastIndexOf("0");
                 s = x.substr(0,s)+prob_obj.problem_id+x.substr(s+1,x.length-s-1);
-                $("#prob"+prob_id+" a[name=solution_file]").attr('href',s)
+                $(prob_id+" a[name=solution_file]").attr('href',s)
             }
         }
         else{
@@ -179,7 +179,7 @@ function loadAllSubmissions(){
 
                 for(s in this_submission){
                     if(this_submission[s].sub_id != null){
-                        body_content += "<td>" + this_submission[i].marks +"</td>";
+                        body_content += "<td>" + this_submission[s].marks +"</td>";
                         body_content += "<td><a href=\""+"/sedb/download_submission/"+this_submission[s].sub_id+"/\">"+this_submission[s].sub_file_name+"</a></td>";
                     }
                     else{
