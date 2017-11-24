@@ -14,7 +14,7 @@ from django.shortcuts import redirect, reverse
 from django.core import serializers
 from django.db import connection
 from collections import namedtuple
-
+import datetime
 from .models import *
 
 from io import BytesIO
@@ -25,7 +25,7 @@ from .runner import *
 from io import StringIO
 
 
-@user2_required
+@user2_required #checked
 def get_assign_home(request, sec_user_id, assign_id):
     if assign_id == '0':
         return JsonResponse(
@@ -39,30 +39,49 @@ def get_assign_home(request, sec_user_id, assign_id):
     return JsonResponse(context)
 
 
-@user2_required
+@user2_required #checked
 def download_helper_file(request, sec_user_id, assign_id):
-    contents = Assignment.objects.get(assignment_id=assign_id).helper_file
-    response = HttpResponse(contents)
-    response['Content-Disposition'] = 'attachment; filename=' + Assignment.objects.get(
-        assignment_id=assign_id).helper_file_name
+    try:
+        contents = Assignment.objects.get(assignment_id=assign_id).helper_file
+        response = HttpResponse(contents)
+        response['Content-Disposition'] = 'attachment; filename=' + Assignment.objects.get(
+            assignment_id=assign_id).helper_file_name
+    except:
+        response = HttpResponse("")
+        response['Content-Disposition'] = 'attachment; filename=' + "null"
     return response
 
 
-# @instructor2_required
+@user3_required
 def download_problem_helper_file(request, sec_user_id, assign_id, prob_id):
-    contents = Problem.objects.get(problem_id=prob_id).helper_file
-    response = HttpResponse(contents)
-    response['Content-Disposition'] = 'attachment; filename=' + Problem.objects.get(
-        problem_id=prob_id).helper_file_name
+    try:
+        contents = Problem.objects.get(problem_id=prob_id).helper_file
+        response = HttpResponse(contents)
+        response['Content-Disposition'] = 'attachment; filename=' + Problem.objects.get(
+            problem_id=prob_id).helper_file_name
+    except:
+        response = HttpResponse("")
+        response['Content-Disposition'] = 'attachment; filename=' + "null"
     return response
 
 
-# @instructor2_required
+@user3_required
 def download_problem_solution_file(request, sec_user_id, assign_id, prob_id):
-    contents = Problem.objects.get(problem_id=prob_id).solution_file
-    response = HttpResponse(contents)
-    response['Content-Disposition'] = 'attachment; filename=' + Problem.objects.get(
-        problem_id=prob_id).solution_filename
+    try:
+        assignment = Assignment.objects.get(assignment_id=assign_id)
+        problem = Problem.objects.get(problem_id=prob_id)
+        sec_user = SecUser.objects.get(id=sec_user_id)
+        if sec_user.role == "Student" and (datetime.datetime.now() < assignment.deadline.freezing_deadline or not prob_id.sol_visibility):
+            response = HttpResponse("")
+            response['Content-Disposition'] = 'attachment; filename=' + "null"
+            return response
+        contents = Problem.objects.get(problem_id=prob_id).solution_file
+        response = HttpResponse(contents)
+        response['Content-Disposition'] = 'attachment; filename=' + Problem.objects.get(
+            problem_id=prob_id).solution_filename
+    except:
+        response = HttpResponse("")
+        response['Content-Disposition'] = 'attachment; filename=' + "null"
     return response
 
 
@@ -104,21 +123,34 @@ def download_testcase_output_file(request, sec_user_id, assign_id, prob_id, test
 
 # @instructor2_required
 def download_your_submission(request, sec_user_id, assign_id, prob_id):
-    final = UserSubmissions.objects.get(user_id=request.session['user_id'], problem_id=prob_id).final_submission_no
-    contents = Submission.objects.get(user_id=request.session['user_id'], problem_id=prob_id, sub_no=final)
-    response = HttpResponse(contents.sub_file)
-    response['Content-Disposition'] = 'attachment; filename=' + contents.sub_file_name
+    try:
+        final = UserSubmissions.objects.get(user_id=request.session['user_id'], problem_id=prob_id).final_submission_no
+        contents = Submission.objects.get(user_id=request.session['user_id'], problem_id=prob_id, sub_no=final)
+        response = HttpResponse(contents.sub_file)
+        response['Content-Disposition'] = 'attachment; filename=' + contents.sub_file_name
+    except:
+        response = HttpResponse("")
+        response['Content-Disposition'] = 'attachment; filename=' + "null"
     return response
 
 
-@user1_required
+@user1_required #checking done
 def get_assignments(request, sec_user_id):
     sec_user = SecUser.objects.get(id=sec_user_id);
     if sec_user.role == "Instructor" or sec_user.role == "TA":
         assign = Assignment.objects.filter(sec=sec_user.sec)
     elif sec_user.role == "Student":
-        assign = Assignment.objects.filter(sec=sec_user.sec, visibility=True)
-    assignments = [{'id': a.assignment_id, 'title': a.title} for a in assign]
+        assign = Assignment.objects.filter(sec=sec_user.sec, visibility=True, publish_time__lt=datetime.datetime.now()).order_by('-publish_time')
+    assignments = []
+    for a in assign:
+        print(datetime.datetime.now())
+        print(a.publish_time)
+        if datetime.datetime.now() > a.deadline.soft_deadline:
+            print("yes")    
+            assignments.append({'id': a.assignment_id, 'title': a.title, 'active':False})
+        else:
+            assignments.append({'id': a.assignment_id, 'title': a.title, 'active':True})
+        print()
     context = {'assignments': assignments}
     return JsonResponse(context, content_type="application/json")
 
@@ -176,6 +208,12 @@ def get_user_assign_prob(request, sec_user_id, assign_id, prob_id):
         '''select testcase_no,marks,user_marks from (select id,testcase_no,marks from testcase where problem_id=%s and visibility=false) test left outer join (select testcase_id,marks as user_marks from sub_test where sub_id=%s) sub on sub.testcase_id=test.id''',
         [prob_id, contents.id])
     hidden = dictfetchall(cursor)
+
+    assignment = Assignment.objects.get(assignment_id=assign_id)
+    if datetime.datetime.now() < assignment.deadline.freezing_deadline or not prob_id.sol_visibility:
+        sol_visibility = False
+    else:
+        sol_visibility = True
     # testcases = [{'id': a.id, 'num': a.testcase_no, 'marks': a.marks, 'visibility': a.visibility} for a in test]
     # print(testcases)
     print(hidden)
@@ -184,7 +222,8 @@ def get_user_assign_prob(request, sec_user_id, assign_id, prob_id):
         'problem': model_to_dict(problem),
         'resource': model_to_dict(resource),
         'testcases': testcases,
-        'hidden' : hidden
+        'hidden' : hidden,
+        'sol_visibility' : sol_visibility
     })
 
 @user2_required
@@ -262,9 +301,11 @@ def evaluate_problem(request, sec_user_id, assign_id, prob_id):
             hidden = []
             print(work_dir)
             print(compile_cmd)
+            total_marks = 0
             if not compile(compile_cmd, work_dir):
                 print("compiled")
                 testcases = Testcase.objects.filter(problem=problem)
+                
                 for t in testcases:
                     (out, err) = run("./a.out", work_dir, t.infile, t.outfile, problem.resource_limit)
                     # print()
@@ -272,6 +313,7 @@ def evaluate_problem(request, sec_user_id, assign_id, prob_id):
                     # print()
                     if err == 0:
                         marks = t.marks
+                        total_marks = total_marks + marks
                     else:
                         marks = 0
                     s,created = SubTest.objects.update_or_create(testcase = t,sub=contents,defaults={'marks':marks,'error':err,'output':out.encode('UTF-8')})
@@ -290,6 +332,9 @@ def evaluate_problem(request, sec_user_id, assign_id, prob_id):
                 '''select testcase_no,marks,user_marks from (select id,testcase_no,marks from testcase where problem_id=%s and visibility=false) test left outer join (select testcase_id,marks as user_marks from sub_test where sub_id=%s) sub on sub.testcase_id=test.id''',
                 [prob_id, contents.id])
             hidden = dictfetchall(cursor)
+
+            contents.marks_auto = total_marks
+            contents.save()
             # testcases = [{'id': a.id, 'num': a.testcase_no, 'marks': a.marks, 'visibility': a.visibility} for a in test]
             # print(testcases)
             return JsonResponse({

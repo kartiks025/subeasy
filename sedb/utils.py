@@ -13,6 +13,8 @@ from django.core import serializers
 from django.db import connection
 
 from .models import *
+import datetime
+import pytz
 
 from io import BytesIO
 
@@ -82,12 +84,38 @@ def user2_required(fun):
                     return doredirect(request, 'sedb:user_login')
                 elif sec_user.role != "Instructor" and sec_user.role != "TA":
                     assign = Assignment.objects.get(assignment_id=assign_id)
-                    if not assign.visibility:
+                    if not assign.visibility or assign.publish_time>datetime.datetime.now():
                         print("cannot access this assignment")
                         return doredirect(request, 'sedb:user_login')
         except KeyError:
             return redirect('sedb:user_login')
         return fun(request, sec_user_id, assign_id)
+
+    wrap.__doc__ = fun.__doc__
+    wrap.__name__ = fun.__name__
+    return wrap
+
+def user3_required(fun):
+    def wrap(request, sec_user_id, assign_id,prob_id):
+        print("user2_required")
+        try:
+            if not request.session['is_user']:
+                return redirect('sedb:user_login')
+            else:
+                print(sec_user_id)
+                sec_user = SecUser.objects.get(id=sec_user_id)
+                print(sec_user.role)
+                if not sec_user.user.user_id == request.session['user_id']:
+                    print(sec_user.user.user_id + "," + request.session['user_id'])
+                    return doredirect(request, 'sedb:user_login')
+                elif sec_user.role != "Instructor" and sec_user.role != "TA":
+                    assign = Assignment.objects.get(assignment_id=assign_id)
+                    if not assign.visibility or assign.publish_time>datetime.datetime.now():
+                        print("cannot access this assignment")
+                        return doredirect(request, 'sedb:user_login')
+        except KeyError:
+            return redirect('sedb:user_login')
+        return fun(request, sec_user_id, assign_id,prob_id)
 
     wrap.__doc__ = fun.__doc__
     wrap.__name__ = fun.__name__
@@ -192,7 +220,7 @@ def student1_required(fun):
                     print(sec_user.user.user_id + "," + request.session['user_id'])
                     return doredirect(request, 'sedb:user_login')
                 assign = Assignment.objects.get(assignment_id=assign_id)
-                if not assign.visibility:
+                if not assign.visibility or assign.publish_time>datetime.datetime.now():
                     print("cannot access this assignment")
                     return doredirect(request, 'sedb:user_login')
         except KeyError:
