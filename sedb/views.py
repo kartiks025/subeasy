@@ -119,6 +119,9 @@ def delete_section(request):
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def user_login(request):
+    if request.session.get('is_user') is not None:
+        if request.session['is_user']:
+            return redirect('sedb:user_home')
     if request.method == 'POST':
         id_or_email = request.POST['id_email']
         pwd = request.POST['pwd']

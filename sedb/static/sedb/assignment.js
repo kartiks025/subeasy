@@ -171,7 +171,7 @@ function loadAllSubmissions(){
                 for(s in this_submission){
 
                     if(this_submission[s].sub_id != null){
-                        body_content += "<td><a href=\""+"/sedb/download_submission/"+this_submission[s].id+"/\">"+this_submission[s].sub_file_name+"</a></td>";
+                        body_content += "<td><a href=\""+"/sedb/download_submission/"+this_submission[s].sub_id+"/\">"+this_submission[s].sub_file_name+"</a></td>";
                     }
                     else
                         body_content += "<td>No submission yet</td>"; 

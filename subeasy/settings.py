@@ -77,11 +77,11 @@ WSGI_APPLICATION = 'subeasy.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'pranay',
-        'USER': 'pranayagr09',
+        'NAME': 'postgres',
+        'USER': 'kartik',
         'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '5260',
+        'HOST': '192.168.0.107',
+        'PORT': '5250',
     }
 }
 
