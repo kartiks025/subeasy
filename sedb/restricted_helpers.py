@@ -158,6 +158,9 @@ def edit_assign_prob(request, sec_user_id, assign_id, prob_id):
             open_files = request.POST['open_files']
             max_filesize = request.POST['max_filesize']
 
+            testcases = request.POST['testcases']
+            test_data = json.loads(testcases)
+
             resources_spec = True
         except KeyError:
             print("keyError")
@@ -286,6 +289,19 @@ def edit_assign_prob(request, sec_user_id, assign_id, prob_id):
                     except:
                         pass
                 testcase_file.close()
+            except:
+                print("Exception")
+
+
+            try:
+                for t in test_data:
+                    testcase_id = t["testcase_id"]
+                    testcase_marks = t["marks"]
+                    testcase_visibility = t["visibility"]
+                    testcase = Testcase.objects.get(id=testcase_id)
+                    testcase.marks = testcase_marks
+                    testcase.visibility = True if testcase_visibility == "on" else False 
+                    testcase.save()
             except:
                 print("Exception")
 

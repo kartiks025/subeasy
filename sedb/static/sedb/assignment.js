@@ -52,7 +52,7 @@ function updateProblem(problem_id, prob_obj, resource_obj,testcase_obj){
     $(prob_id+ ' tbody[name ="testcase_info"]').html("");
 
     for(var i in testcase_obj){
-        var tr = '<tr S/>';
+        var tr = '<tr/>';
         $(tr).append($('<td/>').append(
            testcase_obj[i].num        
         ).append($('<input/>',{
@@ -69,11 +69,11 @@ function updateProblem(problem_id, prob_obj, resource_obj,testcase_obj){
             text : testcase_obj[i].outfile_name
             
         }))).append($('<td/>').append($('<input/>',{
-            // "name" : "visible",
+            "name" : "visibility",
             "type" : "checkbox",
             "checked" : testcase_obj[i].visibility
         }))).append($('<td/>').append($('<input/>',{
-            // "name" : "marks",
+            "name" : "marks",
             "type" : "number",
             value : testcase_obj[i].marks
         }))).appendTo($(prob_id+' tbody[name ="testcase_info"]'));
@@ -155,29 +155,35 @@ function EditButtonClick(elem){
         var frm = $(pid+" form");
         frm.validate();
         var formData = new FormData(frm[0]);
+        // console.log(frm[0]);
 
         var tbId = pid+ ' tbody[name ="testcase_info"]';
+
         jsonObj = [];
-        var row = 0;
         $(tbId).find('tr').each(function(){
+            
             item ={};
 
-            var $tds = $(this).find('td');
+            item["visibility"] = "off";
+            var tableData = $(this).find('input');
+            var tableArr =tableData.serializeArray();
+            $(tableArr).each(function(i, field){
+                 item[field.name] = field.value;
+            });
 
-            item["testcase_id"] = $tds.eq(0).children("input").attr("value");
-            item["visibility"] = $tds.eq(3).children("input").attr("checked");
-            item["marks"] = $tds.eq(4).children("input").attr("value");
-
+            // var $tds = $(this).find('td');
+            // item["testcase_id"] = $tds.eq(0).children("input").attr("value");
+            // item["visibility"] = $tds.eq(3).children("input").attr("checked");
+            // item["marks"] = $tds.eq(4).children("input").attr("value");
 
             jsonObj.push(item);
         });
 
         console.log(jsonObj);
         console.log(JSON.stringify(jsonObj));
-        // formData.append("testcases", )
+        formData.append("testcases",JSON.stringify(jsonObj));
+        // console.log(formData);
 
-        console.log(frm.serialize());
-        console.log(formData);
         if(frm.valid()){
             $.ajax({
                 type: frm.attr('method'),
