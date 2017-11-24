@@ -111,12 +111,12 @@ function loadProblems(){
                 // $(prob_id+" a[name=helper_file]").attr('href',s)
                 
                 // new algo of replacing 0
-                x = $("#prob"+prob_id+" a[name=helper_file]").attr('href')
+                x = $(prob_id+" a[name=helper_file]").attr('href');
                 s = x.lastIndexOf("0");
                 s = x.substr(0,s)+prob_obj.problem_id+x.substr(s+1,x.length-s-1);
                 $("#prob"+prob_id+" a[name=helper_file]").attr('href',s)
 
-                x = $("#prob"+prob_id+" a[name=solution_file]").attr('href')
+                x = $(prob_id+" a[name=solution_file]").attr('href')
                 s = x.lastIndexOf("0");
                 s = x.substr(0,s)+prob_obj.problem_id+x.substr(s+1,x.length-s-1);
                 $("#prob"+prob_id+" a[name=solution_file]").attr('href',s)
@@ -178,11 +178,8 @@ function loadAllSubmissions(){
                 console.log(this_submission);
 
                 for(s in this_submission){
-
-                    body_content += "<td>" + "MARKS"+ "</td>";
-                    // this_submission[i].marks;
                     if(this_submission[s].sub_id != null){
-                        body_content += "<td>" + "</td>";
+                        body_content += "<td>" + this_submission[i].marks +"</td>";
                         body_content += "<td><a href=\""+"/sedb/download_submission/"+this_submission[s].sub_id+"/\">"+this_submission[s].sub_file_name+"</a></td>";
                     }
                     else{

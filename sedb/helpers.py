@@ -374,7 +374,7 @@ def get_all_submissions(request, sec_user_id, assign_id):
 
     cursor = connection.cursor()
     cursor.execute(
-        '''with A as (select * from problem where assignment_id=%s),B as (select * from "user" where user_id in (select user_id from sec_user where sec_id in (select sec_id from sec_user where id=%s) and role='Student')),C as (select user_id,problem_id,final_submission_no as sub_no from user_submissions where problem_id in (select problem_id from A)),D as (select * from submission where (user_id,problem_id,sub_no) in (select * from C)),E as (select user_id,name,problem_id,problem_no from A,B) select user_id,name,problem_no,id,sub_file_name from E natural left outer join D order by problem_no''',
+        '''with A as (select * from problem where assignment_id=%s),B as (select * from "user" where user_id in (select user_id from sec_user where sec_id in (select sec_id from sec_user where id=%s) and role='Student')),C as (select user_id,problem_id,final_submission_no as sub_no from user_submissions where problem_id in (select problem_id from A)),D as (select * from submission where (user_id,problem_id,sub_no) in (select * from C)),E as (select user_id,name,problem_id,problem_no from A,B) select user_id,name,problem_no,id,sub_file_name,marks_auto from E natural left outer join D order by problem_no''',
         [assign_id, sec_user_id])
     submissionArr = dictfetchall(cursor)
 
@@ -386,7 +386,7 @@ def get_all_submissions(request, sec_user_id, assign_id):
         submissionList = []
         for elt in submissionArr:
             if elt['user_id'] == user_id:
-                submissionList.append({'problem_no':elt['problem_no'],'sub_id':elt['id'],'sub_file_name':elt['sub_file_name']})
+                submissionList.append({'problem_no':elt['problem_no'],'marks':elt['marks_auto'],'sub_id':elt['id'],'sub_file_name':elt['sub_file_name']})
         allSubmissions.append({'user_id':user_id,'name':name,'submissions':submissionList})
 
     print(allSubmissions)
