@@ -15,6 +15,7 @@
         <!-- Scrollbar Custom CSS -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css" rel="stylesheet" />
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
         <style>
              .hide{
              display:none;
@@ -50,7 +51,9 @@
                         <a class="side-nav-link" href="#ta_div">Teaching Assistant</a>
                     </li>
                 </ul>
-
+                <a href="{% url 'sedb:user_home' %}"><i class="fa fa-arrow-left fa-4x" aria-hidden="true" style="position: fixed;left:20px; bottom:0; "></i></a>
+                <a href="{% url 'sedb:user_home' %}"><i class="fa fa-home fa-4x" aria-hidden="true" style="position: fixed;left:95px; bottom:0; "></i></a>
+                <a href="{% url 'sedb:user_logout' %}"><i class="fa fa-sign-out fa-4x" aria-hidden="true" style="position: fixed;left:170px; bottom:0; "></i></a>
             </nav>
         </div>
         <div id="content">

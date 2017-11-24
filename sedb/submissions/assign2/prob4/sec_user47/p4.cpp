@@ -56,7 +56,7 @@ long long int merge_sort(long long int l,long long int r){
 int main(){
 	long long int n;
 	cin>>n;
-	for(long long int i=0;i<n;i++) cin>>v[i]
+	for(long long int i=0;i<n;i++) cin>>v[i];
 	cout<<merge_sort(0,n)<<endl;
 
 }

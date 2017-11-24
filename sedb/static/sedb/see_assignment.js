@@ -34,7 +34,7 @@ function loadProblems(){
                 var prob_obj = ps[i].problem;
                 appendProb(prob_obj.problem_id);
                 var prob_id =prob_obj.problem_id;
-                updateProblem(prob_id, prob_obj, ps[i].resource,ps[i].testcases);
+                updateProblem(prob_id, prob_obj, ps[i].resource,ps[i].testcase,ps[i].hidden);
                 console.log("#prob"+prob_id)
                 var s = $("#prob"+prob_id).attr('data-loadUrl').replace('0',prob_id);
                 $("#prob"+prob_id).attr('data-loadUrl', s);
@@ -79,13 +79,13 @@ function loadProblems(){
 
 function reloadProblem(elem){
     var url = elem.attr('data-loadUrl');
-    alert(url);
+    // alert(url);
     $.get(url,
     function(data, status){
         if(status == "success"){
             var prob_id = "#prob"+data.problem.problem_id;
             console.log("hi "+data.problem.problem_id)
-            updateProblem(data.problem.problem_id, data.problem, data.resource,data.testcases);
+            updateProblem(data.problem.problem_id, data.problem, data.resource,data.testcases,data.hidden);
         }
         else{
             console.log("Some Error Occurred");
@@ -116,7 +116,7 @@ function appendProb(problem_id){
     }).appendTo($("#content"));
 }
 
-function updateProblem(problem_id, prob_obj, resource_obj,testcases){
+function updateProblem(problem_id, prob_obj, resource_obj,testcases,hidden){
     $("#link"+problem_id).text("Problem "+prob_obj.problem_no);
     var prob_id = '#prob' +problem_id;
     console.log(resource_obj);
@@ -139,14 +139,28 @@ function updateProblem(problem_id, prob_obj, resource_obj,testcases){
     s = link.substr(0,s)+prob_obj.problem_id+link.substr(s+1,link.length-s-1);
     var content = ""
     for(var i in testcases){
-        // content += "<tr><td>"+testcases[i].testcase_no+"</td><td><a href=\""+link+"download_testcase_input_file/"+testcases[i].testcase_no+"/\">"+testcases[i].infile_name+"</a></td><td><a href=\""+link+"download_testcase_output_file/"+testcases[i].testcase_no+"/\">"+testcases[i].outfile_name+"</a></td><td>"+testcases[i].marks+"</td></tr>"
-        content += "<tr><td>"+testcases[i].testcase_no+"</td><td><a href=\""+link+"download_testcase_input_file/"+testcases[i].testcase_no+"/\">"+testcases[i].infile_name+"</a></td><td><a href=\""+link+"download_testcase_output_file/"+testcases[i].testcase_no+"/\">"+testcases[i].outfile_name+"</a></td><td>"+testcases[i].marks+"</td><td>"+testcases[i].user_marks+"</td><td>"+testcases[i].error+"</td><td><a target=\"_blank\" href=\"/sedb/output_compare/"+testcases[i].id+"/\">Check Output</a></td></tr>"
+        if(testcases[i].error=='0')
+            testcases[i].error="Output Matches"
+        else if(testcases[i].error=='-1')
+            testcases[i].error="Output Does Not Match"
+        if(testcases[i].user_marks==null)
+            content += "<tr><td>"+testcases[i].testcase_no+"</td><td><a href=\""+link+"download_testcase_input_file/"+testcases[i].testcase_no+"/\">"+testcases[i].infile_name+"</a></td><td><a href=\""+link+"download_testcase_output_file/"+testcases[i].testcase_no+"/\">"+testcases[i].outfile_name+"</a></td><td>"+testcases[i].marks+"</td><td>"+"0-Not Evaluated"+"</td><td>"+"Not evaluated"+"</td><td>Not Evaluated</td></tr>";
+        else
+            content += "<tr><td>"+testcases[i].testcase_no+"</td><td><a href=\""+link+"download_testcase_input_file/"+testcases[i].testcase_no+"/\">"+testcases[i].infile_name+"</a></td><td><a href=\""+link+"download_testcase_output_file/"+testcases[i].testcase_no+"/\">"+testcases[i].outfile_name+"</a></td><td>"+testcases[i].marks+"</td><td>"+testcases[i].user_marks+"</td><td>"+testcases[i].error+"</td><td><a target=\"_blank\" href=\"/sedb/output_compare/"+testcases[i].id+"/\">Check Output</a></td></tr>";
     }
     $(prob_id+ ' tbody[name ="testcases"]').html(content);
+    content = ""
+    for(var i in hidden){
+        if(hidden[i].user_marks==null)
+            content += "<tr><td>"+hidden[i].testcase_no+"</td><td>"+hidden[i].marks+"</td><td>"+"0-Not Evaluated"+"</td></tr>"
+        else
+            content += "<tr><td>"+hidden[i].testcase_no+"</td><td>"+hidden[i].marks+"</td><td>"+hidden[i].user_marks+"</td></tr>"
+    }
+    $(prob_id+ ' tbody[name ="hidden"]').html(content);
     // $(prob_id+" input[sol_visibility][value="+prob_obj.sol_visibility+"]").attr('checked',true);
 }
 
-function updateTestcases(problem_id,testcases){
+function updateTestcases(problem_id,testcases,hidden){
     var prob_id = '#prob' +problem_id;
     var link = $("#prob"+problem_id).attr('data-loadUrl');
     console.log(link)
@@ -157,13 +171,24 @@ function updateTestcases(problem_id,testcases){
     s = link.substr(0,s)+problem_id+link.substr(s+1,link.length-s-1);
     var content = ""
     for(var i in testcases){
-        console.log(testcases[i].id)
-        console.log(testcases[i].testcase_id)
-        // content += "<tr><td>"+testcases[i].testcase_no+"</td><td><a href=\""+link+"download_testcase_input_file/"+testcases[i].testcase_no+"/\">"+testcases[i].infile_name+"</a></td><td><a href=\""+link+"download_testcase_output_file/"+testcases[i].testcase_no+"/\">"+testcases[i].outfile_name+"</a></td><td>"+testcases[i].marks+"</td></tr>"
-        content += "<tr><td>"+testcases[i].testcase_no+"</td><td><a href=\""+link+"download_testcase_input_file/"+testcases[i].testcase_no+"/\">"+testcases[i].infile_name+"</a></td><td><a href=\""+link+"download_testcase_output_file/"+testcases[i].testcase_no+"/\">"+testcases[i].outfile_name+"</a></td><td>"+testcases[i].marks+"</td><td>"+testcases[i].user_marks+"</td><td>"+testcases[i].error+"</td><td><a target=\"_blank\" href=\"/sedb/output_compare/"+testcases[i].id+"/\">Check Output</a></td></tr>"
+        if(testcases[i].error=='0')
+            testcases[i].error="Output Matches"
+        else if(testcases[i].error=='-1')
+            testcases[i].error="Output Does Not Match"
+        if(testcases[i].user_marks==null)
+            content += "<tr><td>"+testcases[i].testcase_no+"</td><td><a href=\""+link+"download_testcase_input_file/"+testcases[i].testcase_no+"/\">"+testcases[i].infile_name+"</a></td><td><a href=\""+link+"download_testcase_output_file/"+testcases[i].testcase_no+"/\">"+testcases[i].outfile_name+"</a></td><td>"+testcases[i].marks+"</td><td>"+"0-Not Evaluated"+"</td><td>"+"Not evaluated"+"</td><td>Not Evaluated</td></tr>";
+        else
+            content += "<tr><td>"+testcases[i].testcase_no+"</td><td><a href=\""+link+"download_testcase_input_file/"+testcases[i].testcase_no+"/\">"+testcases[i].infile_name+"</a></td><td><a href=\""+link+"download_testcase_output_file/"+testcases[i].testcase_no+"/\">"+testcases[i].outfile_name+"</a></td><td>"+testcases[i].marks+"</td><td>"+testcases[i].user_marks+"</td><td>"+testcases[i].error+"</td><td><a target=\"_blank\" href=\"/sedb/output_compare/"+testcases[i].id+"/\">Check Output</a></td></tr>";
     }
     $(prob_id+ ' tbody[name ="testcases"]').html(content);
-    // $(prob_id+" input[sol_visibility][value="+prob_obj.sol_visibility+"]").attr('checked',true);
+    content = ""
+    for(var i in hidden){
+        if(hidden[i].user_marks==null)
+            content += "<tr><td>"+hidden[i].testcase_no+"</td><td>"+hidden[i].marks+"</td><td>"+"0-Not Evaluated"+"</td></tr>"
+        else
+            content += "<tr><td>"+hidden[i].testcase_no+"</td><td>"+hidden[i].marks+"</td><td>"+hidden[i].user_marks+"</td></tr>"
+    }
+    $(prob_id+ ' tbody[name ="hidden"]').html(content);
 }
 
 function formatDate(date){
@@ -196,12 +221,13 @@ function SideAssignNavClick(elem){
 
 }
 
-function UploadButtonClick(elem){
+function UploadButtonClick(elem,img){
     var frm = elem.parent()
     frm.validate();
     var formData = new FormData(frm[0]);
     console.log(frm.serialize());
     console.log(formData);
+    $("<img id=\"gif\" src=\""+img+"\" >").insertAfter(elem)
     if(frm.valid()){
         $.ajax({
             type: frm.attr('method'),
@@ -210,6 +236,7 @@ function UploadButtonClick(elem){
             contentType: false,
             processData: false,
             success: function (data) {
+                $("#gif").remove();
                 console.log('Submission was successful.');
                 console.log(data);
                 if(data.success){
@@ -231,6 +258,7 @@ function UploadButtonClick(elem){
                 frm.trigger("reset");
             },
             error: function (data) {
+                $("#gif").remove();
                 console.log('An error occurred.');
                 console.log(data);
                 (function (el) {
@@ -260,18 +288,26 @@ function EvaluateButtonClick(elem,img){
             contentType: false,
             processData: false,
             success: function (data) {
-                console.log('Submission was successful.');
+                console.log('Evaluation was successful.');
                 console.log(data);
                 $("#gif").remove();
                 if(data.success){
                     // $("<p style=\"color: green\">"+data.testcases+"<p>").insertAfter(elem);
-                    (function (el) {
-                        setTimeout(function () {
-                            el.remove()
-                        }, 2000);
-                    }($("<p style=\"color: green\">"+"See Results Above"+"<p>").insertAfter(elem)));
-                    if(data.message!="Compilation Error")
-                        updateTestcases(data.problem_id,data.testcases);
+                    if(data.message!="Compilation Error"){
+                        (function (el) {
+                            setTimeout(function () {
+                                el.remove()
+                            }, 2000);
+                        }($("<p style=\"color: green\">"+"See Results Above"+"<p>").insertAfter(elem)));
+                    }
+                    else{
+                        (function (el) {
+                            setTimeout(function () {
+                                el.remove()
+                            }, 10000);
+                        }($("<p style=\"color: red\">"+"Compilation Error"+"<p>").insertAfter(elem)));
+                    }
+                    updateTestcases(data.problem_id,data.testcases,data.hidden);
                 }
                 else{
                     // $("<p style=\"color: red\">Evaluation error. Please evaluate again.<p>").insertAfter(elem);
@@ -279,7 +315,7 @@ function EvaluateButtonClick(elem,img){
                         setTimeout(function () {
                             el.remove()
                         }, 2000);
-                    }($("<p style=\"color: red\">Evaluation error. Please evaluate again.<p>").insertAfter(elem)));
+                    }($("<p style=\"color: red\">Evaluation error. No file Submitted.<p>").insertAfter(elem)));
                 }
                 frm.trigger("reset");
             },

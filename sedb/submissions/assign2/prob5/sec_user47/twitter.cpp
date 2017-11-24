@@ -1,303 +1,337 @@
-#include <iostream>
-#include <vector>
-#include <string>
-#include <algorithm>
+//#include <simplecpp>
+#include <bits/stdc++.h> //directly include all std packages of gcc/C++
 using namespace std;
 
-
-class User{
+class Tweet
+{
+	int tweet_id;
+	int parent_tweet
+	int user_id;
+	std::vector<int> tweet_reply_id;
+	string tweet;
 
 public:
-	int userID;			// unique user id 
-	string username;	// username. 
-	vector<int> mytweets;	// vector of tweet ids which the user has posted.
-	vector<int> following;	// vector of user ids followed by the user. 
+	Tweet(int &tweet_id, int &user_id, string &text, int &parent_tweet){
+		this->tweet_id = tweet_id;
+		this->user_id = user_id;
+		this->tweet = text;
+		this->parent_tweet = parent_tweet;
+	};
+	// ~Tweet();
+	Tweet(const Tweet &p) : 
+    tweet_id(p.tweet_id),
+    parent_tweet(p.parent_tweet),
+    user_id(p.user_id),
+    tweet(p.tweet),
+    tweet_reply_id(p.tweet_reply_id)
+    {
+    };
+	string getTweetText(){
+		return tweet;
+	}
+	int getTweetUser(){
+		return user_id;
+	}
+	void addreply(int id){
+		tweet_reply_id.push_back(id);
+		return;
+	}
 
-	static int usercount;
-	User(string uname){
-		username = uname;
-		userID = ++usercount;
+	vector<int>* replyVector(){
+		return &tweet_reply_id;
+	} 
+	
+};
+
+class User
+{
+	int user_id;
+	string username;
+	std::vector<int> tweet_posted_ids;
+	std::vector<int> followed_ids;
+public:
+	User(int &user_id, string &username){
+		this->user_id = user_id;
+		this->username = username;
+	};
+	User(const User &p) : 
+    user_id(p.user_id),
+    username(p.username),
+    tweet_posted_ids(p.tweet_posted_ids),
+    followed_ids(p.followed_ids)
+    {
+    };
+
+	string getuserName(){
+		return username;
 	}
-	void Follow(int id){
-		following.push_back(id);
-	}
-	bool isFollowing(int id2){
-		for(size_t i=0;i<following.size();i++){
-			if(following[i]==id2)
-				return true;
+	// ~User();
+	void addFollower(int &follow_id){
+		bool alreadyfollower = false;
+		for(size_t i = 0; i < followed_ids.size();i++){
+			if (followed_ids[i] == follow_id){
+				alreadyfollower = true;
+				break;}
 		}
-		return false;
+		if (alreadyfollower){
+			cout<<"UserID "<<user_id<<" is already following UserID "<<follow_id<<"\n";
+		}
+		else {
+			int follow_copy = follow_id;
+			this->followed_ids.push_back(follow_copy);
+			cout<<"UserID "<<user_id<<" has started following UserID "<<follow_id<<"\n";
+		}
+		return;
+	}
+	
+	void removeFollower(int &follow_id){
+		bool alreadyfollower = false;
+		size_t i;
+		for(i = 0; i < followed_ids.size();i++){
+			if (followed_ids[i] == follow_id){
+				alreadyfollower = true;
+				break;}
+		}
+		if (alreadyfollower){
+			followed_ids.erase(followed_ids.begin()+i);
+			cout<<"UserID "<<user_id<<" has unfollowed UserID "<<follow_id<<"\n";
+		}
+		else {
+			cout<<"UserID "<<user_id<<" is not following UserID "<<follow_id<<"\n";
+		}
+		return;
+	}
+	void getFollow(){
+		sort(followed_ids.begin(),followed_ids.end());
+		for(size_t i = 0; i < followed_ids.size();i++){
+			cout<<followed_ids[i]<<" ";
+		}	
+		cout<<"\n";
+		return;
 	}
 
-	void Unfollow(int id2){
-		for(size_t i=0;i<following.size();i++){
-			if(following[i]==id2){
-				following.erase(following.begin()+i);
-				return;
+	void addTweet(int &tweetId){
+		tweet_posted_ids.push_back(tweetId);
+		return;
+	}
+
+	vector<int>* tweetVector(){
+		return &tweet_posted_ids;
+	} 
+
+	vector<int>* followVector(){
+		return &followed_ids;
+	} 
+};
+
+
+
+class Network
+{
+	std::vector<User> users;
+	std::vector<Tweet> tweets;
+	int num_users;
+	int num_tweets;
+
+public:
+	Network(){
+		num_users = 0;
+		num_tweets = 0;
+
+	};
+	// ~Network();
+	void addUser(string &name){
+		num_users++;
+		User newUser(num_users,name);
+		users.push_back(newUser);
+		cout<<"User "<<name<<" added. User ID: "<<num_users<<"\n";
+	}
+
+	int totalusers(){
+		return num_users;
+	}
+	User* getuser(int id){
+		return &users[id-1];
+	}
+
+	void printUsers(){
+		for (size_t i = 0; i < users.size(); ++i)
+		{
+			cout<<i+1<<" "<<users[i].getuserName()<<"\n";
+					}
+		return;
+	}
+
+	void addTweet(int &userId, string &tweettext){
+		if(userId>num_users || userId<=0){
+			cout<<"UserID "<<userId<<" does not exist\n";
+		}
+		else{
+			num_tweets++;
+			int parent = -1;
+			Tweet newTweet(num_tweets,userId,tweettext,parent);
+			tweets.push_back(newTweet);
+			users[userId-1].addTweet(num_tweets);
+			cout<<"UserID "<<userId<<" tweeted "<<tweettext<<"\n";
+		}
+		return;
+	}
+	int totaltweet(){
+		return num_tweets;
+	}
+	void printFollowersTweet(int uid)
+	{
+		vector<int> *v = users[uid-1].followVector();
+		vector<int> alltweet;
+		for (size_t i = 0; i < (*v).size(); ++i)
+		{
+			std::vector<int> *tweetss = users[(*v)[i]-1].tweetVector();
+			for (size_t j = 0; j < (*tweetss).size(); ++j)
+			{
+				alltweet.push_back((*tweetss)[j]);
 			}
 		}
+		sort(alltweet.begin(),alltweet.end());
+		for(int i=0;i<alltweet.size();i++)
+		{
+			cout<<tweets[alltweet[i]-1].getTweetUser()<<" "<<alltweet[i]<<" "<<tweets[alltweet[i]-1].getTweetText()<<endl;
+		}		
+		return;	
+
 	}
 
-	void printFollowing(){
-		sort(following.begin(),following.end());
-		for(size_t i=0;i<following.size();i++){
-			cout<<following[i]<<" ";
-		}	
-		cout<<endl;
+	void creatingAreplyTweet(int &userId, int &tweetId, string &tweetText){
+		if (tweetId > num_tweets || tweetId < 0)
+		{
+			cout<<"No such tweet exists\n";
+		}
+		else if (userId > num_users || userId < 0)
+		{
+			cout<<"UserID "<<userId<<" does not exist\n";
+		}
+		else {
+			num_tweets++;
+			Tweet newTweet(num_tweets,userId,tweetText,tweetId);
+			tweets.push_back(newTweet);
+			users[userId-1].addTweet(num_tweets);
+			tweets[tweetId - 1].addreply(num_tweets);
+			cout<<"UserID "<<userId<<" replied "<<tweetText<<" to tweet "<<tweets[tweetId-1].getTweetText()<<" and has TweetID "<<num_tweets<<"\n";
+		}
+		return;
 	}
 
-	void AddTweet(int id){
-		mytweets.push_back(id);
+void printNestedTweet(int &tweetId, int recurseLevel){
+	if(tweetId > num_tweets || tweetId < 0){
+			cout<<"No such tweet exists\n";
 	}
+	else{
+		for(int i = 0 ; i < recurseLevel; i++){
+			cout<<"      ";
+		}
+		cout<<tweets[tweetId - 1].getTweetUser()<<" "<<tweetId<<" "<<tweets[tweetId - 1].getTweetText()<<"\n";
+		std::vector<int> *v = tweets[tweetId - 1].replyVector();
+		for (size_t i = 0; i < (*v).size(); ++i)
+		{
+			printNestedTweet((*v)[i],recurseLevel + 1);
+		}
+	}
+	return;
+}
+
+
 };
 
-int User::usercount = 0;
-
-class Tweet{
-public:
-	int tweetID;		// unique tweet id,
-	int parentTweetID;	// parent tweet id - the tweet id of the tweet it is a reply of, if there is no parent store -1 as value.
-	int tweeter;		// user id (denoting which user tweeted this) 
-	vector<int> replies;	// vector of reply tweets id - contains the ids of tweets which are reply to this tweet.
-	string tweetText;	// Tweet-text.
-	static int tweetcount;
-
-	Tweet(int uid,string tText){
-		tweetID = ++tweetcount;
-		tweeter = uid;
-		tweetText = tText;
-		parentTweetID = -1;
-	}
-
-	Tweet(int parentTID,int uid,string tText){
-		tweetID = ++tweetcount;
-		tweeter = uid;
-		tweetText = tText;
-		parentTweetID = parentTID;
-	}
-
-	void print(){
-		cout<<tweetID<<" "<<tweetText<<endl;
-	}
-
-	void printWithUser(){
-		cout<<tweeter<<" "<<tweetID<<" "<<tweetText<<endl;
-	}
-
-};
-
-int Tweet::tweetcount = 0;
-
-class Network{
-	vector<User> users;		//vector containing all users in the network
-	vector<Tweet> tweets;	//vector containing all tweets 
-public:
-	void AddUser();
-	void GetUser();
-	void PrintUsers();
-	void FollowUser();
-	void UnfollowUser();
-	void PrintFollowedUsers();
-	void AddTweet();
-	void GetTweet();
-	void PrintTweets();
-	void PrintFollowingTweets();
-	void ReplyTweet();
-	void PrintNested(int ,int);
-	void PrintTweetWithReplies();
-	
-};
-
-//30 min class structure
-
-
-// 4min
-void Network::AddUser(){
-	string uname;
-	cin>>uname;
-	users.push_back(User(uname));
-	cout<<"User "<<uname<<" added. User ID: "<<users[users.size()-1].userID<<endl;
-}
-
-
-//2 min
-void Network::PrintUsers(){
-	for(int i=0;i<users.size();i++){
-		cout<<users[i].userID<<" "<<users[i].username<<endl;
-	}
-}
-
-//7 min
-void Network::FollowUser(){
-	int id1,id2;
-	cin>>id1>>id2;
-	if(id2<1 || id2> users.size()){
-		cout<<"UserID "<<id2<<" does not exist"<<endl;
-		return;
-	}
-	if(id1<1 || id1> users.size()){
-		cout<<"UserID "<<id1<<" does not exist"<<endl;
-		return;
-	}
-	if(id1==id2){
-		cout<<"You cannot follow yourself"<<endl;
-		return;
-	}
-
-	if(users[id1-1].isFollowing(id2)){
-		cout<<"UserID "<<id1<<" is already following UserID "<<id2<<endl;
-		return;
-	}
-
-	users[id1-1].Follow(id2);
-	cout<<"UserID "<<id1<<" has started following UserID "<<id2<<endl;
-
-
-}
-
-//7 min
-void Network::UnfollowUser(){
-
-	int id1,id2;
-	cin>>id1>>id2;
-	if(id2<1 || id2> users.size()){
-		cout<<"UserID "<<id2<<" does not exist"<<endl;
-		return;
-	}
-	if(id1<1 || id1> users.size()){
-		cout<<"UserID "<<id1<<" does not exist"<<endl;
-		return;
-	}
-
-	if(users[id1-1].isFollowing(id2)){
-		users[id1-1].Unfollow(id2);
-		cout<<"UserID "<<id1<<" has unfollowed UserID "<<id2<<endl;
-		return;
-	}
-
-	cout<<"UserID "<<id1<<" is not following UserID "<<id2<<endl;
-
-}
-
-//10 min
-void Network::AddTweet(){
-	int id;
-	string tweet;
-	cin>>id>>tweet;
-
-	if(id<1 || id> users.size()){
-		cout<<"UserID "<<id<<" does not exist"<<endl;
-		return;
-	}
-	tweets.push_back(Tweet(id,tweet));
-	users[id-1].AddTweet(tweets[tweets.size()-1].tweetID);	
-	cout<<"UserID "<<id<<" tweeted "<<tweets[tweets.size()-1].tweetText<<endl;
-}
-
-//8 min
-void Network::PrintFollowingTweets(){
-	int id;
-	cin>>id;
-	if(id<1 || id> users.size()){
-		cout<<"UserID "<<id<<" does not exist"<<endl;	
-		return;
-	}
-	vector<int> following = users[id-1].following;
-	vector<int> tweetID;
-	for(int i=0;i<following.size();i++){
-		tweetID.insert(tweetID.end(), users[following[i]-1].mytweets.begin(), users[following[i]-1].mytweets.end());
-	}
-	sort(tweetID.begin(),tweetID.end());
-	for(int i=0;i<tweetID.size();i++){
-		tweets[tweetID[i]-1].printWithUser();
-	}
-}
-
-//10 min
-void Network::ReplyTweet(){
-	int id,parentTweetID;
-	string tweet;
-	cin>>id>>parentTweetID>>tweet;
-
-
-	if(parentTweetID<1|| parentTweetID> tweets.size()){
-		cout<<"No such tweet exists"<<endl;
-		return;
-	}
-	if(id<1 || id> users.size()){
-		cout<<"UserID "<<id<<" does not exist"<<endl;
-		return;
-	}
-
-	
-	tweets.push_back(Tweet(parentTweetID, id,tweet));
-	users[id-1].AddTweet(tweets[tweets.size()-1].tweetID);	
-	tweets[parentTweetID-1].replies.push_back(tweets[tweets.size()-1].tweetID);	
-	cout<<"UserID "<<id<<" replied "<<tweets[tweets.size()-1].tweetText <<" to tweet "<<tweets[parentTweetID-1].tweetText<<" and has TweetID "<<tweets[tweets.size()-1].tweetID<<endl;
-
-}
-
-void Network::PrintNested(int id,int offset=0){
-	for(int i=0;i<offset;i++)
-		cout<<" ";
-	tweets[id-1].printWithUser();
-	for(int i=0;i<tweets[id-1].replies.size();i++){
-		PrintNested(tweets[id-1].replies[i],offset+6);
-	}
-}
-
-//12 min
-void Network::PrintTweetWithReplies(){
-	int tid;
-	cin>>tid;
-
-	if(tid<1|| tid> tweets.size()){
-		cout<<"No such tweet exists"<<endl;
-		return;
-	}
-
-	PrintNested(tid);
-}
-
-
-
-
-
-
-
-
-// 10 min for main
-int main(){
-	Network twitter;
+int main()
+{
+	Network N;
+	string qtype;
 	while(true){
-		string q;
-		cin >> q;
-		if(q== "au")	
-			twitter.AddUser();
+		cin>>qtype;
+		if(qtype=="au")
+		{
+			string name;
+			cin>>name;
+			N.addUser(name);
+		}
+		else if(qtype=="pu")
+		{
+			N.printUsers();
+		}
+		else if(qtype=="fu")
+		{
+			int uid1,uid2;
+			cin>>uid1>>uid2;
+			if (uid1 == uid2)
+			{
+				cout<<"You cannot follow yourself\n";
+			}
+			else if(uid2>N.totalusers() || uid2<=0)
+			{
+				cout<<"UserID "<<uid2<<" does not exist\n";
+			}
+			else if(uid1>N.totalusers() || uid1<=0)
+			{
+				cout<<"UserID "<<uid1<<" does not exist\n";
+			}
+			else{
+				User* usertoUpdate=N.getuser(uid1);
+				(*usertoUpdate).addFollower(uid2);
+			}
+		}
+		else if(qtype=="uu")
+		{
+			int uid1,uid2;
+			cin>>uid1>>uid2;
+			if (uid1 == uid2)
+			{
+				cout<<"You cannot follow yourself\n";
+			}
+			else if(uid2>N.totalusers() || uid2<=0)
+			{
+				cout<<"UserID "<<uid2<<" does not exist\n";
+			}
+			else if(uid1>N.totalusers() || uid1<=0)
+			{
+				cout<<"UserID "<<uid1<<" does not exist\n";
+			}
+			else{
+				User* usertoUpdate = N.getuser(uid1);
+				(*usertoUpdate).removeFollower(uid2);
+			}
+		}
+		else if(qtype=="at")
+		{
+			int uid;
+			string text;
+			cin>>uid>>text;
+			N.addTweet(uid,text);
+		}
+		else if(qtype=="pft")
+		{
+			int uid;
+			cin>>uid;
+			if(uid>N.totalusers() || uid<=0)
+			{
+				cout<<"UserID "<<uid<<" does not exist\n";
+			}
+			else {
+				N.printFollowersTweet(uid);		}
 			
-		else if(q== "pu")	
-			twitter.PrintUsers();
-			
-		else if(q== "fu")	
-			twitter.FollowUser();
-			
-		else if(q== "uu")	
-			twitter.UnfollowUser();
-		
-		else if(q== "at")	
-			twitter.AddTweet();
-		
-		else if(q=="rt")
-			twitter.ReplyTweet();
-
-		else if(q== "pft")
-			twitter.PrintFollowingTweets();
-		
-		else if(q== "nt")	
-			twitter.PrintTweetWithReplies();
-
-		else if(q=="exit")
+		}
+		else if(qtype=="rt")
+		{
+			int uid,tid;
+			string text;
+			cin>>uid>>tid>>text;
+			N.creatingAreplyTweet(uid,tid,text);
+		}
+		else if(qtype=="nt")
+		{
+			int tid;
+			cin>>tid;
+			N.printNestedTweet(tid,0);
+		}
+		else if(qtype=="exit")
 			break;
-				
-	}
+ }
 }
