@@ -5,7 +5,7 @@ using namespace std;
 class Tweet
 {
 	int tweet_id;
-	int parent_tweet
+	int parent_tweet;
 	int user_id;
 	std::vector<int> tweet_reply_id;
 	string tweet;

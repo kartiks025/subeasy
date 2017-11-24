@@ -71,7 +71,7 @@
             </tr>
             <tr>
                 <td>Helper File</td>
-                <td ><a id="helper_file" href="{% url 'sedb:download_helper_file' sec_user_id assign_id %}">Download</a></td>
+                <td ><a a class="link" id="helper_file" href="{% url 'sedb:download_helper_file' sec_user_id assign_id %}">Download</a></td>
             </tr>
             <tr>
                 <td>Description</td>
@@ -89,11 +89,11 @@
         <div class="title" name="prob_name" style="font-size: 30px">B. Divisibility of Differences</div>
         <br>
 
-        <div class="helper_file" style="font-size: 15px">Helper File : <span name="helper_file" > <a href="{% url 'sedb:download_problem_helper_file' sec_user_id assign_id 0 %}" name="helper_file">Download</a></span></div>
+        <div class="helper_file" style="font-size: 15px">Helper File : <span name="helper_file" > <a class="link" href="{% url 'sedb:download_problem_helper_file' sec_user_id assign_id 0 %}" name="helper_file">Download</a></span></div>
 
-        <div class="solution_file" style="font-size: 15px">Solution File : <span name="solution_file"> <a href="{% url 'sedb:download_problem_solution_file' sec_user_id assign_id 0 %}" name="solution_file">Download</a></span></div>
+        <div class="solution_file" style="font-size: 15px">Solution File : <span name="solution_file"> <a class="link"  href="{% url 'sedb:download_problem_solution_file' sec_user_id assign_id 0 %}" name="solution_file">Download</a></span></div>
 
-        <div class="all_testcases" style="font-size: 15px">All Testcases : <span name="all_testcases"> <a href="{% url 'sedb:download_testcase_file' sec_user_id assign_id 0 %}" name="all_testcases">Download</a></span></div>
+        <div class="all_testcases" style="font-size: 15px">All Testcases : <span name="all_testcases"> <a class="link"  href="{% url 'sedb:download_testcase_file' sec_user_id assign_id 0 %}" name="all_testcases">Download</a></span></div>
 
 
         <div class="compile_cmd" style="font-size: 15px">Compilation Command : <span name="compile_cmd" ><i></i></span></div>
@@ -111,7 +111,9 @@
         <div class="description" name="description" style="white-space: pre-wrap;">
         
         </div>
+        <hr>
         <div>
+            Previous Submission : <a  class="link"  href="{% url 'sedb:download_your_submission' sec_user_id assign_id 0 %}" name="download_submission">Download</a>
 
             <form class="form-horizontal" action="{% url 'sedb:submit_problem' sec_user_id assign_id 0 %}" name="submit_form" method="post" enctype="multipart/form-data">{% csrf_token %}
                 <input type="file" accept=".tar.gz,.zip,.cpp" class="form-control" name="submission_file">
@@ -123,12 +125,11 @@
             </form>
 
 
-            <a href="{% url 'sedb:download_your_submission' sec_user_id assign_id 0 %}" name="download_submission">Download</a>
         </div>
         <!-- Testcasses Table -->
 
         <div class="panel panel-primary nav-content">
-            <div class="panel-heading">
+            <div class="panel-heading" style="background:#7386D5;">
                 <center><h5>Visible Testcases</h5></center>
             </div>
             <table class="table table-bordered">

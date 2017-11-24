@@ -33,7 +33,7 @@ function loadProblems(){
                 var prob_obj = ps[i].problem;
                 appendProb(prob_obj.problem_id);
                 var prob_id =prob_obj.problem_id;
-                updateProblem(prob_id, prob_obj, ps[i].resource,ps[i].testcase,ps[i].hidden,ps[i].sol_visibility);
+                updateProblem(prob_id, prob_obj, ps[i].resource,ps[i].testcase,ps[i].hidden,ps[i].sol_visibility,ps[i].sub_file_name,ps[i].can_submit);
                 console.log("#prob"+prob_id)
                 var s = $("#prob"+prob_id).attr('data-loadUrl').replace('0',prob_id);
                 $("#prob"+prob_id).attr('data-loadUrl', s);
@@ -84,7 +84,7 @@ function reloadProblem(elem){
         if(status == "success"){
             var prob_id = "#prob"+data.problem.problem_id;
             console.log("hi "+data.problem.problem_id)
-            updateProblem(data.problem.problem_id, data.problem, data.resource,data.testcases,data.hidden, data.sol_visibility);
+            updateProblem(data.problem.problem_id, data.problem, data.resource,data.testcases,data.hidden, data.sol_visibility,data.sub_file_name,data.can_submit);
         }
         else{
             console.log("Some Error Occurred");
@@ -115,7 +115,7 @@ function appendProb(problem_id){
     }).appendTo($("#content"));
 }
 
-function updateProblem(problem_id, prob_obj, resource_obj,testcases,hidden,sol_visibility){
+function updateProblem(problem_id, prob_obj, resource_obj,testcases,hidden,sol_visibility,sub_file_name,can_submit){
     $("#link"+problem_id).text("Problem "+prob_obj.problem_no);
     var prob_id = '#prob' +problem_id;
     console.log(resource_obj);
@@ -130,10 +130,24 @@ function updateProblem(problem_id, prob_obj, resource_obj,testcases,hidden,sol_v
     $(prob_id+ ' span[name ="open_files"]').text(resource_obj.open_files);
     $(prob_id+ ' span[name ="max_filesize"]').text(resource_obj.max_filesize + " kB");
     $(prob_id+ ' span[name ="max_filesize"]').text(resource_obj.max_filesize + " kB");
+
+    $(prob_id+ ' a[name ="helper_file"]').text(prob_obj.helper_file_name);
+    $(prob_id+ ' a[name ="download_submission"]').text(sub_file_name);
+    if(!can_submit){
+        $(prob_id+ ' input[name ="submission_file"]').prop('disabled', true);
+    } else{
+        $(prob_id+ ' input[name ="submission_file"]').prop('disabled', false);
+    }
+
+
     console.log(sol_visibility)
     if(!sol_visibility){
-        console.log("yfsfjdfnjf");
+        console.log("hide");
         $(prob_id+ ' div[class ="solution_file"]').hide();
+    }
+    else{
+        console.log("show");
+        $(prob_id+ ' div[class ="solution_file"]').show();
     }
 
     var link = $("#prob"+problem_id).attr('data-loadUrl');
@@ -150,9 +164,9 @@ function updateProblem(problem_id, prob_obj, resource_obj,testcases,hidden,sol_v
         else if(testcases[i].error=='-1')
             testcases[i].error="Output Does Not Match"
         if(testcases[i].user_marks==null)
-            content += "<tr><td>"+testcases[i].testcase_no+"</td><td><a href=\""+link+"download_testcase_input_file/"+testcases[i].testcase_no+"/\">"+testcases[i].infile_name+"</a></td><td><a href=\""+link+"download_testcase_output_file/"+testcases[i].testcase_no+"/\">"+testcases[i].outfile_name+"</a></td><td>"+testcases[i].marks+"</td><td>"+"0-Not Evaluated"+"</td><td>"+"Not evaluated"+"</td><td>Not Evaluated</td></tr>";
+            content += "<tr><td>"+testcases[i].testcase_no+"</td><td><a a class=\"link\" href=\""+link+"download_testcase_input_file/"+testcases[i].testcase_no+"/\">"+testcases[i].infile_name+"</a></td><td><a a class=\"link\" href=\""+link+"download_testcase_output_file/"+testcases[i].testcase_no+"/\">"+testcases[i].outfile_name+"</a></td><td>"+testcases[i].marks+"</td><td>"+"0-Not Evaluated"+"</td><td>"+"Not evaluated"+"</td><td>Not Evaluated</td></tr>";
         else
-            content += "<tr><td>"+testcases[i].testcase_no+"</td><td><a href=\""+link+"download_testcase_input_file/"+testcases[i].testcase_no+"/\">"+testcases[i].infile_name+"</a></td><td><a href=\""+link+"download_testcase_output_file/"+testcases[i].testcase_no+"/\">"+testcases[i].outfile_name+"</a></td><td>"+testcases[i].marks+"</td><td>"+testcases[i].user_marks+"</td><td>"+testcases[i].error+"</td><td><a target=\"_blank\" href=\"/sedb/output_compare/"+testcases[i].id+"/\">Check Output</a></td></tr>";
+            content += "<tr><td>"+testcases[i].testcase_no+"</td><td><a a class=\"link\" href=\""+link+"download_testcase_input_file/"+testcases[i].testcase_no+"/\">"+testcases[i].infile_name+"</a></td><td><a a class=\"link\" href=\""+link+"download_testcase_output_file/"+testcases[i].testcase_no+"/\">"+testcases[i].outfile_name+"</a></td><td>"+testcases[i].marks+"</td><td>"+testcases[i].user_marks+"</td><td>"+testcases[i].error+"</td><td><a class=\"link\" target=\"_blank\" href=\"/sedb/output_compare/"+testcases[i].id+"/\">Check Output</a></td></tr>";
     }
     $(prob_id+ ' tbody[name ="testcases"]').html(content);
     content = ""
@@ -182,9 +196,9 @@ function updateTestcases(problem_id,testcases,hidden){
         else if(testcases[i].error=='-1')
             testcases[i].error="Output Does Not Match"
         if(testcases[i].user_marks==null)
-            content += "<tr><td>"+testcases[i].testcase_no+"</td><td><a href=\""+link+"download_testcase_input_file/"+testcases[i].testcase_no+"/\">"+testcases[i].infile_name+"</a></td><td><a href=\""+link+"download_testcase_output_file/"+testcases[i].testcase_no+"/\">"+testcases[i].outfile_name+"</a></td><td>"+testcases[i].marks+"</td><td>"+"0-Not Evaluated"+"</td><td>"+"Not evaluated"+"</td><td>Not Evaluated</td></tr>";
+            content += "<tr><td>"+testcases[i].testcase_no+"</td><td><a class=\"link\" href=\""+link+"download_testcase_input_file/"+testcases[i].testcase_no+"/\">"+testcases[i].infile_name+"</a></td><td><a class=\"link\" href=\""+link+"download_testcase_output_file/"+testcases[i].testcase_no+"/\">"+testcases[i].outfile_name+"</a></td><td>"+testcases[i].marks+"</td><td>"+"0-Not Evaluated"+"</td><td>"+"Not evaluated"+"</td><td>Not Evaluated</td></tr>";
         else
-            content += "<tr><td>"+testcases[i].testcase_no+"</td><td><a href=\""+link+"download_testcase_input_file/"+testcases[i].testcase_no+"/\">"+testcases[i].infile_name+"</a></td><td><a href=\""+link+"download_testcase_output_file/"+testcases[i].testcase_no+"/\">"+testcases[i].outfile_name+"</a></td><td>"+testcases[i].marks+"</td><td>"+testcases[i].user_marks+"</td><td>"+testcases[i].error+"</td><td><a target=\"_blank\" href=\"/sedb/output_compare/"+testcases[i].id+"/\">Check Output</a></td></tr>";
+            content += "<tr><td>"+testcases[i].testcase_no+"</td><td><a class=\"link\" href=\""+link+"download_testcase_input_file/"+testcases[i].testcase_no+"/\">"+testcases[i].infile_name+"</a></td><td><a class=\"link\" href=\""+link+"download_testcase_output_file/"+testcases[i].testcase_no+"/\">"+testcases[i].outfile_name+"</a></td><td>"+testcases[i].marks+"</td><td>"+testcases[i].user_marks+"</td><td>"+testcases[i].error+"</td><td><a class=\"link\" target=\"_blank\" href=\"/sedb/output_compare/"+testcases[i].id+"/\">Check Output</a></td></tr>";
     }
     $(prob_id+ ' tbody[name ="testcases"]').html(content);
     content = ""
@@ -250,16 +264,17 @@ function UploadButtonClick(elem,img){
                     (function (el) {
                         setTimeout(function () {
                             el.remove()
-                        }, 2000);
-                    }($("<p style=\"color: green\">Submitted Successfully<p>").insertAfter(elem)));
+                        }, 5000);
+                    }($("<p style=\"color: green\">"+data.message+"<p>").insertAfter(elem)));
+                    $("#prob"+ data.problem_id+' a[name ="download_submission"]').text(data.sub_file_name);
                 }
                 else{
                     // $("<p style=\"color: red\">Submission error. Please check your file.y<p>").insertAfter(elem)
                     (function (el) {
                         setTimeout(function () {
                             el.remove()
-                        }, 2000);
-                    }($("<p style=\"color: red\">Submission error. Please check your file</p>").insertAfter(elem)));
+                        }, 5000);
+                    }($("<p style=\"color: red\">"+data.message+"</p>").insertAfter(elem)));
                 }
                 frm.trigger("reset");
             },
@@ -270,7 +285,7 @@ function UploadButtonClick(elem,img){
                 (function (el) {
                     setTimeout(function () {
                         el.remove()
-                    }, 2000);
+                    }, 5000);
                 }($("<p style=\"color: red\">Submission error. Please check your file</p>").insertAfter(elem)));
                 frm.trigger("reset");
             },

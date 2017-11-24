@@ -111,15 +111,22 @@ function loadProblems(){
                 // $(prob_id+" a[name=helper_file]").attr('href',s)
                 
                 // new algo of replacing 0
-                x = $("#prob"+prob_id+" a[name=helper_file]").attr('href')
+                x = $(prob_id+" a[name=helper_file]").attr('href')
                 s = x.lastIndexOf("0");
                 s = x.substr(0,s)+prob_obj.problem_id+x.substr(s+1,x.length-s-1);
-                $("#prob"+prob_id+" a[name=helper_file]").attr('href',s)
+                console.log(s)
+                $(prob_id+" a[name=helper_file]").attr('href',s)
 
-                x = $("#prob"+prob_id+" a[name=solution_file]").attr('href')
+                x = $(prob_id+" a[name=solution_file]").attr('href')
                 s = x.lastIndexOf("0");
                 s = x.substr(0,s)+prob_obj.problem_id+x.substr(s+1,x.length-s-1);
-                $("#prob"+prob_id+" a[name=solution_file]").attr('href',s)
+                console.log(s)
+                $(prob_id+" a[name=solution_file]").attr('href',s)
+
+                x = $(prob_id+" a[name=test_file]").attr('href')
+                s = x.lastIndexOf("0");
+                s = x.substr(0,s)+prob_obj.problem_id+x.substr(s+1,x.length-s-1);
+                $(prob_id+" a[name=test_file]").attr('href',s)
             }
         }
         else{

@@ -97,7 +97,7 @@ def user2_required(fun):
 
 def user3_required(fun):
     def wrap(request, sec_user_id, assign_id,prob_id):
-        print("user2_required")
+        print("user3_required")
         try:
             if not request.session['is_user']:
                 return redirect('sedb:user_login')
@@ -121,6 +121,31 @@ def user3_required(fun):
     wrap.__name__ = fun.__name__
     return wrap
 
+def user4_required(fun):
+    def wrap(request, sec_user_id, assign_id,prob_id,testcase_no):
+        print("user4_required")
+        try:
+            if not request.session['is_user']:
+                return redirect('sedb:user_login')
+            else:
+                print(sec_user_id)
+                sec_user = SecUser.objects.get(id=sec_user_id)
+                print(sec_user.role)
+                if not sec_user.user.user_id == request.session['user_id']:
+                    print(sec_user.user.user_id + "," + request.session['user_id'])
+                    return doredirect(request, 'sedb:user_login')
+                elif sec_user.role != "Instructor" and sec_user.role != "TA":
+                    assign = Assignment.objects.get(assignment_id=assign_id)
+                    if not assign.visibility or assign.publish_time>datetime.datetime.now():
+                        print("cannot access this assignment")
+                        return doredirect(request, 'sedb:user_login')
+        except KeyError:
+            return redirect('sedb:user_login')
+        return fun(request, sec_user_id, assign_id,prob_id,testcase_no)
+
+    wrap.__doc__ = fun.__doc__
+    wrap.__name__ = fun.__name__
+    return wrap
 
 def doredirect(request, url):
     if request.is_ajax():
@@ -234,6 +259,35 @@ def student1_required(fun):
     return wrap
 
 
+def student2_required(fun):
+    def wrap(request, sec_user_id, assign_id,prob_id):
+        print("student2")
+        try:
+            if not request.session['is_user']:
+                print(sec_user_id)
+                return doredirect(request, 'sedb:user_login')
+            else:
+                print(sec_user_id)
+                sec_user = SecUser.objects.get(id=sec_user_id)
+                print("yes " + sec_user.role)
+                if not sec_user.role == "Student" or not sec_user.user.user_id == request.session['user_id']:
+                    print(sec_user.user.user_id + "," + request.session['user_id'])
+                    return doredirect(request, 'sedb:user_login')
+                assign = Assignment.objects.get(assignment_id=assign_id)
+                if not assign.visibility or assign.publish_time>datetime.datetime.now():
+                    print("cannot access this assignment")
+                    return doredirect(request, 'sedb:user_login')
+        except KeyError:
+            print("error in student_required")
+            return doredirect(request, 'sedb:user_login')
+        print(sec_user.role)
+        return fun(request, sec_user_id, assign_id,prob_id)
+
+    wrap.__doc__ = fun.__doc__
+    wrap.__name__ = fun.__name__
+    return wrap
+
+
 def instructor2_required(fun):
     def wrap(request, sec_user_id, assign_id, prob_id):
         try:
@@ -341,3 +395,13 @@ def send_new_account_email(uid, email):
     text = msg.as_string()
     server.sendmail(fromaddr, toaddr, text)
     server.quit()
+
+def diff_time(t1,t2):
+    diff = t1 - t2
+
+    days, seconds = diff.days, diff.seconds
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    seconds = seconds % 60
+
+    return days,hours,minutes,seconds

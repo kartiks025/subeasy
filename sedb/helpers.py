@@ -15,6 +15,7 @@ from django.core import serializers
 from django.db import connection
 from collections import namedtuple
 import datetime
+import traceback
 from .models import *
 
 from io import BytesIO
@@ -52,7 +53,7 @@ def download_helper_file(request, sec_user_id, assign_id):
     return response
 
 
-@user3_required
+@user3_required #checked
 def download_problem_helper_file(request, sec_user_id, assign_id, prob_id):
     try:
         contents = Problem.objects.get(problem_id=prob_id).helper_file
@@ -65,13 +66,13 @@ def download_problem_helper_file(request, sec_user_id, assign_id, prob_id):
     return response
 
 
-@user3_required
+@user3_required #checked
 def download_problem_solution_file(request, sec_user_id, assign_id, prob_id):
     try:
         assignment = Assignment.objects.get(assignment_id=assign_id)
         problem = Problem.objects.get(problem_id=prob_id)
         sec_user = SecUser.objects.get(id=sec_user_id)
-        if sec_user.role == "Student" and (datetime.datetime.now() < assignment.deadline.freezing_deadline or not prob_id.sol_visibility):
+        if sec_user.role == "Student" and (datetime.datetime.now() < assignment.deadline.freezing_deadline or not problem.sol_visibility):
             response = HttpResponse("")
             response['Content-Disposition'] = 'attachment; filename=' + "null"
             return response
@@ -80,17 +81,21 @@ def download_problem_solution_file(request, sec_user_id, assign_id, prob_id):
         response['Content-Disposition'] = 'attachment; filename=' + Problem.objects.get(
             problem_id=prob_id).solution_filename
     except:
+        print(traceback.format_exc())
         response = HttpResponse("")
         response['Content-Disposition'] = 'attachment; filename=' + "null"
     return response
 
 
-# @instructor2_required
+@user3_required #checked
 def download_testcase_file(request, sec_user_id, assign_id, prob_id):
     out = BytesIO()
     tar = tarfile.open(mode="w:gz", fileobj=out)
     all_testcases = Testcase.objects.filter(problem_id=prob_id)
+    sec_user = SecUser.objects.get(id=sec_user_id)
     for t in all_testcases:
+        if sec_user.role == "Student" and not t.visibility:
+            continue
         info = tarfile.TarInfo(name=t.infile_name)
         info.size = len(t.infile)
         tar.addfile(tarinfo=info, fileobj=BytesIO(t.infile))
@@ -103,25 +108,47 @@ def download_testcase_file(request, sec_user_id, assign_id, prob_id):
     return response
 
 
-# @instructor2_required
+@user4_required #checked
 def download_testcase_input_file(request, sec_user_id, assign_id, prob_id, testcase_no):
-    contents = Testcase.objects.get(testcase_no=testcase_no, problem_id=prob_id).infile
-    response = HttpResponse(contents)
-    response['Content-Disposition'] = 'attachment; filename=' + Testcase.objects.get(
-        testcase_no=testcase_no, problem_id=prob_id).infile_name
+    try:
+        sec_user = SecUser.objects.get(id=sec_user_id)
+        t = Testcase.objects.get(testcase_no=testcase_no, problem_id=prob_id)
+        if sec_user.role == "Student" and not t.visibility:
+            response = HttpResponse("")
+            response['Content-Disposition'] = 'attachment; filename=' + "null"
+            return response
+        contents = t.infile
+        response = HttpResponse(contents)
+        response['Content-Disposition'] = 'attachment; filename=' + Testcase.objects.get(
+            testcase_no=testcase_no, problem_id=prob_id).infile_name
+    except:
+        print(traceback.format_exc())
+        response = HttpResponse("")
+        response['Content-Disposition'] = 'attachment; filename=' + "null"
     return response
 
 
-# @instructor2_required
+@user4_required #checked
 def download_testcase_output_file(request, sec_user_id, assign_id, prob_id, testcase_no):
-    contents = Testcase.objects.get(testcase_no=testcase_no, problem_id=prob_id).outfile
-    response = HttpResponse(contents)
-    response['Content-Disposition'] = 'attachment; filename=' + Testcase.objects.get(
-        testcase_no=testcase_no, problem_id=prob_id).outfile_name
+    try:
+        sec_user = SecUser.objects.get(id=sec_user_id)
+        t = Testcase.objects.get(testcase_no=testcase_no, problem_id=prob_id)
+        if sec_user.role == "Student" and not t.visibility:
+            response = HttpResponse("")
+            response['Content-Disposition'] = 'attachment; filename=' + "null"
+            return response
+        contents = t.outfile
+        response = HttpResponse(contents)
+        response['Content-Disposition'] = 'attachment; filename=' + Testcase.objects.get(
+            testcase_no=testcase_no, problem_id=prob_id).outfile_name
+    except:
+        print(traceback.format_exc())
+        response = HttpResponse("")
+        response['Content-Disposition'] = 'attachment; filename=' + "null"
     return response
 
 
-# @instructor2_required
+@user3_required #checked
 def download_your_submission(request, sec_user_id, assign_id, prob_id):
     try:
         final = UserSubmissions.objects.get(user_id=request.session['user_id'], problem_id=prob_id).final_submission_no
@@ -155,7 +182,7 @@ def get_assignments(request, sec_user_id):
     return JsonResponse(context, content_type="application/json")
 
 
-@instructor_required
+@instructor_required #checking done
 def get_instructors(request, sec_user_id):
     sec_user = SecUser.objects.get(id=sec_user_id);
     ins = SecUser.objects.filter(sec_id=sec_user.sec_id, role="Instructor")
@@ -165,7 +192,7 @@ def get_instructors(request, sec_user_id):
     return JsonResponse(context, content_type="application/json")
 
 
-# @instructor2_required
+@user3_required #checking done
 def get_assign_prob(request, sec_user_id, assign_id, prob_id):
     print("get_assign_prob called")
     if prob_id == '0':
@@ -184,7 +211,7 @@ def get_assign_prob(request, sec_user_id, assign_id, prob_id):
         'testcases': testcases
     })
 
-# @instructor2_required
+@student2_required  #checking done
 def get_user_assign_prob(request, sec_user_id, assign_id, prob_id):
     problem = Problem.objects.get(problem_id=prob_id)
     resource = problem.resource_limit
@@ -210,20 +237,36 @@ def get_user_assign_prob(request, sec_user_id, assign_id, prob_id):
     hidden = dictfetchall(cursor)
 
     assignment = Assignment.objects.get(assignment_id=assign_id)
-    if datetime.datetime.now() < assignment.deadline.freezing_deadline or not prob_id.sol_visibility:
+    print(assignment.deadline.freezing_deadline)
+    print(datetime.datetime.now())
+    print()
+    if datetime.datetime.now() < assignment.deadline.freezing_deadline or not problem.sol_visibility:
         sol_visibility = False
     else:
         sol_visibility = True
     # testcases = [{'id': a.id, 'num': a.testcase_no, 'marks': a.marks, 'visibility': a.visibility} for a in test]
     # print(testcases)
-    print(hidden)
+    # print(hidden)
+
+    if datetime.datetime.now() > assignment.deadline.hard_deadline:
+        can_submit = False
+    else:
+        can_submit = True
+
+    try:
+        final = UserSubmissions.objects.get(user_id=request.session['user_id'], problem_id=prob_id).final_submission_no
+        sub_file_name = Submission.objects.get(user_id=request.session['user_id'], problem_id=prob_id, sub_no=final).sub_file_name
+    except:
+        sub_file_name = ""
     return JsonResponse({
         'new_prob': False,
         'problem': model_to_dict(problem),
         'resource': model_to_dict(resource),
         'testcases': testcases,
         'hidden' : hidden,
-        'sol_visibility' : sol_visibility
+        'sol_visibility' : sol_visibility,
+        'sub_file_name' : sub_file_name,
+        'can_submit' : can_submit
     })
 
 @user2_required
@@ -243,9 +286,15 @@ def get_assign_all_prob(request, sec_user_id, assign_id):
         'problems': prob_json
     })
 
-
+@student2_required #checked
 def submit_problem(request, sec_user_id, assign_id, prob_id):
     try:
+        assignment = Assignment.objects.get(assignment_id=assign_id)
+        if(assignment.deadline.hard_deadline<datetime.datetime.now()):
+            return JsonResponse({
+                'success': False,
+                'message': 'Cannot submit beyond time'
+            })
         sub_file = request.FILES['submission_file'].file.read()
         sub_file_name = request.FILES['submission_file'].name
 
@@ -267,16 +316,26 @@ def submit_problem(request, sec_user_id, assign_id, prob_id):
                            sub_file=sub_file, sub_file_name=sub_file_name)
             s.save()
             print("done")
+        if assignment.deadline.soft_deadline>datetime.datetime.now():
+            days,hours,minutes,seconds = diff_time(assignment.deadline.soft_deadline,datetime.datetime.now())
+            message = "Submitted Successfully before "+str(days)+" days, "+str(hours)+" hours, "+str(minutes)+" minutes, "+str(seconds)+" seconds."
+        else:
+            days,hours,minutes,seconds = diff_time(datetime.datetime.now(),assignment.deadline.soft_deadline)
+            message = "Submitted Successfully after "+str(days)+" days, "+str(hours)+" hours, "+str(minutes)+" minutes, "+str(seconds)+" seconds."
         return JsonResponse({
-            'success': True
+            'success': True,
+            'message': message,
+            'sub_file_name': sub_file_name,
+            'problem_id': prob_id
         })
     except:
-        pass
+        print(traceback.format_exc())
         return JsonResponse({
-            'success': False
+            'success': False,
+            'message': 'Submission Error'
         })
 
-
+@user3_required #check
 def evaluate_problem(request, sec_user_id, assign_id, prob_id):
     try:
         print("evaluate_problem called")
@@ -352,14 +411,14 @@ def evaluate_problem(request, sec_user_id, assign_id, prob_id):
             'message' : "No file submitted"
         })
 
-
+@user_required
 def download_submission(request,sub_id):
     contents = Submission.objects.get(id=sub_id)
     response = HttpResponse(contents.sub_file)
     response['Content-Disposition'] = 'attachment; filename=' + contents.sub_file_name
     return response
 
-
+@instructor1_required # check
 def get_all_submissions(request, sec_user_id, assign_id):
     print("get_all_submissions called")
 
@@ -396,17 +455,3 @@ def get_all_submissions(request, sec_user_id, assign_id):
                 'problems':problemArr,
                 'submissions': allSubmissions,
             })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
