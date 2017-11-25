@@ -1,6 +1,213 @@
-{% extends 'sedb/base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-{% block content %}
-{% load staticfiles %}
-TA
-{% endblock %}
+        <title>{{section.course.name}}</title>
+
+        <!-- Bootstrap CSS CDN -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <!-- Our Custom CSS -->
+        <link rel="stylesheet" href="{% static 'sedb/sidenavbar.css' %}">
+        <!-- Scrollbar Custom CSS -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css" rel="stylesheet" />
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+        <style>
+             .hide{
+             display:none;
+             }
+          </style>
+         {% block stylesheet %}{% endblock %}
+
+    </head>
+    <body>
+
+
+
+        <div class="wrapper">
+            <!-- Sidebar Holder -->
+            <nav id="sidebar">
+                <div class="sidebar-header">
+                    <h3>{{section.course.course_id}}-{{section.course.name}}</h3>
+                    <h4>{{section.sec_name}}</h4>
+                    <h5>{{section.semester}} {{section.year}}</h5>
+                </div>
+
+                <ul class="list-unstyled components" id="list-nav">
+                    <li class="active">
+                        <a class="side-nav-link" href="#assignment_div">Assignments</a>                        
+                    </li>
+                    <li>
+                        <a class="side-nav-link" href="#instructor_div">Instructor</a>
+                    </li>
+                    <li>
+                        <a class="side-nav-link" href="#student_div">Student</a>
+                    </li>
+                </ul>
+                <a href="{% url 'sedb:user_home' %}"><i class="fa fa-arrow-left fa-4x" aria-hidden="true" style="position: fixed;left:20px; bottom:0; "></i></a>
+                <a href="{% url 'sedb:user_home' %}"><i class="fa fa-home fa-4x" aria-hidden="true" style="position: fixed;left:95px; bottom:0; "></i></a>
+                <a href="{% url 'sedb:user_logout' %}"><i class="fa fa-sign-out fa-4x" aria-hidden="true" style="position: fixed;left:170px; bottom:0; "></i></a>
+            </nav>
+        </div>
+        <div id="content">
+        {% block content %}
+        {% endblock %}
+
+        <div id="assignment_div">
+            <div class="panel panel-default">
+                <div class="panel-heading"><center><h5> Assignments </h5></center></div>
+                <div class="panel-body">
+                    <div id="assignment_list" sec_user_id={{sec_user_id}} class="list-group">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="instructor_div" class="hidden">
+
+            Instructors
+            <ul id="instructor_list">
+  
+            </ul>
+        </div>
+
+        <div id="student_div" class="hidden">
+
+            Students
+            <ul id="student_list">
+
+            </ul>
+
+            <h3> Add existing user as student</h3>
+            <form class="col l12" action="{% url 'sedb:add_ex_student' sec_user_id %}" method="post">{% csrf_token %}
+                <div class='row'>
+                  <div class='input-field col l6'>
+                    <select id="stu-user" multiple class="js-example-basic-multiple browser-default" style="width:300px height:50px" name="student" placeholder = "Select Student" required>
+
+                    </select>
+                  </div>
+                  <div class='input-field col l3 push-l2'><button class="btn btn-lg btn-primary" type="submit">Add Student</button></div>
+                </div>
+            </form>
+
+            <h3> Add new user as student, mail will be sent</h3>
+            <form class="col l12" action="{% url 'sedb:add_new_student' sec_user_id %}" method="post">{% csrf_token %}
+                <input type="text" name="email" placeholder = "Email" required>
+                <input type="text" name="name" placeholder = "Name" required>
+                <button class="btn btn-lg btn-primary" type="submit">Add Student</button>
+            </form>
+
+            <h3> Add new user as student, mail will be sent</h3>
+            <form class="col l12" action="{% url 'sedb:add_csv_student' sec_user_id %}" method="post" enctype="multipart/form-data">{% csrf_token %}
+                <input type="file" accept=".csv" class="form-control" id="student_csv" name="student_csv">
+                <button class="btn btn-lg btn-primary" type="submit">Add Student</button>
+            </form>
+
+        </div>
+
+
+
+        </div>
+
+
+
+        <!-- jQuery CDN -->
+        <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+        <!-- Bootstrap Js CDN -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <!-- jQuery Custom Scroller CDN -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $("#sidebar").mCustomScrollbar({
+                    theme: "minimal"
+                });
+                loadAssign();
+                $('#sidebarCollapse').on('click', function () {
+                    $('#sidebar, #content').toggleClass('active');
+                    $('.collapse.in').toggleClass('in');
+                    $('a[aria-expanded=true]').attr('aria-expanded', 'false');
+                });
+
+                $(".side-nav-link").click(function(){
+                    $("#list-nav .active").toggleClass("active");
+                    $(this).parent().toggleClass("active");
+
+                    var vis = $("#content :visible");
+                    vis.addClass('hidden');
+
+                    var toShowDiv = $(this).attr("href");
+                    $(toShowDiv).find("*").removeClass('hidden');
+                    $(toShowDiv).removeClass('hidden');
+                    if (String(toShowDiv)==("#assignment_div")){
+                        loadAssign();
+                    } else if (String(toShowDiv)==("#instructor_div")){
+                        loadIns();
+                    } else if (String(toShowDiv)==("#student_div")){
+                        loadStu();
+                    }
+                });
+
+                $('.js-example-basic-multiple').select2();
+            });
+            function loadAssign(){
+                $.get("{% url 'sedb:get_assignments' sec_user_id %}",
+                function(data, status){
+                    if(status == "success"){
+                        $("#assignment_list").empty()
+                        var assign = data.assignments;
+                        for(var i = 0; i < assign.length; i++){
+                            $("#assignment_list").append("<a href=\"/sedb/section/"+$("#assignment_list").attr("sec_user_id")+"/assignment/"+assign[i].id+"/\" class=\"submit-form list-group-item\">"+assign[i].title+"</a>");
+                        }
+                        $("#assignment_list").append("<a href=\"/sedb/add_assignment/"+$("#assignment_list").attr("sec_user_id")+"/\" class=\"submit-form list-group-item\">Add Assignment</a>");
+                    }
+                    else{
+                    }
+                });
+            }
+
+            function loadIns(){
+                $.get("{% url 'sedb:get_instructors' sec_user_id %}",
+                function(data, status){
+                    if(status == "success"){
+                        $("#instructor_list").empty()
+                        var ins = data.instructor
+                        for(var i = 0; i < ins.length; i++){
+                            $("#instructor_list").append("<li>"+ins[i].name+"</li>")
+                        }
+                    }
+                    else{
+                    }
+                });
+            }
+            function loadStu(){
+                $.get("{% url 'sedb:get_students' sec_user_id %}",
+                function(data, status){
+                    if(status == "success"){
+                        $("#student_list").empty()
+                        var stu = data.student
+                        for(var i = 0; i < stu.length; i++){
+                            $("#student_list").append("<li>"+stu[i].name+"</li>")
+                        }
+                        $("#stu-user").empty()
+                        var stu = data.user
+                        for(var i = 0; i < stu.length; i++){
+                            $("#stu-user").append("<option value=\""+stu[i].user_id+"\">"+stu[i].user_id+" - "+stu[i].name+"</option>")
+                        }
+                    }
+                    else{
+                    }
+                });
+            }
+        </script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/js/select2.min.js"></script>
+        {% block javascript %}{% endblock %}
+    </body>
+</html>

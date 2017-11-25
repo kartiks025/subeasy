@@ -169,7 +169,7 @@ def instructor_required(fun):
             else:
                 print(sec_user_id)
                 sec_user = SecUser.objects.get(id=sec_user_id)
-                if not sec_user.role == "Instructor" or not sec_user.user.user_id == request.session['user_id']:
+                if (not sec_user.role == "Instructor" and not sec_user.role == "TA") or not sec_user.user.user_id == request.session['user_id']:
                     print(sec_user.user.user_id + "," + request.session['user_id'])
                     return doredirect(request, 'sedb:user_login')
         except KeyError:
@@ -193,7 +193,7 @@ def instructor1_required(fun):
                 print(sec_user_id)
                 sec_user = SecUser.objects.get(id=sec_user_id)
                 print("yes " + sec_user.role)
-                if not sec_user.role == "Instructor" or not sec_user.user.user_id == request.session['user_id']:
+                if (not sec_user.role == "Instructor" and not sec_user.role == "TA") or not sec_user.user.user_id == request.session['user_id']:
                     print(sec_user.user.user_id + "," + request.session['user_id'])
                     return doredirect(request, 'sedb:user_login')
         except KeyError:
@@ -297,7 +297,7 @@ def instructor2_required(fun):
             else:
                 print(sec_user_id)
                 sec_user = SecUser.objects.get(id=sec_user_id)
-                if not sec_user.user.user_id == request.session['user_id']:
+                if (not sec_user.role == "Instructor" and not sec_user.role == "TA") or not sec_user.user.user_id == request.session['user_id']:
                     print(sec_user.user.user_id + "," + request.session['user_id'])
                     return doredirect(request, 'sedb:user_login')
         except KeyError:
