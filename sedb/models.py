@@ -342,6 +342,7 @@ class UserSubmissions(models.Model):
     num_submissions = models.IntegerField()
     final_submission_no = models.IntegerField()
     id = models.BigAutoField(primary_key=True)
+    marks_inst = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = False

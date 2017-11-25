@@ -524,7 +524,7 @@ def get_all_submissions(request, sec_user_id, assign_id):
 
     cursor = connection.cursor()
     cursor.execute(
-        '''with A as (select * from problem where assignment_id=%s),B as (select * from "user" where user_id in (select user_id from sec_user where sec_id in (select sec_id from sec_user where id=%s) and role='Student')),C as (select user_id,problem_id,final_submission_no as sub_no from user_submissions where problem_id in (select problem_id from A)),D as (select * from submission where (user_id,problem_id,sub_no) in (select * from C)),E as (select user_id,name,problem_id,problem_no from A,B) select user_id,name,problem_no,id,sub_file_name,marks_auto,marks_inst from E natural left outer join D order by problem_no''',
+        '''with A as (select * from problem where assignment_id=2),B as (select * from "user" where user_id in (select user_id from sec_user where sec_id in (select sec_id from sec_user where id=3) and role='Student')),C as (select user_id,problem_id,final_submission_no as sub_no,marks_inst as instructor_marks from user_submissions where problem_id in (select problem_id from A)),D as (select * from submission where (user_id,problem_id,sub_no) in (select user_id,problem_id,sub_no from C)),F as (select C.user_id,C.problem_id,id,sub_file_name,marks_auto,instructor_marks from D full outer join C on C.user_id=D.user_id and C.problem_id=D.problem_id) ,E as (select user_id,name,problem_id,problem_no from A,B) select user_id,name,problem_no,id,sub_file_name,marks_auto,instructor_marks from E natural left outer join F order by problem_no''',
         [assign_id, sec_user_id])
     submissionArr = dictfetchall(cursor)
 
@@ -536,10 +536,8 @@ def get_all_submissions(request, sec_user_id, assign_id):
         submissionList = []
         for elt in submissionArr:
             if elt['user_id'] == user_id:
-                submissionList.append(
-                    {'problem_no': elt['problem_no'], 'marks': elt['marks_auto'], 'marks_inst': elt['marks_inst'],
-                     'sub_id': elt['id'], 'sub_file_name': elt['sub_file_name']})
-        allSubmissions.append({'user_id': user_id, 'name': name, 'submissions': submissionList})
+                submissionList.append({'problem_no':elt['problem_no'],'marks':elt['marks_auto'],'marks_inst':elt['instructor_marks'],'sub_id':elt['id'],'sub_file_name':elt['sub_file_name']})
+        allSubmissions.append({'user_id':user_id,'name':name,'submissions':submissionList})
 
     print(allSubmissions)
 
@@ -607,8 +605,36 @@ def upload_inst_csv(request, sec_user_id, assign_id):
         decoded_file = file.read().decode('utf-8').splitlines()
         reader = csv.reader(decoded_file)
         for row in reader:
-            print(row)
-    return render('sedb:user_home')
+            if(row[0]=='#'):
+                problems = row[3:]
+                problem_no = [p[8:] for p in problems]
+            else:
+                for x in range(0,len(problem_no)):
+                    try:
+                        problem = Problem.objects.get(assignment_id=assign_id,problem_no=problem_no[x])
+                        us,created = UserSubmissions.objects.get_or_create(user_id=row[1],problem_id=problem.problem_id,defaults={'num_submissions':0,'final_submission_no':0})
+                        if(row[x+3]==''):
+                            us.marks_inst=0
+                        else:
+                            us.marks_inst = row[x+3]
+                        us.save()
+                    except:
+                        print(traceback.format_exc())
+        print(problem_no)
+    return JsonResponse({
+                'success': True
+            })
+
+
+@student1_required
+def get_user_marks(request, sec_user_id, assign_id):
+    cursor = connection.cursor()
+    cursor.execute('''select * from (select problem_id,marks_inst from user_submissions where user_id=%s and problem_id in (select problem_id from problem where assignment_id=%s) ) A left join (select problem_id, count(marks) from testcase where problem_id in (select problem_id from problem where assignment_id=%s) group by problem_id) B on A.problem_id=B.problem_id''',[request.session['user_id'],assign_id,assign_id])
+    marks = dictfetchall(cursor)
+    print(marks)
+    return JsonResponse({
+                'problems':marks,
+            })
 
 
 @instructor2_required

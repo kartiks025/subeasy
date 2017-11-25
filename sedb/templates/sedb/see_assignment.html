@@ -24,7 +24,7 @@
                 <a class="side-nav-link" href="#submission" class="submit-form ">Submissions</a>
             </li>
             <li>
-                <a class="side-nav-link" href="#marksheet" class="submit-form ">Marksheet</a>
+                <a class="side-nav-link" id="tab-marksheet" href="#marksheet" class="submit-form ">Marksheet</a>
             </li>
             <li>
                 <a class="side-nav-link" href="#announcement" class="submit-form ">Announcements</a>
@@ -178,13 +178,26 @@
         
     </div>
 
-    <div id="marksheet" class="nav-content hidden">
+    <div id="marksheet" data-loadUrl="{% url 'sedb:get_user_marks' sec_user_id assign_id %}" class="nav-content hidden">
         <div class="panel panel-primary">
             <div class="panel-heading">
                 Marksheet
             </div>
             <div class="panel-body">
-                TBD
+                <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th> Problem </th>
+                        <th> Max Marks </th>
+                        <th> Your Marks </th>
+                    </tr>
+                </thead>
+                <tbody name="marks-row">
+                    <tr>
+                        
+                    </tr>
+                </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -223,6 +236,11 @@
             SideAssignNavClick($(this));
         });
         
+        $("#content").on('click', '#tab-marksheet',function (){
+            console.log("yesfn")
+            loadMarks();
+        });
+
         $("#content").on('click', '.evaluate-btn',function (){
             EvaluateButtonClick($(this),"{% static 'sedb/ajax-loader.gif' %}");
         });

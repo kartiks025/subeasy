@@ -354,3 +354,20 @@ function EvaluateButtonClick(elem,img){
         });
     }
 }
+
+function loadMarks(){
+    var url = $("#marksheet").attr('data-loadUrl');
+
+    console.log(url);
+    $.get(url,
+    function(data, status){
+        var content=""
+        if(status == "success"){
+            for (var i in data.problems){
+                content += "<tr><td>Problem "+i.problem_id+"</td><td>"+i.count+"</td><td>"+i.marks_inst+"</td></tr>";
+            }
+            $("#marksheet"+ ' tbody[name ="marks-row"]').html(content);
+        }
+    });
+
+}
