@@ -297,6 +297,11 @@
 
     <div id="submissions" data-loadUrl="{% url 'sedb:get_all_submissions' sec_user_id assign_id %}" class="nav-content hidden">
         <button id="evaluate_all_button" type="button" name="{% url 'sedb:evaluate_all' sec_user_id assign_id %}" class="btn btn-default">Evaluate All</button>
+        <a id="download_auto_csv" href="{% url 'sedb:download_auto_csv' sec_user_id assign_id %}" class="btn btn-default">Download Auto Evaluation Marks</a>
+        <form class="form" action="{% url 'sedb:upload_inst_csv' sec_user_id assign_id %}" name="submit_form" method="post" enctype="multipart/form-data">{% csrf_token %}
+            <input type="file" accept=".csv" class="form-control" name="inst_csv_file">
+            <button type="submit" class="btn btn-default">Upload Instructor CSV file</button>
+        </form>
         <div class="panel panel-primary">
             <div class="panel-heading">
                 Submissions

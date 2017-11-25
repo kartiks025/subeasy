@@ -24,6 +24,7 @@ from .utils import *
 from .restricted_helpers import *
 from .runner import *
 from io import StringIO
+import csv
 
 
 @user2_required #checked
@@ -269,7 +270,7 @@ def get_user_assign_prob(request, sec_user_id, assign_id, prob_id):
         'can_submit' : can_submit
     })
 
-@user2_required
+@user2_required #checked
 def get_assign_all_prob(request, sec_user_id, assign_id):
     print("all prob called")
     assignment = Assignment.objects.get(assignment_id=assign_id)
@@ -470,12 +471,11 @@ def evaluate_all(request,sec_user_id,assign_id):
             except :
                 print(traceback.format_exc())
     return JsonResponse({
-                'success': False,
-                'message': 'Cannot submit beyond time'
+                'success': True
             })
 
 
-@user_required
+#@user_required check remaining
 def download_submission(request,sub_id):
     contents = Submission.objects.get(id=sub_id)
     response = HttpResponse(contents.sub_file)
@@ -497,7 +497,7 @@ def get_all_submissions(request, sec_user_id, assign_id):
 
     cursor = connection.cursor()
     cursor.execute(
-        '''with A as (select * from problem where assignment_id=%s),B as (select * from "user" where user_id in (select user_id from sec_user where sec_id in (select sec_id from sec_user where id=%s) and role='Student')),C as (select user_id,problem_id,final_submission_no as sub_no from user_submissions where problem_id in (select problem_id from A)),D as (select * from submission where (user_id,problem_id,sub_no) in (select * from C)),E as (select user_id,name,problem_id,problem_no from A,B) select user_id,name,problem_no,id,sub_file_name,marks_auto from E natural left outer join D order by problem_no''',
+        '''with A as (select * from problem where assignment_id=%s),B as (select * from "user" where user_id in (select user_id from sec_user where sec_id in (select sec_id from sec_user where id=%s) and role='Student')),C as (select user_id,problem_id,final_submission_no as sub_no from user_submissions where problem_id in (select problem_id from A)),D as (select * from submission where (user_id,problem_id,sub_no) in (select * from C)),E as (select user_id,name,problem_id,problem_no from A,B) select user_id,name,problem_no,id,sub_file_name,marks_auto,marks_inst from E natural left outer join D order by problem_no''',
         [assign_id, sec_user_id])
     submissionArr = dictfetchall(cursor)
 
@@ -509,7 +509,7 @@ def get_all_submissions(request, sec_user_id, assign_id):
         submissionList = []
         for elt in submissionArr:
             if elt['user_id'] == user_id:
-                submissionList.append({'problem_no':elt['problem_no'],'marks':elt['marks_auto'],'sub_id':elt['id'],'sub_file_name':elt['sub_file_name']})
+                submissionList.append({'problem_no':elt['problem_no'],'marks':elt['marks_auto'],'marks_inst':elt['marks_inst'],'sub_id':elt['id'],'sub_file_name':elt['sub_file_name']})
         allSubmissions.append({'user_id':user_id,'name':name,'submissions':submissionList})
 
     print(allSubmissions)
@@ -519,3 +519,63 @@ def get_all_submissions(request, sec_user_id, assign_id):
                 'problems':problemArr,
                 'submissions': allSubmissions,
             })
+
+@instructor1_required
+def download_auto_csv(request, sec_user_id, assign_id):
+    try:
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="AutoEvaluationAssign'+assign_id+'.csv"'
+        writer = csv.writer(response)
+
+        cursor = connection.cursor()
+        cursor.execute('''select user_id,name from "user" where user_id in (select user_id from sec_user where sec_id in (select sec_id from sec_user where id=%s) and role='Student')''',[sec_user_id])
+        userArr = dictfetchall(cursor)
+
+
+        cursor = connection.cursor()
+        cursor.execute('''select problem_no from problem where assignment_id=%s order by problem_no''',[assign_id])
+        problemArr = dictfetchall(cursor)
+
+        print(problemArr)
+
+        head = ['#','User ID','Name']
+
+        for p in problemArr:
+            head.append("Problem "+ str(p['problem_no']))
+
+        writer.writerow(head)
+
+        cursor = connection.cursor()
+        cursor.execute(
+            '''with A as (select * from problem where assignment_id=%s),B as (select * from "user" where user_id in (select user_id from sec_user where sec_id in (select sec_id from sec_user where id=%s) and role='Student')),C as (select user_id,problem_id,final_submission_no as sub_no from user_submissions where problem_id in (select problem_id from A)),D as (select * from submission where (user_id,problem_id,sub_no) in (select * from C)),E as (select user_id,name,problem_id,problem_no from A,B) select user_id,name,problem_no,marks_auto from E natural left outer join D order by problem_no''',
+            [assign_id, sec_user_id])
+        submissionArr = dictfetchall(cursor)
+
+        allSubmissions = []
+
+        i = 0
+        for user in userArr:
+            i=i+1
+            user_id = user['user_id']
+            name = user['name']
+            submissionList = [i,user_id,name]
+            for elt in submissionArr:
+                if elt['user_id'] == user_id:
+                    submissionList.append(elt['marks_auto'])
+            writer.writerow(submissionList)
+    except:
+        print(traceback.format_exc())
+        response = HttpResponse("")
+        response['Content-Disposition'] = 'attachment; filename=' + "null"
+    return(response)
+
+
+@instructor1_required
+def upload_inst_csv(request, sec_user_id, assign_id):
+    if request.method == 'POST':
+        file = request.FILES['inst_csv_file']
+        decoded_file = file.read().decode('utf-8').splitlines()
+        reader = csv.reader(decoded_file)
+        for row in reader:
+            print(row)
+    return render('sedb:user_home')
