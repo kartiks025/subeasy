@@ -1,5 +1,13 @@
 {% extends 'sedb/assignment_base.html' %}
 
+{% block stylesheet %}
+<style>
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+</style>
+{% endblock %}
 {% block content %}
 {% load staticfiles %}
 
@@ -38,7 +46,7 @@
 
 <div id="content" class="container-fluid">
     <div class="panel panel-primary nav-content" id="details">
-        <div class="panel-heading">
+        <div class="panel-heading" >
             <center><h5>Assignment</h5></center>
         </div>
         <div class="panel-body">
@@ -295,15 +303,15 @@
     <div id="submissions" data-loadUrl="{% url 'sedb:get_all_submissions' sec_user_id assign_id %}" class="nav-content hidden">
         <button id="evaluate_all_button" type="button" name="{% url 'sedb:evaluate_all' sec_user_id assign_id %}" class="btn btn-default">Evaluate All</button>
         <a id="download_auto_csv" href="{% url 'sedb:download_auto_csv' sec_user_id assign_id %}" class="btn btn-default">Download Auto Evaluation Marks</a>
-        <form class="form" action="{% url 'sedb:upload_inst_csv' sec_user_id assign_id %}" name="submit_form" method="post" enctype="multipart/form-data">{% csrf_token %}
-            <input type="file" accept=".csv" class="form-control" name="inst_csv_file">
+        <form class="form" style="display: inline-block;" action="{% url 'sedb:upload_inst_csv' sec_user_id assign_id %}" name="submit_form" method="post" enctype="multipart/form-data">{% csrf_token %}
+            <input type="file" accept=".csv" name="inst_csv_file">
             <button type="button" id="upload_inst_csv" class="btn btn-default">Upload Instructor CSV file</button>
         </form>
         <div class="panel panel-primary">
             <div class="panel-heading">
                 Submissions
             </div>
-            <div class="panel-body">
+            <div class="panel-body table-responsive">
                 <table class="table table-bordered" >
                     <thead name="submission-thead">
 
