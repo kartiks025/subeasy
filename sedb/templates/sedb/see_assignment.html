@@ -223,23 +223,22 @@
     $(document).ready(function(){
         loadHome("{% url 'sedb:get_assign_home' sec_user_id assign_id %}");
 
-        $("#sidebar").mCustomScrollbar({
-            theme: "minimal"
-        });
-
         $('#sidebarCollapse').on('click', function () {
             $('#sidebar, #content').toggleClass('active');
             $('.collapse.in').toggleClass('in');
             $('a[aria-expanded=true]').attr('aria-expanded', 'false');
         });
+
+        $("#tab-marksheet").on('click',function(){
+            console.log("yes");
+            loadMarks();
+        });
+
         $(".side-nav-link").click(function(){
+            console.log("hey");
             SideAssignNavClick($(this));
         });
         
-        $("#content").on('click', '#tab-marksheet',function (){
-            console.log("yesfn")
-            loadMarks();
-        });
 
         $("#content").on('click', '.evaluate-btn',function (){
             EvaluateButtonClick($(this),"{% static 'sedb/ajax-loader.gif' %}");

@@ -362,9 +362,11 @@ function loadMarks(){
     $.get(url,
     function(data, status){
         var content=""
+        console.log(data);
         if(status == "success"){
             for (var i in data.problems){
-                content += "<tr><td>Problem "+i.problem_id+"</td><td>"+i.count+"</td><td>"+i.marks_inst+"</td></tr>";
+                console.log(i)
+                content += "<tr><td>Problem "+data.problems[i].problem_id+"</td><td>"+data.problems[i].count+"</td><td>"+data.problems[i].marks_inst+"</td></tr>";
             }
             $("#marksheet"+ ' tbody[name ="marks-row"]').html(content);
         }

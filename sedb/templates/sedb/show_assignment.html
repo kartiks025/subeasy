@@ -350,6 +350,10 @@
         evaluateAll("{% static 'sedb/ajax-loader.gif' %}");
     });
 
+    $("#upload_inst_csv").click(function(){
+        UploadInstCsv($(this),"{% static 'sedb/ajax-loader.gif' %}");
+    });
+
 </script>
 
 {% endblock %}

@@ -519,7 +519,7 @@ def get_all_submissions(request, sec_user_id, assign_id):
     # print(userArr)
 
     cursor = connection.cursor()
-    cursor.execute('''select problem_no from problem where assignment_id=%s order by problem_no''', [assign_id])
+    cursor.execute('''select problem_no,coalesce(count,0) as count from (select problem_id,problem_no from problem where assignment_id=%s order by problem_no) A left join (select count(marks), problem_id from testcase group by problem_id) B on A.problem_id=B.problem_id''', [assign_id])
     problemArr = dictfetchall(cursor)
 
     cursor = connection.cursor()
@@ -629,7 +629,7 @@ def upload_inst_csv(request, sec_user_id, assign_id):
 @student1_required
 def get_user_marks(request, sec_user_id, assign_id):
     cursor = connection.cursor()
-    cursor.execute('''select * from (select problem_id,marks_inst from user_submissions where user_id=%s and problem_id in (select problem_id from problem where assignment_id=%s) ) A left join (select problem_id, count(marks) from testcase where problem_id in (select problem_id from problem where assignment_id=%s) group by problem_id) B on A.problem_id=B.problem_id''',[request.session['user_id'],assign_id,assign_id])
+    cursor.execute('''select A.problem_id,marks_inst,coalesce(count,0) as count from (select problem_id,marks_inst from user_submissions where user_id=%s and problem_id in (select problem_id from problem where assignment_id=%s) ) A left join (select problem_id, count(marks) from testcase where problem_id in (select problem_id from problem where assignment_id=%s) group by problem_id) B on A.problem_id=B.problem_id''',[request.session['user_id'],assign_id,assign_id])
     marks = dictfetchall(cursor)
     print(marks)
     return JsonResponse({

@@ -229,7 +229,7 @@ function loadAllSubmissions(){
             var head_content = "";
             head_content += "<tr><th rowspan=\"2\">#</th><th rowspan=\"2\">User ID</th><th rowspan=\"2\">Name</th>";
             for(var i in problems){
-                head_content += "<th colspan=\"3\">Problem" + problems[i].problem_no + "</th>";
+                head_content += "<th colspan=\"3\">Problem" + problems[i].problem_no +" (" +problems[i].count+") </th>";
             }
             head_content += "</tr><tr>";
             for(var i in problems){
