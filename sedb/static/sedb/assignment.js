@@ -20,12 +20,46 @@ function loadHome(){
                 $("#freeze_deadline").val(deadline.freezing_deadline);
                 $("#crib_deadline").val(obj.crib_deadline);
                 $("#description").val(obj.description);
+
+                var prob_list = data.prob_list;
+                for(var p in prob_list){
+                    var td1 = $('<td/>',{text: "Problem "+prob_list[p].prob_num});
+                    var td2 = $('<td/>').append($('<span/>',{
+                        'prob_id' : prob_list[p].prob_id,
+                        'class': 'glyphicon glyphicon-trash',
+                        on : {
+                            click: function(){
+                                delete_prob($(this));
+                            }
+                        }
+                    }));
+                    $('#details .list-problems').append($('<tr/>').append(td1).append(td2));
+                }
             }
         }
         else{
             console.log("Some Error Occurred");
         }
     });
+}
+
+function delete_prob(elem){
+    var prob_id = elem.attr('prob_id');
+    console.log("delete prob called id = "+prob_id);
+    var url = $('#details .list-problems').attr('data-loadUrl').replace('/0/','/'+prob_id+'/');
+    $.get(url,
+    function(data, status){
+        if(status == "success"){
+            if(data.done){
+                console.log("successfully deleted");
+            }
+            else{
+                alert('Error occurred in delete');
+            }
+        }
+    });
+
+    location.reload();
 }
 
 function evaluateAll(img){
@@ -166,7 +200,6 @@ function reloadProblem(elem){
 
             if(div_id.startsWith('new')){
                 var prev_link_id = div_id.replace('newprob','newlink');
-                console.log('found new problem with id ',prev_div_id);
                 $("#"+div_id).attr('id','prob'+prob_id);
                 $("#"+prev_link_id).attr('id','link'+prob_id);
             }
@@ -374,7 +407,7 @@ function appendProb(problem_no, is_new){
         html : $("#problem-form").html()
     }).appendTo($("#content"));
 
-    $("#prob"+problem_no+" .edit-btn").on("click", function(){
+    $('#'+div_id + " .edit-btn").on("click", function(){
         EditButtonClick($(this));
     });
 

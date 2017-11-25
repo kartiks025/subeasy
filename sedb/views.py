@@ -193,6 +193,7 @@ def display_section(request, sec_user_id):
         return display_student(request, sec_user_id)
     return render(request, 'sedb/display_section.html')
 
+
 @instructor_required
 def display_instructor(request, sec_user_id):
     sec_user = SecUser.objects.get(id=sec_user_id);
@@ -213,12 +214,15 @@ def display_instructor(request, sec_user_id):
     teach = SecUser.objects.filter(sec_id=sec_user.sec_id, role="TA")
     ta = [a.user for a in teach]
 
-    context = {'section': sec_user.sec, 'sec_user_id': sec_user.id, 'assignments': assignments, 'instructor': instructor,'student': student,'ta': ta,'user':users}
+    context = {'section': sec_user.sec, 'sec_user_id': sec_user.id, 'assignments': assignments,
+               'instructor': instructor, 'student': student, 'ta': ta, 'user': users}
 
     return render(request, 'sedb/display_instructor.html', context)
 
+
 def display_ta(request, sec_user):
     return render(request, 'sedb/display_ta.html')
+
 
 @student_required
 def display_student(request, sec_user_id):
@@ -261,9 +265,10 @@ def add_assignment(request, sec_user_id):
 @instructor1_required
 def show_assignment(request, sec_user_id, assign_id):
     context = {'sec_user_id': sec_user_id, 'assign_id': assign_id}
-    return render(request, 'sedb/add_assignment.html', context)
+    return render(request, 'sedb/show_assignment.html', context)
 
-@student1_required #checking done
+
+@student1_required  # checking done
 def stu_assignment(request, sec_user_id, assign_id):
     context = {'sec_user_id': sec_user_id, 'assign_id': assign_id}
     return render(request, 'sedb/see_assignment.html', context)
@@ -390,9 +395,12 @@ def add_csv_student(request, sec_user_id):
                 print("exists")
     return student_tab(request, sec_user_id)
 
-def submission(request, sec_user_id,assign_id):
+
+def submission(request, sec_user_id, assign_id):
     return render(request, 'sedb/submission.html')
 
+
 def output_compare(request, sub_test_id):
-    s=SubTest.objects.get(id=sub_test_id)
-    return render(request, 'sedb/output_compare.html', {'output': bytes(s.output).decode('UTF-8'), 'testcase': bytes(s.testcase.outfile).decode('UTF-8')})
+    s = SubTest.objects.get(id=sub_test_id)
+    return render(request, 'sedb/output_compare.html',
+                  {'output': bytes(s.output).decode('UTF-8'), 'testcase': bytes(s.testcase.outfile).decode('UTF-8')})

@@ -14,27 +14,6 @@
             <li  class="active">
                 <a id="link-details" class="side-nav-link" href="#details">Details</a>
             </li>
-            <li>
-                <a href="#problemSubMenu" data-toggle="collapse" aria-expanded="false">Problems</a>
-                <ul class="collapse list-unstyled" id="problemSubMenu" data-loadUrl="{% url 'sedb:get_assign_all_prob' sec_user_id assign_id %}">
-                    <li id="add-button">
-                        <a href="javascript:addNewProblem('{% url 'sedb:get_new_prob_no' sec_user_id assign_id %}')">
-                            <span class="glyphicon glyphicon-plus"></span>
-                            Add New Problem
-                        </a>
-                    </li>
-                </ul>
-            </li>
-
-            <li>
-                <a class="side-nav-link" id="tab-submissions" href="#submissions" class="submit-form ">Submissions</a>
-            </li>
-            <li>
-                <a class="side-nav-link" href="#marksheet" class="submit-form ">Marksheet</a>
-            </li>
-            <li>
-                <a class="side-nav-link" href="#announcement" class="submit-form ">Announcements</a>
-            </li>
         </ul>
         <a href="{% url 'sedb:user_home' %}"><i class="fa fa-arrow-left fa-4x" aria-hidden="true" style="position: fixed;left:20px; bottom:0; "></i></a>
         <a href="{% url 'sedb:user_home' %}"><i class="fa fa-home fa-4x" aria-hidden="true" style="position: fixed;left:95px; bottom:0; "></i></a>
@@ -48,13 +27,10 @@
             <center><h5>Assignment</h5></center>
         </div>
         <div class="panel-body">
-            <div id="detailsForm" data-loadUrl="{% url 'sedb:get_assign_home' sec_user_id assign_id %}">
-                <button type="button" class="edit-btn btn btn-default btn-sm pull-right">
-                    <span id="homeEditSave" class="glyphicon glyphicon-pencil"></span>
-                </button>
+            <div id="detailsForm">
 
                 <div class="container">
-                    <form class="form-horizontal" id="form" action="{% url 'sedb:edit_assign_home' sec_user_id assign_id %}" method="post" enctype="multipart/form-data">
+                    <form class="form-horizontal" id="form" action="{% url 'sedb:save_new_assign' sec_user_id %}" method="post" enctype="multipart/form-data">{% csrf_token %}
 
                         <div class="form-group">
                             <label class="control-label col-xs-2" for="assign_num">Number:</label>
@@ -132,212 +108,18 @@
                             </div>
                         </div>
 
+                        <div class="form-group">
+                            <div class="col-sm-offset-2">
+                                <button type="submit" class="btn btn-default">Save</button>
+                            </div>
+                        </div>
+
                     </form>
+
                 </div>
 
             </div>
 
-        </div>
-    </div>
-
-    <div class="panel panel-primary nav-content content hidden" id="problem-form">
-        <div class="panel-heading">
-            <center><h5>Problem</h5></center>
-        </div>
-        <div class="panel-body">
-            <div class="loadUrl" data-loadUrl="{% url 'sedb:get_assign_prob' sec_user_id assign_id 0 %}">
-                <button type="button" class="edit-btn btn btn-default btn-sm pull-right">
-                    <span class="glyphicon glyphicon-pencil"></span>
-                </button>
-
-                <div class="container">
-                    <form class="form-horizontal" action="{% url 'sedb:edit_assign_prob' sec_user_id assign_id 0 %}" method="post" enctype="multipart/form-datas">
-
-                        <div class="form-group">
-                            <label class="control-label col-xs-2" >Number:</label>
-                            <div class="col-xs-6">
-                                <input type="number" min="1" class="form-control" placeholder="Enter Problem number" name="prob_num" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-xs-2">Title:</label>
-                            <div class="col-xs-6">
-                                <input type="text" class="form-control" placeholder="Title" name="prob_title" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-xs-2">Description:</label>
-                            <div class="col-xs-6">
-                                <textarea class="form-control" rows="5" placeholder="Description" name="description" required></textarea>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-xs-2">Helper File:</label>
-                            <div class="col-xs-6">
-                                <input type="file" accept=".tar.gz,.zip,.pdf" class="form-control" name="helper_file">
-                                <a href="{% url 'sedb:download_problem_helper_file' sec_user_id assign_id 0 %}" name="helper_file">Download</a>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-xs-2">Solution File:</label>
-                            <div class="col-xs-6">
-                                <input type="file" accept=".tar.gz,.zip,.pdf" class="form-control" name="solution_file">
-                                <a href="{% url 'sedb:download_problem_solution_file' sec_user_id assign_id 0 %}" name="solution_file">Download</a>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-xs-2">Solution Visibility:</label>
-                            <div class="col-xs-6">
-                                <label class="radio-inline">
-                                    <input type="radio" name="sol_visibility" value="1">Visible
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="sol_visibility" value="0" checked>Hidden
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-xs-2">Files to submit:</label>
-                            <div class="col-xs-6">
-                                <input type="text" class="form-control" placeholder="FileNames separated by commas" name="files_to_submit">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-xs-2">Compilation Command:</label>
-                            <div class="col-xs-6">
-                                <input type="text" class="form-control" placeholder="Compilation command" name="compile_cmd" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-xs-2">Testcase File:</label>
-                            <div class="col-xs-6">
-                                <input type="file" accept=".tar.gz,.zip" class="form-control" name="testcase_file">
-                                <a href="{% url 'sedb:download_testcase_file' sec_user_id assign_id 0 %}" name="test_file">Download</a>
-                            </div>
-                        </div>
-
-
-                        <h3>Resource Limits:</h3>
-                        <div class="form-group">
-                            <label class="control-label col-xs-2">CPU Time:</label>
-                            <div class="col-xs-6">
-                                <input type="number" min="1" class="form-control" value="1" name="cpu_time" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-xs-2">Clock Time:</label>
-                            <div class="col-xs-6">
-                                <input type="number" min="1" class="form-control" value="1" name="clock_time" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-xs-2">Memory Limit:</label>
-                            <div class="col-xs-6">
-                                <input type="number" min="1" class="form-control" value="16384" name="memory_limit" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-xs-2">Stack Limit:</label>
-                            <div class="col-xs-6">
-                                <input type="number" min="1" class="form-control" value="8192" name="stack_limit" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-xs-2">Maximum Open Files:</label>
-                            <div class="col-xs-6">
-                                <input type="number" min="1" class="form-control" value="1" name="open_files" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="control-label col-xs-2">Maximum File Size:</label>
-                            <div class="col-xs-6">
-                                <input type="number" min="1" class="form-control" value="1024" name="max_filesize" required>
-                            </div>
-                        </div>
-
-                        <br>
-                        <h3>Testcases Info:</h3>
-                        <div class="form-group">
-                            <table class="table table-bordered" style="width: 80%;">
-                                <thead>
-                                    <tr>
-                                        <th> # </th>
-                                        <th> Input File </th>
-                                        <th> Output File </th>
-                                        <th> Visibility </th>
-                                        <th> Marks </th>
-                                    </tr>
-                                </thead>
-                                <tbody name="testcase_info">
-                                    
-                                </tbody>
-                            </table>
-                        </div>
-
-                    </form>
-                </div>
-
-            </div>
-
-        </div>
-    </div>
-
-    <div id="submissions" data-loadUrl="{% url 'sedb:get_all_submissions' sec_user_id assign_id %}" class="nav-content hidden">
-        <button id="evaluate_all_button" type="button" name="{% url 'sedb:evaluate_all' sec_user_id assign_id %}" class="btn btn-default">Evaluate All</button>
-        <a id="download_auto_csv" href="{% url 'sedb:download_auto_csv' sec_user_id assign_id %}" class="btn btn-default">Download Auto Evaluation Marks</a>
-        <form class="form" action="{% url 'sedb:upload_inst_csv' sec_user_id assign_id %}" name="submit_form" method="post" enctype="multipart/form-data">{% csrf_token %}
-            <input type="file" accept=".csv" class="form-control" name="inst_csv_file">
-            <button type="submit" class="btn btn-default">Upload Instructor CSV file</button>
-        </form>
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                Submissions
-            </div>
-            <div class="panel-body">
-                <table class="table table-bordered" >
-                    <thead name="submission-thead">
-                        
-                    </thead>
-                    <tbody name="submission-tbody">
-                        
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="marksheet" class="nav-content hidden">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                Marksheet
-            </div>
-            <div class="panel-body">
-                TBD
-            </div>
-        </div>
-    </div>
-
-    <div id="announcement" class="nav-content hidden">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                Announcements
-            </div>
-            <div class="panel-body">
-                TBD
-            </div>
         </div>
     </div>
 </div>
@@ -345,35 +127,5 @@
 
 {% block javascript %}
 <script src="{% static 'sedb/assignment.js' %}"></script>
-<script>
-
-    $(document).ready(function(){
-        $("input").attr('disabled',true);
-        $("textarea").attr('disabled',true);
-        loadHome();
-        loadProblems();
-    });
-
-    $("#tab-home").click(function(){
-        loadHome();
-    });
-
-    $("#tab-submissions").click(function(){
-        loadAllSubmissions();
-    });
-
-    $(".edit-btn").click(function(){
-        EditButtonClick($(this));
-    });
-
-    $(".side-nav-link").click(function(){
-        SideNavClick($(this));
-    });
-
-    $("#evaluate_all_button").click(function(){
-        evaluateAll("{% static 'sedb/ajax-loader.gif' %}");
-    });
-
-</script>
 
 {% endblock %}

@@ -1,6 +1,6 @@
 import tarfile, smtplib, re
 import pytz
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.core.exceptions import *
 from django.forms.models import model_to_dict
 
@@ -91,6 +91,42 @@ def edit_assign_home(request, sec_user_id, assign_id):
     return JsonResponse({
         'r_id': assignment_id
     })
+
+
+@instructor_required
+def save_new_assign(request, sec_user_id):
+    print("save_new_assign called")
+    if request.method == 'POST':
+        assign_num = request.POST['assign_num']
+        title = request.POST['assign_title']
+        visibility = request.POST['visibility']
+        pub_time = request.POST['pub_time']
+        soft_deadline = request.POST['soft_deadline']
+        hard_deadline = request.POST['hard_deadline']
+        freeze_deadline = request.POST['freeze_deadline']
+        crib_deadline = request.POST['crib_deadline']
+        description = request.POST['description']
+
+        section = SecUser.objects.get(id=sec_user_id).sec
+        print("New Assignment")
+        try:
+            helper_file = request.FILES['helper_file'].file.read()
+            helper_file_name = request.FILES['helper_file'].name
+        except Exception:
+            helper_file = None
+            helper_file_name = ""
+        deadline = Deadline(soft_deadline=soft_deadline, hard_deadline=hard_deadline,
+                            freezing_deadline=freeze_deadline)
+        deadline.save()
+        assignment = Assignment(assignment_no=assign_num, title=title, description=description,
+                                publish_time=pub_time, visibility=(visibility == '1'), crib_deadline=crib_deadline,
+                                sec=section, num_problems=0, deadline=deadline, helper_file=helper_file,
+                                helper_file_name=helper_file_name)
+
+        assignment.save()
+        return HttpResponseRedirect(reverse('sedb:show_assignment', args=(sec_user_id, assignment.assignment_id,)))
+
+    return HttpResponseRedirect(reverse('sedb:add_assignment', args=(sec_user_id,)))
 
 
 @instructor_required
