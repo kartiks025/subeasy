@@ -196,11 +196,11 @@ function loadAllSubmissions(){
             var head_content = "";
             head_content += "<tr><th rowspan=\"2\">#</th><th rowspan=\"2\">User ID</th><th rowspan=\"2\">Name</th>";
             for(var i in problems){
-                head_content += "<th colspan=\"2\">Problem" + problems[i].problem_no + "</th>";
+                head_content += "<th colspan=\"3\">Problem" + problems[i].problem_no + "</th>";
             }
             head_content += "</tr><tr>";
             for(var i in problems){
-                head_content += "<th>Marks</th><th>SubFile</th>";
+                head_content += "<th>Marks Auto</th><th>Marks Inst</th><th>SubFile</th>";
             }
             head_content += "</tr>";
             $("#submissions thead[name=submission-thead]").html(head_content);
@@ -215,13 +215,25 @@ function loadAllSubmissions(){
                 console.log(this_submission);
 
                 for(s in this_submission){
-                    if(this_submission[s].sub_id != null){
+                    if(this_submission[s].marks_inst != null && this_submission[s].sub_id != null){
                         body_content += "<td>" + this_submission[s].marks +"</td>";
-                        body_content += "<td><a href=\""+"/sedb/download_submission/"+this_submission[s].sub_id+"/\">"+this_submission[s].sub_file_name+"</a></td>";
+                        body_content += "<td>" + this_submission[s].marks_inst +"</td>";
+                        body_content += "<td><a class=\"link\" href=\""+"/sedb/download_submission/"+this_submission[s].sub_id+"/\">"+this_submission[s].sub_file_name+"</a></td>";
+                    }
+                    else if(this_submission[s].marks_inst != null && this_submission[s].sub_id==null){
+                        body_content += "<td>" + 0 +"</td>";
+                        body_content += "<td>" + this_submission[s].marks_inst +"</td>";
+                        body_content += "<td>NS</td>";
+                    }
+                    else if(this_submission[s].marks_inst == null && this_submission[s].sub_id != null){
+                        body_content += "<td>" + this_submission[s].marks +"</td>";
+                        body_content += "<td>" + "NE" +"</td>";
+                        body_content += "<td><a class=\"link\" href=\""+"/sedb/download_submission/"+this_submission[s].sub_id+"/\">"+this_submission[s].sub_file_name+"</a></td>";
                     }
                     else{
-                        body_content += "<td>0</td>";
-                        body_content += "<td>No submission yet</td>";
+                        body_content += "<td>" + "0" +"</td>";
+                        body_content += "<td>" + "NE" +"</td>";
+                        body_content += "<td>NS</td>";
                     } 
                 }
                 body_content += "</tr>";
@@ -385,4 +397,36 @@ function appendProb(problem_no, is_new){
 function addNewProblem(url){
     var problem_no = $("#problemSubMenu").children().length;
     appendProb(problem_no, true);
+}
+
+
+function UploadInstCsv(elem,img){
+    var frm = elem.parent()
+    frm.validate();
+    var formData = new FormData(frm[0]);
+    console.log(frm.serialize());
+    console.log(formData);
+    $("<img id=\"gif\" src=\""+img+"\" >").insertAfter(elem)
+    if(frm.valid()){
+        $.ajax({
+            type: frm.attr('method'),
+            url: frm.attr('action'),
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                $("#gif").remove();
+                console.log('Submission was successful.');
+                console.log(data);
+                loadAllSubmissions();
+                frm.trigger("reset");
+            },
+            error: function (data) {
+                $("#gif").remove();
+                console.log('An error occurred.');
+                console.log(data);
+                frm.trigger("reset");
+            },
+        });
+    }
 }

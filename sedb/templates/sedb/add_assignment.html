@@ -29,12 +29,6 @@
             <li>
                 <a class="side-nav-link" id="tab-submissions" href="#submissions" class="submit-form ">Submissions</a>
             </li>
-            <li>
-                <a class="side-nav-link" href="#marksheet" class="submit-form ">Marksheet</a>
-            </li>
-            <li>
-                <a class="side-nav-link" href="#announcement" class="submit-form ">Announcements</a>
-            </li>
         </ul>
         <a href="{% url 'sedb:user_home' %}"><i class="fa fa-arrow-left fa-4x" aria-hidden="true" style="position: fixed;left:20px; bottom:0; "></i></a>
         <a href="{% url 'sedb:user_home' %}"><i class="fa fa-home fa-4x" aria-hidden="true" style="position: fixed;left:95px; bottom:0; "></i></a>
@@ -300,7 +294,7 @@
         <a id="download_auto_csv" href="{% url 'sedb:download_auto_csv' sec_user_id assign_id %}" class="btn btn-default">Download Auto Evaluation Marks</a>
         <form class="form" action="{% url 'sedb:upload_inst_csv' sec_user_id assign_id %}" name="submit_form" method="post" enctype="multipart/form-data">{% csrf_token %}
             <input type="file" accept=".csv" class="form-control" name="inst_csv_file">
-            <button type="submit" class="btn btn-default">Upload Instructor CSV file</button>
+            <button type="button" id="upload_inst_csv" class="btn btn-default">Upload Instructor CSV file</button>
         </form>
         <div class="panel panel-primary">
             <div class="panel-heading">
@@ -315,28 +309,6 @@
                         
                     </tbody>
                 </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="marksheet" class="nav-content hidden">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                Marksheet
-            </div>
-            <div class="panel-body">
-                TBD
-            </div>
-        </div>
-    </div>
-
-    <div id="announcement" class="nav-content hidden">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                Announcements
-            </div>
-            <div class="panel-body">
-                TBD
             </div>
         </div>
     </div>
@@ -372,6 +344,10 @@
 
     $("#evaluate_all_button").click(function(){
         evaluateAll("{% static 'sedb/ajax-loader.gif' %}");
+    });
+
+    $("#upload_inst_csv").click(function(){
+        UploadInstCsv($(this),"{% static 'sedb/ajax-loader.gif' %}");
     });
 
 </script>
