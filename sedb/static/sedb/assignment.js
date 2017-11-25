@@ -174,6 +174,8 @@ function loadAllSubmissions(){
     $.get(url,
     function(data, status){
         if(status == "success"){
+            console.log($("#submissions input[name='inst_csv_file']"))
+            $("#submissions input[name='inst_csv_file']").prop('disabled', false);
             console.log(data);
             var submission_obj = data.submissions;
             var problems = data.problems;

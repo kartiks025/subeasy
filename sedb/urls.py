@@ -35,6 +35,8 @@ urlpatterns = [
         #instructor
         url(r'^assignment/(?P<assign_id>[0-9]+)/', include([
             url(r'^evaluate_all/$', helpers.evaluate_all, name='evaluate_all'),
+            url(r'^download_auto_csv/$', helpers.download_auto_csv, name='download_auto_csv'),
+            url(r'^upload_inst_csv/$', helpers.upload_inst_csv, name='upload_inst_csv'),
             url(r'^edit_assign_home/$', restricted_helpers.edit_assign_home, name='edit_assign_home'),
             url(r'^$', views.show_assignment, name='show_assignment'),
             url(r'^get_assign_home/$', helpers.get_assign_home, name='get_assign_home'),
