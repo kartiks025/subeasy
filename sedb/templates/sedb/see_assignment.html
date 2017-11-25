@@ -19,15 +19,12 @@
                 <ul class="collapse list-unstyled" id="problemSubMenu" data-loadUrl="{% url 'sedb:get_assign_all_prob' sec_user_id assign_id %}">
                 </ul>
             </li>
-
-            <li>
-                <a class="side-nav-link" href="#submission" class="submit-form ">Submissions</a>
-            </li>
             <li>
                 <a class="side-nav-link" id="tab-marksheet" href="#marksheet" class="submit-form ">Marksheet</a>
             </li>
+
             <li>
-                <a class="side-nav-link" href="#announcement" class="submit-form ">Announcements</a>
+                <a class="side-nav-link" id="tab-cribs" href="#cribs" class="submit-form ">Cribs</a>
             </li>
         </ul>
         <a href="{% url 'sedb:display_section' sec_user_id %}"><i class="fa fa-arrow-left fa-4x" aria-hidden="true" style="position: fixed;left:20px; bottom:0; "></i></a>
@@ -212,6 +209,57 @@
             </div>
         </div>
     </div>
+
+    <div class="container hidden">
+        <div id="crib-form-div">
+            <form class="form-horizontal" action="{% url 'sedb:post_crib' sec_user_id assign_id 0 %}" method="post">
+                <div class="form-group">
+                    <label class="control-label col-xs-2">Crib:</label>
+                    <div class="col-xs-6">
+                        <input type="text" class="form-control" placeholder="Enter your crib" name="crib_text" required>
+                    </div>
+                </div>
+            </form>
+            <div class="col-sm-offset-2">
+                <button type="button" class="crib-post-btn btn btn-default">
+                    Post
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container hidden">
+        <div id="crib-comment-div">
+            <div class="crib-text"></div>
+            Comments:
+            <ul></ul>
+            <form class="form-horizontal" action="{% url 'sedb:post_comment' sec_user_id 0 %}" method="post">
+                <div class="form-group">
+                    <label class="control-label col-xs-2">Comment:</label>
+                    <div class="col-xs-6">
+                        <input type="text" class="form-control" placeholder="Enter your comment" name="comment_text" required>
+                    </div>
+                </div>
+            </form>
+            <div class="col-sm-offset-2">
+                <button type="button" class="crib-post-btn btn btn-default">
+                    Post
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cribs" class="nav-content hidden" data-loadUrl="{% url 'sedb:get_assign_cribs' sec_user_id assign_id %}">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                Cribs
+            </div>
+            <div class="panel-body">
+                <ul class="nav nav-tabs" id="problem-crib-tab"></ul>
+                <div class="tab-content" id="problem-crib-content"></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}
@@ -232,6 +280,10 @@
         $("#tab-marksheet").on('click',function(){
             console.log("yes");
             loadMarks();
+        });
+
+        $("#tab-cribs").on('click',function(){
+            loadCribs();
         });
 
         $(".side-nav-link").click(function(){

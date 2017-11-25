@@ -361,15 +361,117 @@ function loadMarks(){
     console.log(url);
     $.get(url,
     function(data, status){
-        var content=""
+        var content="";
         console.log(data);
         if(status == "success"){
             for (var i in data.problems){
-                console.log(i)
+                console.log(i);
                 content += "<tr><td>Problem "+data.problems[i].problem_id+"</td><td>"+data.problems[i].count+"</td><td>"+data.problems[i].marks_inst+"</td></tr>";
             }
             $("#marksheet"+ ' tbody[name ="marks-row"]').html(content);
         }
     });
+
+}
+
+function loadProbCrib(elem,prob){
+    var content = "";
+    if($.isEmptyObject(prob.crib)){
+        content = $('<div/>',{
+            'class' : "container",
+            html : $("#crib-form-div").html(),
+        });
+        var frm = content.find("form");
+        var url = frm.attr('action');
+        frm.attr('action',url.replace('/0/','/'+prob.prob_id+'/'));
+    }
+    else{
+        content = $('<div/>',{
+            'class' : "container",
+            html : $("#crib-comment-div").html(),
+        });
+        var frm = content.find("form");
+        var url = frm.attr('action');
+        frm.attr('action',url.replace('/0/','/'+prob.crib.crib_id+'/'));
+
+        content.find('.crib-text').html(prob.crib.timestamp+'<br>'+prob.crib.text);
+
+        for(var c in prob.crib.comments){
+            content.find('ul').append($('<li/>',{
+                html : prob.crib.comments[c].user_id+','+prob.crib.comments[c].timestamp+'<br>'+prob.crib.comments[c].text
+            }));
+        }
+    }
+    elem.append(content);
+}
+
+function loadCribs(){
+    console.log("loadCribs called");
+    var url = $("#cribs").attr('data-loadUrl');
+    $.get(url,
+    function(data, status){
+        console.log(data);
+        if(status == "success"){
+            $('#problem-crib-content').empty();
+            $('#problem-crib-tab').empty();
+            for (var i in data.crib){
+                var prob = data.crib[i];
+                console.log(prob);
+
+                $('#problem-crib-content').append($('<div/>',{
+                    id: "crib-problem-"+prob.prob_id,
+                    'class' : 'tab-pane fade in'
+                }));
+
+                $('#problem-crib-tab').append($('<li/>').append($('<a/>',{
+                    'data-toggle' : "tab",
+                    href : "#crib-problem-"+prob.prob_id,
+                    text : "Problem"+prob.prob_num,
+                    'class' : ""
+                })));
+            }
+            for (var i in data.crib){
+                var prob = data.crib[i];
+                console.log(prob);
+
+                var elem = $("#"+"crib-problem-"+prob.prob_id);
+                loadProbCrib(elem,prob);
+            }
+            if($('#problem-crib-content').children().length > 0){
+                $('#problem-crib-tab>:first-child').addClass('active');
+                $('#problem-crib-content>:first-child').addClass('active');
+            }
+            $('#problem-crib-content .crib-post-btn').on('click',function(){
+                postCrib($(this));
+            });
+        }
+    });
+}
+
+function postCrib(elem){
+    var frm = elem.parent().parent().find("form");
+    var url = frm.attr('action');
+    var formData = new FormData(frm[0]);
+    console.log("postCribs"+url);
+    frm.validate();
+
+    if(frm.valid()){
+        $.ajax({
+            type: frm.attr('method'),
+            url: frm.attr('action'),
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                console.log('Submission was successful.');
+                console.log(data);
+                loadCribs();
+            },
+            error: function (data) {
+                console.log('An error occurred.');
+                console.log(data);
+            },
+        });
+    }
 
 }

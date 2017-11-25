@@ -79,7 +79,7 @@ def download_problem_solution_file(request, sec_user_id, assign_id, prob_id):
         problem = Problem.objects.get(problem_id=prob_id)
         sec_user = SecUser.objects.get(id=sec_user_id)
         if sec_user.role == "Student" and (
-                datetime.datetime.now() < assignment.deadline.freezing_deadline or not problem.sol_visibility):
+                        datetime.datetime.now() < assignment.deadline.freezing_deadline or not problem.sol_visibility):
             response = HttpResponse("")
             response['Content-Disposition'] = 'attachment; filename=' + "null"
             return response
@@ -519,7 +519,9 @@ def get_all_submissions(request, sec_user_id, assign_id):
     # print(userArr)
 
     cursor = connection.cursor()
-    cursor.execute('''select problem_no,coalesce(count,0) as count from (select problem_id,problem_no from problem where assignment_id=%s order by problem_no) A left join (select count(marks), problem_id from testcase group by problem_id) B on A.problem_id=B.problem_id''', [assign_id])
+    cursor.execute(
+        '''select problem_no,coalesce(count,0) as count from (select problem_id,problem_no from problem where assignment_id=%s order by problem_no) A left join (select count(marks), problem_id from testcase group by problem_id) B on A.problem_id=B.problem_id''',
+        [assign_id])
     problemArr = dictfetchall(cursor)
 
     cursor = connection.cursor()
@@ -536,8 +538,10 @@ def get_all_submissions(request, sec_user_id, assign_id):
         submissionList = []
         for elt in submissionArr:
             if elt['user_id'] == user_id:
-                submissionList.append({'problem_no':elt['problem_no'],'marks':elt['marks_auto'],'marks_inst':elt['instructor_marks'],'sub_id':elt['id'],'sub_file_name':elt['sub_file_name']})
-        allSubmissions.append({'user_id':user_id,'name':name,'submissions':submissionList})
+                submissionList.append(
+                    {'problem_no': elt['problem_no'], 'marks': elt['marks_auto'], 'marks_inst': elt['instructor_marks'],
+                     'sub_id': elt['id'], 'sub_file_name': elt['sub_file_name']})
+        allSubmissions.append({'user_id': user_id, 'name': name, 'submissions': submissionList})
 
     print(allSubmissions)
 
@@ -605,36 +609,41 @@ def upload_inst_csv(request, sec_user_id, assign_id):
         decoded_file = file.read().decode('utf-8').splitlines()
         reader = csv.reader(decoded_file)
         for row in reader:
-            if(row[0]=='#'):
+            if (row[0] == '#'):
                 problems = row[3:]
                 problem_no = [p[8:] for p in problems]
             else:
-                for x in range(0,len(problem_no)):
+                for x in range(0, len(problem_no)):
                     try:
-                        problem = Problem.objects.get(assignment_id=assign_id,problem_no=problem_no[x])
-                        us,created = UserSubmissions.objects.get_or_create(user_id=row[1],problem_id=problem.problem_id,defaults={'num_submissions':0,'final_submission_no':0})
-                        if(row[x+3]==''):
-                            us.marks_inst=0
+                        problem = Problem.objects.get(assignment_id=assign_id, problem_no=problem_no[x])
+                        us, created = UserSubmissions.objects.get_or_create(user_id=row[1],
+                                                                            problem_id=problem.problem_id,
+                                                                            defaults={'num_submissions': 0,
+                                                                                      'final_submission_no': 0})
+                        if (row[x + 3] == ''):
+                            us.marks_inst = 0
                         else:
-                            us.marks_inst = row[x+3]
+                            us.marks_inst = row[x + 3]
                         us.save()
                     except:
                         print(traceback.format_exc())
         print(problem_no)
     return JsonResponse({
-                'success': True
-            })
+        'success': True
+    })
 
 
 @student1_required
 def get_user_marks(request, sec_user_id, assign_id):
     cursor = connection.cursor()
-    cursor.execute('''select A.problem_id,marks_inst,coalesce(count,0) as count from (select problem_id,marks_inst from user_submissions where user_id=%s and problem_id in (select problem_id from problem where assignment_id=%s) ) A left join (select problem_id, count(marks) from testcase where problem_id in (select problem_id from problem where assignment_id=%s) group by problem_id) B on A.problem_id=B.problem_id''',[request.session['user_id'],assign_id,assign_id])
+    cursor.execute(
+        '''select A.problem_id,marks_inst,coalesce(count,0) as count from (select problem_id,marks_inst from user_submissions where user_id=%s and problem_id in (select problem_id from problem where assignment_id=%s) ) A left join (select problem_id, count(marks) from testcase where problem_id in (select problem_id from problem where assignment_id=%s) group by problem_id) B on A.problem_id=B.problem_id''',
+        [request.session['user_id'], assign_id, assign_id])
     marks = dictfetchall(cursor)
     print(marks)
     return JsonResponse({
-                'problems':marks,
-            })
+        'problems': marks,
+    })
 
 
 @instructor2_required
@@ -643,3 +652,64 @@ def delete_prob(request, sec_user_id, assign_id, prob_id):
     return JsonResponse({
         'done': True
     })
+
+
+@student1_required
+def get_assign_cribs(request, sec_user_id, assign_id):
+    cursor = connection.cursor()
+    cursor.execute('''select problem_id, problem_no from problem where assignment_id=%s ''', [assign_id])
+    problem_list = dictfetchall(cursor)
+    user_id = request.session['user_id']
+    crib_list = []
+
+    for p in problem_list:
+        prob_dict = {'prob_id': p['problem_id'], 'prob_num': p['problem_no']}
+        cursor.execute('''select * from crib where problem_id=%s and user_id=%s ''', [p['problem_id'], user_id])
+        crib = dictfetchall(cursor)
+        crib_dict = {}
+        if len(crib) > 0:
+            cursor.execute('''select * from comment where crib_id=%s ''', [crib[0]['crib_id']])
+            commments = dictfetchall(cursor)
+            crib_dict = crib[0]
+            crib_dict['comments'] = commments
+        prob_dict['crib'] = crib_dict
+        crib_list.append(prob_dict)
+    return JsonResponse({
+        'crib': crib_list
+    })
+
+
+@student2_required
+def post_crib(request, sec_user_id, assign_id, prob_id):
+    print("post_crib called")
+    if request.method == 'POST':
+        try:
+            txt = request.POST['crib_text']
+            print(txt)
+            user = User.objects.get(user_id=request.session['user_id'])
+            problem = Problem.objects.get(problem_id=prob_id)
+            crib = Crib(user=user, text=txt, timestamp=datetime.datetime.now(), problem=problem,
+                        resolved=False)
+
+            crib.save()
+        except:
+            print('exception')
+
+    return HttpResponse()
+
+
+def post_comment(request, sec_user_id, crib_id):
+    print("post comment called")
+    if request.method == 'POST':
+        try:
+            txt = request.POST['comment_text']
+            print(txt)
+            user = User.objects.get(user_id=request.session['user_id'])
+            crib = Crib.objects.get(crib_id=crib_id)
+            comment = Comment(user=user, text=txt, timestamp=datetime.datetime.now(),
+                              crib=crib)
+
+            comment.save()
+        except:
+            print('exception')
+    return HttpResponse()

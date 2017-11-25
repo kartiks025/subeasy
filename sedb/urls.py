@@ -32,10 +32,13 @@ urlpatterns = [
     url(r'^section/(?P<sec_user_id>[0-9]+)/', include([
         url(r'^$', views.display_section, name='display_section'),
         url(r'^save_new_assign/$', restricted_helpers.save_new_assign, name='save_new_assign'),
+        url(r'^post_comment/(?P<crib_id>[0-9]+)/$', helpers.post_comment, name='post_comment'),
 
         #instructor
         url(r'^assignment/(?P<assign_id>[0-9]+)/', include([
+            url(r'^get_assign_cribs/$', helpers.get_assign_cribs, name='get_assign_cribs'),
             url(r'^delete_prob/(?P<prob_id>[0-9]+)/$', helpers.delete_prob, name='delete_prob'),
+            url(r'^post_crib/(?P<prob_id>[0-9]+)/$', helpers.post_crib, name='post_crib'),
             url(r'^evaluate_all/$', helpers.evaluate_all, name='evaluate_all'),
             url(r'^download_auto_csv/$', helpers.download_auto_csv, name='download_auto_csv'),
             url(r'^upload_inst_csv/$', helpers.upload_inst_csv, name='upload_inst_csv'),
