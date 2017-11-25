@@ -21,6 +21,7 @@ function loadHome(){
                 $("#crib_deadline").val(obj.crib_deadline);
                 $("#description").val(obj.description);
 
+                $('#details .list-problems').empty();
                 var prob_list = data.prob_list;
                 for(var p in prob_list){
                     var td1 = $('<td/>',{text: "Problem "+prob_list[p].prob_num});
@@ -201,6 +202,7 @@ function reloadProblem(elem){
             if(div_id.startsWith('new')){
                 var prev_link_id = div_id.replace('newprob','newlink');
                 $("#"+div_id).attr('id','prob'+prob_id);
+                $("#"+prev_link_id).attr('href','#prob'+prob_id);
                 $("#"+prev_link_id).attr('id','link'+prob_id);
             }
 
