@@ -114,7 +114,7 @@ function loadProblems(){
             for(var i in ps){
                 var prob_obj = ps[i].problem;
                 console.log(prob_obj.title);
-                appendProb(prob_obj.problem_id);
+                appendProb(prob_obj.problem_id,false);
                 var prob_id = "#prob"+prob_obj.problem_id;
                 updateProblem(prob_obj.problem_id, prob_obj, ps[i].resource, ps[i].testcases);
 
@@ -154,10 +154,23 @@ function reloadProblem(elem){
     // console.log("reloadProblemsCalled");
 
     var url = elem.parent().parent().attr('data-loadUrl');
+    var div_id = elem.parent().parent().parent().parent().attr('id');
     $.get(url,
     function(data, status){
         if(status == "success"){
+            console.log(data);
+            if(data.new_prob){
+                return;
+            }
             var prob_id = data.problem.problem_id;
+
+            if(div_id.startsWith('new')){
+                var prev_link_id = div_id.replace('newprob','newlink');
+                console.log('found new problem with id ',prev_div_id);
+                $("#"+div_id).attr('id','prob'+prob_id);
+                $("#"+prev_link_id).attr('id','link'+prob_id);
+            }
+
             updateProblem(prob_id, data.problem, data.resource, data.testcases);
         }
         else{
@@ -217,7 +230,7 @@ function loadAllSubmissions(){
 }
 
 function EditButtonClick(elem){
-    // console.log("editButtonCalled");
+     console.log("editButtonCalled");
     var pid = "#"+elem.parent().parent().parent().attr('id');
     var rval = $(pid+" input").prop('disabled');
 
@@ -329,10 +342,18 @@ function SideNavClick(elem){
 }
 
 
-function appendProb(problem_no){
+function appendProb(problem_no, is_new){
+    link_id = "link"+problem_no;
+    div_id = "prob"+ problem_no;
+
+    if(is_new){
+        link_id = "new"+link_id;
+        div_id = "new"+div_id;
+    }
+
     $('<li/>').append($('<a/>',{
-        id : "link"+problem_no,
-        href : "#prob"+problem_no,
+        id : link_id,
+        href : '#'+div_id,
         "class" : "side-nav-link problems-link",
         text : "Problem "+problem_no,
         on : {
@@ -346,7 +367,7 @@ function appendProb(problem_no){
 //    vis.addClass('hidden');
 
     $('<div/>',{
-        id: "prob"+problem_no,
+        id: div_id,
         "class" : "panel panel-primary nav-content problems hidden",
         html : $("#problem-form").html()
     }).appendTo($("#content"));
@@ -361,5 +382,5 @@ function appendProb(problem_no){
 
 function addNewProblem(url){
     var problem_no = $("#problemSubMenu").children().length;
-    appendProb(problem_no);
+    appendProb(problem_no, true);
 }

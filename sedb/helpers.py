@@ -282,6 +282,7 @@ def get_assign_all_prob(request, sec_user_id, assign_id):
         prob_json.append({'problem': model_to_dict(problem), 'resource': model_to_dict(problem.resource_limit),
                           'testcases': testcases})
     # print(prob_json)
+    print("returning from get_assign_all_prob")
     return JsonResponse({
         'problems': prob_json
     })
