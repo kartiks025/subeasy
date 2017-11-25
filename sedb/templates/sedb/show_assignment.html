@@ -29,12 +29,6 @@
             <li>
                 <a class="side-nav-link" id="tab-submissions" href="#submissions" class="submit-form ">Submissions</a>
             </li>
-            <li>
-                <a class="side-nav-link" href="#marksheet" class="submit-form ">Marksheet</a>
-            </li>
-            <li>
-                <a class="side-nav-link" href="#announcement" class="submit-form ">Announcements</a>
-            </li>
         </ul>
         <a href="{% url 'sedb:user_home' %}"><i class="fa fa-arrow-left fa-4x" aria-hidden="true" style="position: fixed;left:20px; bottom:0; "></i></a>
         <a href="{% url 'sedb:user_home' %}"><i class="fa fa-home fa-4x" aria-hidden="true" style="position: fixed;left:95px; bottom:0; "></i></a>
@@ -260,7 +254,7 @@
                         <div class="form-group">
                             <label class="control-label col-xs-2">Maximum Open Files:</label>
                             <div class="col-xs-6">
-                                <input type="number" min="1" class="form-control" value="1" name="open_files" required>
+                                <input type="number" min="1" class="form-control" value="512" name="open_files" required>
                             </div>
                         </div>
 
@@ -318,28 +312,6 @@
 
                     </tbody>
                 </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="marksheet" class="nav-content hidden">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                Marksheet
-            </div>
-            <div class="panel-body">
-                TBD
-            </div>
-        </div>
-    </div>
-
-    <div id="announcement" class="nav-content hidden">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                Announcements
-            </div>
-            <div class="panel-body">
-                TBD
             </div>
         </div>
     </div>
